@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteService", "WriteService\WriteService.csproj", "{E3E82250-27AB-4821-AD5B-808CEF70FE14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReadService", "ReadService\ReadService.csproj", "{CA70CE26-0C4C-40D1-B00F-934E25790943}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{5B347B70-877C-4252-B585-32D88249AC53}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E3E82250-27AB-4821-AD5B-808CEF70FE14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3E82250-27AB-4821-AD5B-808CEF70FE14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3E82250-27AB-4821-AD5B-808CEF70FE14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3E82250-27AB-4821-AD5B-808CEF70FE14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA70CE26-0C4C-40D1-B00F-934E25790943}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA70CE26-0C4C-40D1-B00F-934E25790943}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA70CE26-0C4C-40D1-B00F-934E25790943}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA70CE26-0C4C-40D1-B00F-934E25790943}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B347B70-877C-4252-B585-32D88249AC53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B347B70-877C-4252-B585-32D88249AC53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B347B70-877C-4252-B585-32D88249AC53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B347B70-877C-4252-B585-32D88249AC53}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0349240A-0D3C-4CE7-B8C4-22904081C021}
+	EndGlobalSection
+EndGlobal
