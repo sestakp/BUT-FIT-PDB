@@ -1,20 +1,10 @@
-var builder = WebApplication.CreateBuilder(args);
+using Common.Pipelines;
+using ReadService.Pipelines;
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var builder = ReadServiceBuilderPipeline.CreateBuilder(args);
 
-var app = builder.Build();
+var app = AppPipeline.Build(builder);
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
 
 var summaries = new[]
 {
@@ -35,6 +25,9 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
+
+
+
 
 app.Run();
 
