@@ -15,13 +15,15 @@ builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<VendorService>();
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddHostedService<ProductGarbageCollectorService>();
+
 var mapperConfig = new MapperConfiguration(cfg =>
 {
     cfg.CreateMap<AddressDto, AddressEntity>();
     cfg.CreateMap<CustomerDto, CustomerEntity>();
     cfg.CreateMap<OrderDto, OrderEntity>();
     cfg.CreateMap<ProductDto, ProductEntity>();
-    cfg.CreateMap<ReviewDto, ProductReviewEntity>();
+    cfg.CreateMap<ReviewDto, ReviewEntity>();
     cfg.CreateMap<VendorDto, VendorEntity>();
 });
 

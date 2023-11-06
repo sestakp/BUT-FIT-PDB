@@ -11,20 +11,32 @@ namespace WriteService.Endpoints
         {
             string path = "/api/address/";
 
-            app.MapPost(path, (AddressService service, AddressDto vendor) =>
+            app.MapPost(path, (AddressService service, AddressDto address) =>
             {
-                return "Hello from MyController!";
+                var newAddress = service.CreateOrUpdate(address);
+
+                if (newAddress.Id != default)
+                {
+                    return Results.Created(path + newAddress.Id, newAddress);
+                }
+
+                return Results.BadRequest();
             });
 
-            app.MapPut(path, (AddressService service, AddressDto vendor) =>
+            app.MapPut(path, (AddressService service, AddressDto address) =>
             {
-                return "Hello from MyController!";
+                var newAddress = service.CreateOrUpdate(address);
+
+                if (newAddress.Id != default)
+                {
+                    return Results.Ok();
+                }
+
+                return Results.BadRequest();
             });
 
             app.MapDelete(path + "{id:long}", (AddressService service, long id) =>
-            {
-                return "Hello from MyController!";
-            });
+                service.SoftDelete(id) ? Results.Ok() : Results.NotFound());
         }
     }
 }

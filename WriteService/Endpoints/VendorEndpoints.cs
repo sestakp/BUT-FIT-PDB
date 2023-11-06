@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using WriteService.DTO;
 using WriteService.Services;
 
@@ -8,22 +9,36 @@ namespace WriteService.Endpoints
     {
         public static void MapVendorEndpoints(this WebApplication app)
         {
-            string path = "/api/vendors/";
+            const string path = "/api/vendors/";
 
             app.MapPost(path, (VendorService service, VendorDto vendor) =>
             {
-                return "Hello from MyController!";
+                var newVendor = service.CreateOrUpdate(vendor);
+
+                if (newVendor.Id != default)
+                {
+                    return Results.Created(path + newVendor.Id, newVendor);
+                }
+                
+                return Results.BadRequest();
+                
             });
 
             app.MapPut(path, (VendorService service, VendorDto vendor) =>
             {
-                return "Hello from MyController!";
+                var newVendor = service.CreateOrUpdate(vendor);
+
+                if (newVendor.Id != default)
+                {
+                    return Results.Ok();
+                }
+                
+                return Results.BadRequest();
+                
             });
 
-            app.MapDelete(path + "{id:long}", (VendorService service, long id) =>
-            {
-                return "Hello from MyController!";
-            });
+            app.MapDelete(path + "{id:long}", (VendorService service, long id) => 
+                service.SoftDelete(id) ? Results.Ok() : Results.NotFound());
         }
     }
 }

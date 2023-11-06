@@ -11,19 +11,40 @@ namespace WriteService.Endpoints
         {
             string path = "/api/orders/";
 
-            app.MapPost(path, (OrderService service, OrderDto vendor) =>
+            app.MapPost(path, (OrderService service, OrderDto order) =>
             {
-                return "Hello from MyController!";
+                var newOrder = service.Create(order);
+
+                if (newOrder.Id != default)
+                {
+                    return Results.Created(path + newOrder.Id, newOrder);
+                }
+
+                return Results.BadRequest();
             });
 
-            app.MapPost(path+ "addToCart/{orderId}/{productId}", (OrderService service, long productId, long orderId) =>
+            app.MapPost(path+ "addToCart/{orderId}/{productId}", (OrderService service, long orderId, long productId) =>
             {
-                return "Hello from MyController!";
+                var newOrder = service.AddToCart(orderId,productId);
+
+                if (newOrder.Id != default)
+                {
+                    return Results.Ok();
+                }
+
+                return Results.BadRequest();
             });
 
-            app.MapPut(path + "{id}/pay", (OrderService service, long id) =>
+            app.MapPut(path + "{orderId:long}/pay", (OrderService service, long orderId) =>
             {
-                return "Hello from MyController!";
+                var newOrder = service.Pay(orderId);
+
+                if (newOrder.Id != default)
+                {
+                    return Results.Ok();
+                }
+
+                return Results.BadRequest();
             });
         }
     }

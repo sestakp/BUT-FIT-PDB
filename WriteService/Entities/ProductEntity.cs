@@ -15,6 +15,7 @@ namespace WriteService.Entities
         public long VendorId { get; set; }
         public VendorEntity Vendor { get; set; }
         public IList<ProductCategoryEntity> Categories { get; set; }
-        public IList<ProductReviewEntity> Reviews { get; set; }
+        public IList<OrderEntity> Orders { get; set; }
+        public IList<ReviewEntity> Reviews { get; set; }
     }
 }

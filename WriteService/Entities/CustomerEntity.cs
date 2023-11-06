@@ -14,6 +14,7 @@ namespace WriteService.Entities
         public string PhoneNumber { get; set; }
         public string PasswordHash { get; set; }
         public bool isDeleted { get; set; }
-        public IList<OrderEntity> Orders { get; set; }
+        public IList<OrderEntity> Orders { get; set; } = new List<OrderEntity>();
+        public IList<AddressEntity> Addresses { get; set; } = new List<AddressEntity>();
     }
 }

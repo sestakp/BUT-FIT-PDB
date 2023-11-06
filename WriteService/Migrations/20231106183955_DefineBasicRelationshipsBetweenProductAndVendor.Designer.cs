@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WriteService;
@@ -11,9 +12,11 @@ using WriteService;
 namespace WriteService.Migrations
 {
     [DbContext(typeof(ShopDbContext))]
-    partial class ShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231106183955_DefineBasicRelationshipsBetweenProductAndVendor")]
+    partial class DefineBasicRelationshipsBetweenProductAndVendor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,59 +24,6 @@ namespace WriteService.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("OrderEntityProductEntity", b =>
-                {
-                    b.Property<long>("OrdersId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("ProductsId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("OrdersId", "ProductsId");
-
-                    b.HasIndex("ProductsId");
-
-                    b.ToTable("OrderEntityProductEntity");
-                });
-
-            modelBuilder.Entity("WriteService.Entities.AddressEntity", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("CustomerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("HouseNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ZipCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("Addresses");
-                });
 
             modelBuilder.Entity("WriteService.Entities.CustomerEntity", b =>
                 {
@@ -130,7 +80,7 @@ namespace WriteService.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("CustomerId")
+                    b.Property<long?>("CustomerEntityId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("HouseNumber")
@@ -139,6 +89,9 @@ namespace WriteService.Migrations
 
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -156,7 +109,7 @@ namespace WriteService.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("CustomerEntityId");
 
                     b.ToTable("Orders");
                 });
@@ -199,6 +152,9 @@ namespace WriteService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<long?>("OrderEntityId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("PiecesInStock")
                         .HasColumnType("integer");
 
@@ -217,33 +173,14 @@ namespace WriteService.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderEntityId");
+
                     b.HasIndex("VendorId");
 
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("WriteService.Entities.ProductSubCategoryEntity", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProductSubCategories");
-                });
-
-            modelBuilder.Entity("WriteService.Entities.ReviewEntity", b =>
+            modelBuilder.Entity("WriteService.Entities.ProductReviewEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -266,6 +203,27 @@ namespace WriteService.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductReviews");
+                });
+
+            modelBuilder.Entity("WriteService.Entities.ProductSubCategoryEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductSubCategories");
                 });
 
             modelBuilder.Entity("WriteService.Entities.VendorEntity", b =>
@@ -308,41 +266,11 @@ namespace WriteService.Migrations
                     b.ToTable("Vendors");
                 });
 
-            modelBuilder.Entity("OrderEntityProductEntity", b =>
-                {
-                    b.HasOne("WriteService.Entities.OrderEntity", null)
-                        .WithMany()
-                        .HasForeignKey("OrdersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WriteService.Entities.ProductEntity", null)
-                        .WithMany()
-                        .HasForeignKey("ProductsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WriteService.Entities.AddressEntity", b =>
-                {
-                    b.HasOne("WriteService.Entities.CustomerEntity", "Customer")
-                        .WithMany("Addresses")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-                });
-
             modelBuilder.Entity("WriteService.Entities.OrderEntity", b =>
                 {
-                    b.HasOne("WriteService.Entities.CustomerEntity", "Customer")
+                    b.HasOne("WriteService.Entities.CustomerEntity", null)
                         .WithMany("Orders")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
+                        .HasForeignKey("CustomerEntityId");
                 });
 
             modelBuilder.Entity("WriteService.Entities.ProductCategoryEntity", b =>
@@ -354,6 +282,10 @@ namespace WriteService.Migrations
 
             modelBuilder.Entity("WriteService.Entities.ProductEntity", b =>
                 {
+                    b.HasOne("WriteService.Entities.OrderEntity", null)
+                        .WithMany("Products")
+                        .HasForeignKey("OrderEntityId");
+
                     b.HasOne("WriteService.Entities.VendorEntity", "Vendor")
                         .WithMany("Products")
                         .HasForeignKey("VendorId")
@@ -363,7 +295,7 @@ namespace WriteService.Migrations
                     b.Navigation("Vendor");
                 });
 
-            modelBuilder.Entity("WriteService.Entities.ReviewEntity", b =>
+            modelBuilder.Entity("WriteService.Entities.ProductReviewEntity", b =>
                 {
                     b.HasOne("WriteService.Entities.ProductEntity", "Product")
                         .WithMany("Reviews")
@@ -376,9 +308,12 @@ namespace WriteService.Migrations
 
             modelBuilder.Entity("WriteService.Entities.CustomerEntity", b =>
                 {
-                    b.Navigation("Addresses");
-
                     b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("WriteService.Entities.OrderEntity", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("WriteService.Entities.ProductEntity", b =>

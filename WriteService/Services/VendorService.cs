@@ -1,5 +1,7 @@
 ﻿using System.Transactions;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using WriteService.DTO;
 using WriteService.Entities;
 
 namespace WriteService.Services
@@ -8,31 +10,40 @@ namespace WriteService.Services
     {
 
         private readonly ShopDbContext _context;
-
-        public VendorService(ShopDbContext context)
+        private readonly IMapper _mapper;
+        public VendorService(ShopDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         
 
-        public void CreateOrUpdate(VendorEntity vendor)
+        public VendorEntity CreateOrUpdate(VendorDto vendorDto)
         {
             using var scope = new TransactionScope();
             // Add your create logic here
-            if (vendor.Id != default)
+            
+
+            var storedEntity = _context.Vendors.Find(vendorDto.Id);
+
+            var vendorEntity = _mapper.Map<VendorEntity>(vendorDto);
+
+            if (storedEntity != null)
             {
-                _context.Vendors.Update(vendor);
+                _context.Vendors.Update(vendorEntity);
             }
             else
             {
-                _context.Vendors.Add(vendor);
+                _context.Vendors.Add(vendorEntity);
             }
             _context.SaveChanges();
-
+            
             scope.Complete();
+
+            return vendorEntity;
         }
 
-        public void SoftDeleteVendor(int vendorId)
+        public bool SoftDelete(long vendorId)
         {
             using var scope = new TransactionScope();
             var vendor = _context.Vendors
@@ -52,6 +63,8 @@ namespace WriteService.Services
             }
 
             scope.Complete();
+
+            return vendor != null;
         }
     }
 }

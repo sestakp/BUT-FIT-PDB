@@ -7,6 +7,6 @@
         public string Description { get; set; }
         public int PiecesInStock { get; set; }
         public decimal Price { get; set; }
-        public bool isDeleted { get; set; }
+        public long VendorId { get; set; }
     }
 }

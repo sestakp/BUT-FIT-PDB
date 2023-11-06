@@ -13,7 +13,13 @@ namespace WriteService.Endpoints
 
             app.MapPost(path, (ReviewService service, ReviewDto review) =>
             {
-                return "Hello from MyController!";
+                var newReview = service.Create(review);
+
+                if (newReview.Id != default)
+                {
+                    return Results.Created(path + newReview.Id, newReview);
+                }
+                return Results.BadRequest();
             });
             
         }

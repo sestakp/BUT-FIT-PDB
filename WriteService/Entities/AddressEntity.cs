@@ -11,5 +11,7 @@ namespace WriteService.Entities
         public string City { get; set; }
         public string Street { get; set; }
         public string HouseNumber { get; set; }
+        public long CustomerId { get; set; }
+        public CustomerEntity Customer { get; set; }
     }
 }

@@ -12,15 +12,19 @@ namespace WriteService.Endpoints
         {
             string path = "/api/products/";
 
-            app.MapPost(path, (ProductService service, ProductDto vendor) =>
+            app.MapPost(path, (ProductService service, ProductDto product) =>
             {
-                return "Hello from MyController!";
+                var newProduct = service.Create(product);
+
+                if (newProduct.Id != default)
+                {
+                    return Results.Created(path + newProduct.Id, newProduct);
+                }
+                return Results.BadRequest();
             });
             
             app.MapDelete(path + "{id:long}", (ProductService service, long id) =>
-            {
-                return "Hello from MyController!";
-            });
+                service.SoftDelete(id) ? Results.Ok() : Results.NotFound());
         }
     }
 }
