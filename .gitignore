@@ -8,7 +8,8 @@
 *.user
 *.userosscache
 *.sln.docstates
-
+mongodb_data/
+postgres_data/
 **/bin/
 **/obj/
 
