@@ -1,20 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WriteService.Entities
+namespace WriteService.DTO
 {
-    public class CustomerEntity
+    public class CustomerDto
     {
-        [Key]
         public long Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        [EmailAddress]
         public string Email { get; set; }
-        [Phone]
         public string PhoneNumber { get; set; }
         public string PasswordHash { get; set; }
-        public bool isDeleted { get; set; }
-        public IList<OrderEntity> Orders { get; set; } = new List<OrderEntity>();
-        public IList<AddressEntity> Addresses { get; set; } = new List<AddressEntity>();
     }
 }

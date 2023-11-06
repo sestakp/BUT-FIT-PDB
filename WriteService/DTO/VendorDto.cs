@@ -1,10 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace WriteService.Entities
+﻿namespace WriteService.DTO
 {
-    public class VendorEntity
+    public class VendorDto
     {
-        [Key]
         public long Id { get; set; }
         public string Name { get; set; }
         public string Country { get; set; }
@@ -12,8 +9,5 @@ namespace WriteService.Entities
         public string City { get; set; }
         public string Street { get; set; }
         public string HouseNumber { get; set; }
-        public bool isDeleted { get; set; } = false;
-
-        public IList<ProductEntity> Products = new List<ProductEntity>();
     }
 }
