@@ -12,12 +12,12 @@ namespace WriteService.Endpoints
         {
             string path = "/api/products/";
 
-            app.MapPost(path, (VendorService service, ProductDto vendor) =>
+            app.MapPost(path, (ProductService service, ProductDto vendor) =>
             {
                 return "Hello from MyController!";
             });
             
-            app.MapDelete(path + "{id:long}", (VendorService service, long id) =>
+            app.MapDelete(path + "{id:long}", (ProductService service, long id) =>
             {
                 return "Hello from MyController!";
             });

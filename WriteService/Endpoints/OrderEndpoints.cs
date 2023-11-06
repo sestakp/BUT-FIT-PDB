@@ -11,17 +11,17 @@ namespace WriteService.Endpoints
         {
             string path = "/api/orders/";
 
-            app.MapPost(path, (VendorService service, OrderDto vendor) =>
+            app.MapPost(path, (OrderService service, OrderDto vendor) =>
             {
                 return "Hello from MyController!";
             });
 
-            app.MapPost(path+ "addToCart/{orderId}/{productId}", (VendorService service, long productId, long orderId) =>
+            app.MapPost(path+ "addToCart/{orderId}/{productId}", (OrderService service, long productId, long orderId) =>
             {
                 return "Hello from MyController!";
             });
 
-            app.MapPut(path + "{id}/pay", (VendorService service, long id) =>
+            app.MapPut(path + "{id}/pay", (OrderService service, long id) =>
             {
                 return "Hello from MyController!";
             });

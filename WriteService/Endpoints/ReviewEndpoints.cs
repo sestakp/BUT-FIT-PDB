@@ -11,7 +11,7 @@ namespace WriteService.Endpoints
         {
             string path = "/api/reviews/";
 
-            app.MapPost(path, (VendorService service, ReviewDto review) =>
+            app.MapPost(path, (ReviewService service, ReviewDto review) =>
             {
                 return "Hello from MyController!";
             });

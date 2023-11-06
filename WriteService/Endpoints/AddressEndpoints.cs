@@ -11,17 +11,17 @@ namespace WriteService.Endpoints
         {
             string path = "/api/address/";
 
-            app.MapPost(path, (VendorService service, AddressDto vendor) =>
+            app.MapPost(path, (AddressService service, AddressDto vendor) =>
             {
                 return "Hello from MyController!";
             });
 
-            app.MapPut(path, (VendorService service, AddressDto vendor) =>
+            app.MapPut(path, (AddressService service, AddressDto vendor) =>
             {
                 return "Hello from MyController!";
             });
 
-            app.MapDelete(path + "{id:long}", (VendorService service, long id) =>
+            app.MapDelete(path + "{id:long}", (AddressService service, long id) =>
             {
                 return "Hello from MyController!";
             });
