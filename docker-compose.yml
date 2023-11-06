@@ -9,7 +9,6 @@ services:
     depends_on:
       - postgres
       - rabbitmq
-    command: ["./wait-for-it.sh", "postgres:5432", "--", "dotnet", "ef", "database", "update"]
 
   read-service:
     build:
@@ -36,11 +35,15 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 
   mongodb:
     image: "mongo:latest"
     ports:
       - "27017:27017"
     volumes:
-      - ./mongodb_data:/data/db
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
+  postgres_data:

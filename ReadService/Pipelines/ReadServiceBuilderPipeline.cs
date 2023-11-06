@@ -12,8 +12,10 @@ namespace ReadService.Pipelines
 
             var builder = BuilderPipeline.CreateBuilder(args, "ReadService");
 
+            string host = "mongodb"; // Use the service name as the host
+            int port = 27017; // Default MongoDB port
 
-            var connectionString = builder.Configuration.GetConnectionString("MongoDB");
+            string connectionString = $"mongodb://{host}:{port}";
 
             if (connectionString == null)
             {
@@ -22,7 +24,7 @@ namespace ReadService.Pipelines
 
             builder.AddMongoClient(connectionString);
 
-            builder.AddMongoDatabase("PDB_CQRS");
+            //builder.AddMongoDatabase("PDB_CQRS");
 
             //builder.AddMongoCollection<CollectionName>();
 
