@@ -11,6 +11,8 @@ namespace WriteService.Entities
         public int PiecesInStock { get; set; }
         public decimal Price { get; set; }
         public bool isDeleted { get; set; }
+        
+        public long VendorId { get; set; }
         public VendorEntity Vendor { get; set; }
         public IList<ProductCategoryEntity> Categories { get; set; }
         public IList<ProductReviewEntity> Reviews { get; set; }

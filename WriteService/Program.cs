@@ -1,8 +1,11 @@
 using Common.Pipelines;
+using WriteService.Endpoints;
 using WriteService.Pipelines;
+using WriteService.Services;
 
 var builder = WriteServiceBuilderPipeline.CreateBuilder(args);
-
+builder.Services.AddScoped<VendorService>();
+builder.Services.AddEndpointsApiExplorer();
 var app = AppPipeline.Build(builder);
 
 
@@ -26,6 +29,12 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
+app.MapVendorEndpoints();
+app.MapReviewEndpoints();
+app.MapProductEndpoints();
+app.MapOrderEndpoints();
+app.MapCustomerEndpoints();
+app.MapAddressEndpoints();
 app.Run();
 
 internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

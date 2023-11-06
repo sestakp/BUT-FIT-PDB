@@ -33,10 +33,18 @@ namespace WriteService
         //TODO... define relationships
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<VendorEntity>();
+            modelBuilder.Entity<VendorEntity>()
+                .HasQueryFilter(e => !e.isDeleted)
+                .HasMany(e => e.Products)
+                .WithOne(e => e.Vendor);
 
+            modelBuilder.Entity<ProductEntity>()
+                .HasOne(e => e.Vendor)
+                .WithMany(e => e.Products)
+                .HasForeignKey(e => e.VendorId);
+                
 
-
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
