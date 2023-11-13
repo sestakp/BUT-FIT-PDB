@@ -27,7 +27,7 @@ public static class OrderEndpoints
         [FromServices] OrderService orderService)
     {
         orderService.AddToCart(orderId, productId);
-        
+
         // TODO: return order with products for demonstration purposes?
         return Results.Ok();
     }
@@ -38,7 +38,7 @@ public static class OrderEndpoints
         [FromServices] OrderService orderService)
     {
         orderService.CompleteOrder(orderId, dto);
-        
+
         // TODO: return order with products for demonstration purposes?
         return Results.Ok();
     }

@@ -58,7 +58,7 @@ public static class CustomerEndpoints
     {
         var address = service.CreateCustomerAddress(customerId, dto);
         var responseDto = mapper.Map<AddressDto>(address);
-        
+
         // TODO: add uri from query service
         return Results.Created($"api/customers/{customerId}/addresses/{address.Id}", responseDto);
     }

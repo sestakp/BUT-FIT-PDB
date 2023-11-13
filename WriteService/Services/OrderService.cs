@@ -51,7 +51,7 @@ public class OrderService
         {
             throw new Exception("Cannot add deleted product to cart.");
         }
-        
+
         if (product.PiecesInStock < 1)
         {
             throw new Exception("Specified product is out of stock.");
