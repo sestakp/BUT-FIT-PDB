@@ -1,5 +1,6 @@
 using AutoMapper;
 using Common.Pipelines;
+using WriteService;
 using WriteService.Endpoints;
 using WriteService.Pipelines;
 using WriteService.Services;
@@ -12,12 +13,10 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<VendorService>();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddHostedService<ProductGarbageCollectorService>();
+builder.Services.AddHostedService<ProductGarbageCollector>();
 
-var mapperConfig = new MapperConfiguration(cfg =>
-{
-    // TODO
-});
+// TODO: add mapping configurations
+var mapperConfig = new MapperConfiguration(cfg => { });
 var mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
