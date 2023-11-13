@@ -1,4 +1,4 @@
-namespace WriteService.DTO.Customer;
+namespace WriteService.DTOs.Customer;
 
 public record CreateCustomerDto(
     string FirstName,

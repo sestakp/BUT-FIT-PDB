@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WriteService.DTO.Order;
+using WriteService.DTOs.Order;
 using WriteService.Services;
 
 namespace WriteService.Endpoints;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WriteService.DTO.Address;
-using WriteService.DTO.Customer;
+using WriteService.DTOs.Address;
+using WriteService.DTOs.Customer;
 using WriteService.Entities;
 using WriteService.Exceptions;
 

@@ -1,7 +1,6 @@
-namespace WriteService.DTO.Vendor;
+﻿namespace WriteService.DTOs.Address;
 
-public record CreateVendorDto(
-    string Name,
+public record AddressDto(
     string Country,
     string ZipCode,
     string City,

@@ -1,4 +1,4 @@
-namespace WriteService.DTO.Address;
+namespace WriteService.DTOs.Address;
 
 public record UpdateAddressDto(
     string Country,

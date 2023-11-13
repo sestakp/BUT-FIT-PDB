@@ -1,6 +1,8 @@
-namespace WriteService.DTO.Vendor;
+namespace WriteService.DTOs.Vendor;
 
-public record UpdateVendorDto(
+public record VendorDto(
+    long Id,
+    string Name,
     string Country,
     string ZipCode,
     string City,

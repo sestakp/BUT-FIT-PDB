@@ -1,5 +1,5 @@
-﻿using WriteService.DTO.Product;
-using WriteService.DTO.Review;
+﻿using WriteService.DTOs.Product;
+using WriteService.DTOs.Review;
 using WriteService.Entities;
 using WriteService.Exceptions;
 

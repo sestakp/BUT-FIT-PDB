@@ -1,4 +1,4 @@
-namespace WriteService.DTO.Order;
+namespace WriteService.DTOs.Order;
 
 public sealed record CompleteOrderDto(
     string Country,

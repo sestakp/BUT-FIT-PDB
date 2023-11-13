@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using WriteService.DTO.Address;
-using WriteService.DTO.Customer;
+using WriteService.DTOs.Address;
+using WriteService.DTOs.Customer;
 using WriteService.Services;
 
 namespace WriteService.Endpoints;

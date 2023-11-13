@@ -1,7 +1,7 @@
 ﻿using Common.Enums;
 using WriteService.Entities;
 using Microsoft.EntityFrameworkCore;
-using WriteService.DTO.Order;
+using WriteService.DTOs.Order;
 
 namespace WriteService.Services;
 

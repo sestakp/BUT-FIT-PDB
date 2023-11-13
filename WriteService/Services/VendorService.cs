@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WriteService.DTO.Vendor;
+using WriteService.DTOs.Vendor;
 using WriteService.Entities;
 using WriteService.Exceptions;
 

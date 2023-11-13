@@ -1,6 +1,6 @@
-namespace WriteService.DTO.Address;
+namespace WriteService.DTOs.Vendor;
 
-public sealed record CreateAddressDto(
+public record UpdateVendorDto(
     string Country,
     string ZipCode,
     string City,

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using WriteService.DTO.Vendor;
+using WriteService.DTOs.Vendor;
 using WriteService.Services;
 
 namespace WriteService.Endpoints;

@@ -1,4 +1,4 @@
-namespace WriteService.DTO.Review;
+namespace WriteService.DTOs.Review;
 
 public record ReviewDto(
     long Id,

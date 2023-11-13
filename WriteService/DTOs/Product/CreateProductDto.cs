@@ -1,4 +1,4 @@
-namespace WriteService.DTO.Product;
+namespace WriteService.DTOs.Product;
 
 public sealed record CreateProductDto(
     string Title,
