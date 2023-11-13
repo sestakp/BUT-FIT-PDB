@@ -1,30 +1,64 @@
 using AutoMapper;
-using Common.Pipelines;
-using WriteService;
+using Microsoft.EntityFrameworkCore;
 using WriteService.Endpoints;
-using WriteService.Pipelines;
 using WriteService.Services;
 
-var builder = WriteServiceBuilderPipeline.CreateBuilder(args);
+namespace WriteService;
 
-builder.Services.AddScoped<CustomerService>();
-builder.Services.AddScoped<OrderService>();
-builder.Services.AddScoped<ProductService>();
-builder.Services.AddScoped<VendorService>();
-builder.Services.AddEndpointsApiExplorer();
+internal class Program
+{
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+        {
+            var services = builder.Services;
 
-builder.Services.AddHostedService<ProductGarbageCollector>();
+            services.AddSwaggerGen();
 
-// TODO: add mapping configurations
-var mapperConfig = new MapperConfiguration(cfg => { });
-var mapper = mapperConfig.CreateMapper();
-builder.Services.AddSingleton(mapper);
+            // TODO: add RabbitMQ configuration
 
-var app = AppPipeline.Build(builder);
+            services.AddCors(options =>
+            {
+                options.AddPolicy("WriteServiceCorsPolicy", policyBuilder =>
+                {
+                    policyBuilder
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .WithMethods("GET", "POST", "PUT", "DELETE");
+                });
+            });
 
-app.MapVendorEndpoints();
-app.MapProductEndpoints();
-app.MapOrderEndpoints();
-app.MapCustomerEndpoints();
+            services.AddScoped<CustomerService>();
+            services.AddScoped<OrderService>();
+            services.AddScoped<ProductService>();
+            services.AddScoped<VendorService>();
+            services.AddEndpointsApiExplorer();
 
-app.Run();
+            services.AddDbContext<ShopDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
+            services.AddHostedService<ProductGarbageCollector>();
+
+            // TODO: add mapping configurations
+            var mapperConfig = new MapperConfiguration(cfg => { });
+            var mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
+        }
+
+        var app = builder.Build();
+        {
+            app.UseCors("WriteServiceCorsPolicy");
+            app.UseHttpsRedirection();
+#if DEBUG
+            app.UseSwagger();
+            app.UseSwaggerUI();
+#endif
+            app.MapVendorEndpoints();
+            app.MapProductEndpoints();
+            app.MapOrderEndpoints();
+            app.MapCustomerEndpoints();
+        }
+
+        app.Run();
+    }
+}
