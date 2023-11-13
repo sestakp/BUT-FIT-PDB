@@ -12,7 +12,7 @@ namespace Common.RabbitMQ
     public class RabbitMQReciever<T> where T : IMongoItem
     {
         private readonly string _queueName;
-        private readonly IModel _channel; 
+        private readonly IModel _channel;
         protected readonly IMongoCollection<T> Collection;
         protected readonly ILogger<RabbitMQReciever<T>> Logger;
 
@@ -22,7 +22,7 @@ namespace Common.RabbitMQ
             Logger = logger;
 
             _queueName = rabbitMqOptions.Value.QueueName;
-            
+
             _channel = channel;
             Logger.LogDebug("Instantiating RabbitMQReciever");
         }
@@ -31,7 +31,7 @@ namespace Common.RabbitMQ
         {
             _channel.ExchangeDeclare(exchange: exchangeName, type: "fanout", durable: false, autoDelete: false, arguments: null);
 
-            _channel.QueueDeclare(queue: _queueName+queueSuffix, durable: false, exclusive: true, autoDelete: false, arguments: null);
+            _channel.QueueDeclare(queue: _queueName + queueSuffix, durable: false, exclusive: true, autoDelete: false, arguments: null);
             _channel.QueueBind(exchange: exchangeName, queue: _queueName + queueSuffix, routingKey: "");
 
             var consumer = new EventingBasicConsumer(_channel);
@@ -40,7 +40,7 @@ namespace Common.RabbitMQ
                 var id = Encoding.UTF8.GetString(ea.Body.ToArray());
                 Logger.Log(LogLevel.Information, $"Received message from channel {_queueName + queueSuffix} with id {id}");
                 HandleMessage(id);
-                
+
                 _channel.BasicAck(ea.DeliveryTag, false);
             };
 

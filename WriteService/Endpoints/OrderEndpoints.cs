@@ -1,51 +1,45 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WriteService.DTO;
+using WriteService.DTO.Order;
 using WriteService.Services;
 
-namespace WriteService.Endpoints
+namespace WriteService.Endpoints;
+
+public static class OrderEndpoints
 {
-    public static class OrderEndpoints
+    public static void MapOrderEndpoints(this WebApplication app)
     {
+        var gb = app.MapGroup("api/orders");
+
+        gb.MapPost(string.Empty, CreateOrder);
+        gb.MapPost("{orderId:long}/add-to-cart/{productId:long}", AddProductToCart);
+        gb.MapPut("{orderId:long}/complete", CompleteOrder);
+    }
+
+    private static IResult CreateOrder([FromServices] OrderService orderService)
+    {
+        var order = orderService.Create();
+        return Results.Ok(new { id = order.Id });
+    }
+
+    private static IResult AddProductToCart(
+        [FromRoute] long orderId,
+        [FromRoute] long productId,
+        [FromServices] OrderService orderService)
+    {
+        orderService.AddToCart(orderId, productId);
         
-        public static void MapOrderEndpoints(this WebApplication app)
-        {
-            string path = "/api/orders/";
+        // TODO: return order with products for demonstration purposes?
+        return Results.Ok();
+    }
 
-            app.MapPost(path, (OrderService service, OrderDto order) =>
-            {
-                var newOrder = service.Create(order);
-
-                if (newOrder.Id != default)
-                {
-                    return Results.Created(path + newOrder.Id, newOrder);
-                }
-
-                return Results.BadRequest();
-            });
-
-            app.MapPost(path+ "addToCart/{orderId}/{productId}", (OrderService service, long orderId, long productId) =>
-            {
-                var newOrder = service.AddToCart(orderId,productId);
-
-                if (newOrder.Id != default)
-                {
-                    return Results.Ok();
-                }
-
-                return Results.BadRequest();
-            });
-
-            app.MapPut(path + "{orderId:long}/pay", (OrderService service, long orderId) =>
-            {
-                var newOrder = service.Pay(orderId);
-
-                if (newOrder.Id != default)
-                {
-                    return Results.Ok();
-                }
-
-                return Results.BadRequest();
-            });
-        }
+    private static IResult CompleteOrder(
+        [FromRoute] long orderId,
+        [FromBody] CompleteOrderDto dto,
+        [FromServices] OrderService orderService)
+    {
+        orderService.CompleteOrder(orderId, dto);
+        
+        // TODO: return order with products for demonstration purposes?
+        return Results.Ok();
     }
 }

@@ -1,9 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Common.Enums;
+﻿using Common.Enums;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,8 +22,11 @@ namespace WriteService.Services
                     using var db_scope = new TransactionScope();
                     // Now you can use dbContext for database operations
                     DateTime thresholdTime = DateTime.Now.AddMinutes(-10);
-                    var orders = dbContext.Orders.Where(o => o.Status == OrderStatusEnum.InProgress)
-                        .Where(o => o.LastUpdated < thresholdTime).Include(o => o.Products);
+                    var orders = dbContext
+                        .Orders
+                        .Where(o => o.Status == OrderStatusEnum.InProgress)
+                        .Where(o => o.LastUpdated < thresholdTime)
+                        .Include(o => o.Products);
 
                     foreach (var order in orders)
                     {
@@ -48,11 +46,11 @@ namespace WriteService.Services
 
                     db_scope.Complete();
                 }
-                
+
                 // Perform your garbage collection logic here
                 // For example, remove allocated products from incomplete orders
 
-               
+
                 // Sleep for 10 minutes
                 await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
             }

@@ -1,115 +1,108 @@
-﻿using AutoMapper;
-using System.Transactions;
-using Common.Enums;
-using WriteService.DTO;
+﻿using Common.Enums;
 using WriteService.Entities;
 using Microsoft.EntityFrameworkCore;
+using WriteService.DTO.Order;
 
-namespace WriteService.Services
+namespace WriteService.Services;
+
+public class OrderService
 {
-    public class OrderService
+    private readonly ShopDbContext _context;
+
+    public OrderService(ShopDbContext context)
     {
-        private readonly ShopDbContext _context;
-        private readonly IMapper _mapper;
-        public OrderService(ShopDbContext context, IMapper mapper)
+        _context = context;
+    }
+
+    public OrderEntity Create()
+    {
+        var order = new OrderEntity()
         {
-            _context = context;
-            _mapper = mapper;
+            Created = DateTime.UtcNow,
+            Status = OrderStatusEnum.InProgress
+        };
+
+        _context.Orders.Add(order);
+        _context.SaveChanges();
+
+        return order;
+    }
+
+
+    public OrderEntity AddToCart(long orderId, long productId)
+    {
+        var order = FindOrder(orderId);
+
+        if (order.Status != OrderStatusEnum.InProgress)
+        {
+            throw new Exception("Unable to update order which is not in status 'InProgress'.");
         }
 
-        public OrderEntity Create(OrderDto orderDto)
+        var product = _context
+            .Products
+            .Find(productId);
+
+        if (product == null)
         {
-
-            using var scope = new TransactionScope();
-
-            var customer = _context.Customers
-                .Include(v => v.Orders) // Include the related products
-                .FirstOrDefault(v => v.Id == orderDto.CustomerId);
-
-            if (customer == null)
-            {
-                scope.Dispose();
-                return new OrderEntity();
-            }
-
-            var orderInProgress = customer.Orders.FirstOrDefault(o => o.Status == OrderStatusEnum.InProgress);
-
-            if (orderInProgress != default)
-            {
-                scope.Dispose();
-                return orderInProgress;
-            }
-            
-
-            var orderEntity = _mapper.Map<OrderEntity>(orderDto);
-
-            orderEntity.Created = DateTime.Now;
-            orderEntity.LastUpdated = orderEntity.Created;
-            orderEntity.Status = OrderStatusEnum.InProgress;
-            
-
-            _context.Orders.Add(orderEntity);
-
-            _context.SaveChanges();
-
-            scope.Complete();
-            return orderEntity;
+            throw new Exception("Product with specified id does not exist.");
         }
 
-
-        public OrderEntity AddToCart(long orderId, long productId)
+        if (product.IsDeleted)
         {
-            using var scope = new TransactionScope();
-
-            var order = _context.Orders
-                .Include(v => v.Products) // Include the related products
-                .FirstOrDefault(v => v.Id == orderId);
-
-            if (order == null || order.Status != OrderStatusEnum.InProgress)
-            {
-                scope.Dispose();
-                return new OrderEntity();
-            }
-
-            var product = _context.Products.Find(productId);
-
-            if (product == null || product.PiecesInStock < 1)
-            {
-                scope.Dispose();
-                return new OrderEntity();
-            }
-
-            product.PiecesInStock -= 1;
-
-            product.Orders.Add(order);
-            order.Products.Add(product);
-
-            _context.SaveChanges();
-
-            scope.Complete();
-            return order;
+            throw new Exception("Cannot add deleted product to cart.");
+        }
+        
+        if (product.PiecesInStock < 1)
+        {
+            throw new Exception("Specified product is out of stock.");
         }
 
+        product.PiecesInStock--;
+        order.Products.Add(product);
+        order.LastUpdated = DateTime.UtcNow;
 
-        public OrderEntity Pay(long orderId)
+        _context.Update(product);
+        _context.Update(order);
+        _context.SaveChanges();
+
+        return order;
+    }
+
+    public OrderEntity CompleteOrder(long orderId, CompleteOrderDto dto)
+    {
+        var order = FindOrder(orderId);
+
+        if (order.Status != OrderStatusEnum.InProgress)
         {
-
-            using var scope = new TransactionScope();
-            var order = _context.Orders.Include(o => o.Products).FirstOrDefault(o => o.Id == orderId);
-
-            if (order == default || order.Status != OrderStatusEnum.InProgress)
-            {
-                scope.Dispose();
-                return new OrderEntity();
-            }
-
-            order.Status = OrderStatusEnum.Paid;
-
-            _context.SaveChanges();
-
-            scope.Complete();
-
-            return order;
+            throw new Exception("Unable to update order which is not in status 'InProgress'.");
         }
+
+        order.Country = dto.Country;
+        order.ZipCode = dto.ZipCode;
+        order.City = dto.City;
+        order.Street = dto.Street;
+        order.HouseNumber = dto.HouseNumber;
+        order.Status = OrderStatusEnum.Completed;
+        order.LastUpdated = DateTime.UtcNow;
+
+        _context.Update(order);
+        _context.SaveChanges();
+
+        return order;
+    }
+
+    private OrderEntity FindOrder(long orderId)
+    {
+        var order = _context
+            .Orders
+            .Include(v => v.Products) // Include the related products
+            .FirstOrDefault(v => v.Id == orderId);
+
+        if (order is null)
+        {
+            throw new Exception($"Order with id '{orderId}' does not exist.");
+        }
+
+        return order;
     }
 }

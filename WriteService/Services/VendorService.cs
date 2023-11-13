@@ -1,70 +1,85 @@
-﻿using System.Transactions;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using WriteService.DTO;
+﻿using Microsoft.EntityFrameworkCore;
+using WriteService.DTO.Vendor;
 using WriteService.Entities;
+using WriteService.Exceptions;
 
 namespace WriteService.Services
 {
     public class VendorService
     {
-
         private readonly ShopDbContext _context;
-        private readonly IMapper _mapper;
-        public VendorService(ShopDbContext context, IMapper mapper)
+
+        public VendorService(ShopDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
-        
 
-        public VendorEntity CreateOrUpdate(VendorDto vendorDto)
+        public VendorEntity Create(CreateVendorDto dto)
         {
-            using var scope = new TransactionScope();
-            // Add your create logic here
-            
-
-            var storedEntity = _context.Vendors.Find(vendorDto.Id);
-
-            var vendorEntity = _mapper.Map<VendorEntity>(vendorDto);
-
-            if (storedEntity != null)
+            var vendor = new VendorEntity()
             {
-                _context.Vendors.Update(vendorEntity);
-            }
-            else
-            {
-                _context.Vendors.Add(vendorEntity);
-            }
+                Name = dto.Name,
+                Country = dto.Country,
+                ZipCode = dto.ZipCode,
+                City = dto.City,
+                Street = dto.Street,
+                HouseNumber = dto.HouseNumber
+            };
+
+            _context.Add(vendor);
             _context.SaveChanges();
-            
-            scope.Complete();
 
-            return vendorEntity;
+            return vendor;
         }
 
-        public bool SoftDelete(long vendorId)
+        public VendorEntity Update(long vendorId, UpdateVendorDto dto)
         {
-            using var scope = new TransactionScope();
-            var vendor = _context.Vendors
-                .Include(v => v.Products) // Include the related products
-                .FirstOrDefault(v => v.Id == vendorId);
+            var vendor = FindVendor(vendorId);
 
-            if (vendor != null)
+            vendor.Country = dto.Country;
+            vendor.ZipCode = dto.ZipCode;
+            vendor.City = dto.City;
+            vendor.Street = dto.Street;
+            vendor.HouseNumber = dto.HouseNumber;
+
+            _context.Update(vendor);
+            _context.SaveChanges();
+
+            return vendor;
+        }
+
+        public void Delete(long vendorId)
+        {
+            var vendor = FindVendor(vendorId, includeProducts: true);
+
+            vendor.IsDeleted = true;
+            foreach (var product in vendor.Products)
             {
-                vendor.isDeleted = true;
-
-                foreach (var product in vendor.Products)
-                {
-                    product.isDeleted = true;
-                }
-
-                _context.SaveChanges();
+                product.IsDeleted = true;
             }
 
-            scope.Complete();
+            _context.Update(vendor);
+            _context.SaveChanges();
+        }
 
-            return vendor != null;
+        private VendorEntity FindVendor(long id, bool includeProducts = false)
+        {
+            var query = _context
+                .Vendors
+                .AsQueryable();
+
+            if (includeProducts)
+            {
+                query.Include(x => x.Products);
+            }
+
+            var vendor = query.FirstOrDefault(x => x.Id == id);
+            if (vendor is null)
+            {
+                throw new EntityNotFoundException(id);
+            }
+
+            return vendor;
         }
     }
 }

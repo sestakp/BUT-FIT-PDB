@@ -1,65 +1,83 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using System.Transactions;
-using WriteService.DTO;
+﻿using WriteService.DTO.Product;
+using WriteService.DTO.Review;
 using WriteService.Entities;
+using WriteService.Exceptions;
 
-namespace WriteService.Services
+namespace WriteService.Services;
+
+public class ProductService
 {
-    public class ProductService
+    private readonly ShopDbContext _context;
+
+    public ProductService(ShopDbContext context)
     {
-        private readonly ShopDbContext _context;
-        private readonly IMapper _mapper;
-        public ProductService(ShopDbContext context, IMapper mapper)
+        _context = context;
+    }
+
+    public ProductEntity Create(CreateProductDto dto)
+    {
+        var vendor = _context
+            .Vendors
+            .Find(dto.VendorId);
+
+        if (vendor is null)
         {
-            _context = context;
-            _mapper = mapper;
+            throw new Exception("Specified vendor does not exist.");
         }
 
-
-        public ProductEntity Create(ProductDto productDto)
+        var product = new ProductEntity()
         {
-            using var scope = new TransactionScope();
-            
-            var productEntity = _mapper.Map<ProductEntity>(productDto);
+            Title = dto.Title,
+            Description = dto.Description,
+            Price = dto.Price,
+            PiecesInStock = dto.PricesInStock,
+            VendorId = dto.VendorId
+        };
 
-            var vendor = _context.Vendors.Find(productEntity.VendorId);
+        _context.Add(product);
+        _context.SaveChanges();
 
-            if (vendor == null)
-            {
-                scope.Dispose();
-                return new ProductEntity();
-            }
+        return product;
+    }
 
-            _context.Products.Add(productEntity);
+    public ReviewEntity AddReview(long productId, CreateReviewDto dto)
+    {
+        var product = FindProduct(productId);
 
-            _context.SaveChanges();
-
-            scope.Complete();
-            return productEntity;
-        }
-        public bool SoftDelete(long productId)
+        var review = new ReviewEntity()
         {
-            using var scope = new TransactionScope();
-            var product = _context.Products
-                //.Include(v => v.Reviews) // Include the related products
-                .FirstOrDefault(v => v.Id == productId);
+            Rating = dto.Rating,
+            Text = dto.Text,
+            Product = product
+        };
 
-            if (product != null)
-            {
-                product.isDeleted = true;
-                /*
-                foreach (var review in product.Reviews)
-                {
-                    review.isDeleted = true;
-                }*/
+        _context.Add(review);
+        _context.SaveChanges();
 
-                _context.SaveChanges();
-            }
+        return review;
+    }
 
-            scope.Complete();
+    public void Delete(long productId)
+    {
+        var product = FindProduct(productId);
 
-            return product != null;
+        product.IsDeleted = true;
+
+        _context.Update(product);
+        _context.SaveChanges();
+    }
+
+    private ProductEntity FindProduct(long id)
+    {
+        var product = _context
+            .Products
+            .FirstOrDefault(v => v.Id == id);
+
+        if (product is null)
+        {
+            throw new EntityNotFoundException(id);
         }
+
+        return product;
     }
 }

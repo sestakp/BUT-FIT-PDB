@@ -1,13 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace WriteService.Entities;
 
-namespace WriteService.Entities
+public class ProductCategoryEntity : EntityBase
 {
-    public class ProductCategoryEntity
-    {
-        [Key]
-        public long Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-
-    }
+    public required string Name { get; set; }
+    public required string Description { get; set; }
 }

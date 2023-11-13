@@ -12,11 +12,11 @@ namespace WriteService.Pipelines
             var builder = BuilderPipeline.CreateBuilder(args, "WriteService");
 
             // var connectionString = builder.Configuration.GetConnectionString("ShopDbContext");
-            
+
             string host = "postgres";
-            #if DEBUG
+#if DEBUG
             host = "localhost";
-            #endif
+#endif
             string database = "cqrs";
             string username = "root";
             string password = "toor";

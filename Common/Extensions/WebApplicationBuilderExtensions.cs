@@ -47,7 +47,7 @@ namespace Common.Extensions
 
         public static WebApplicationBuilder AddMongoClient(this WebApplicationBuilder builder, string connectionString)
         {
-            
+
             builder.Services.AddSingleton<IMongoClient>(sp =>
             {
                 var databaseSettings = sp.GetRequiredService<IOptions<DatabaseConfiguration>>().Value;
@@ -149,6 +149,6 @@ namespace Common.Extensions
             });
             return builder;
         }
-    
+
     }
 }
