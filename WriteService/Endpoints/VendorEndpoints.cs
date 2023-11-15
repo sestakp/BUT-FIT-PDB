@@ -1,44 +1,51 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using WriteService.DTO;
+using WriteService.DTOs.Vendor;
 using WriteService.Services;
 
-namespace WriteService.Endpoints
+namespace WriteService.Endpoints;
+
+public static class VendorEndpoints
 {
-    public static class VendorEndpoints
+    public static void MapVendorEndpoints(this WebApplication app)
     {
-        public static void MapVendorEndpoints(this WebApplication app)
-        {
-            const string path = "/api/vendors/";
+        var gb = app.MapGroup("api/vendors");
 
-            app.MapPost(path, (VendorService service, VendorDto vendor) =>
-            {
-                var newVendor = service.CreateOrUpdate(vendor);
+        gb.MapPost(string.Empty, CreateVendor);
+        gb.MapPut("{vendorId:long}", UpdateVendor);
+        gb.MapDelete("{vendorId:long}", DeleteVendor);
+    }
 
-                if (newVendor.Id != default)
-                {
-                    return Results.Created(path + newVendor.Id, newVendor);
-                }
-                
-                return Results.BadRequest();
-                
-            });
+    private static IResult CreateVendor(
+        [FromBody] CreateVendorDto dto,
+        [FromServices] VendorService vendorService,
+        [FromServices] IMapper mapper)
+    {
+        var vendor = vendorService.Create(dto);
+        var responseDto = mapper.Map<VendorDto>(vendor);
 
-            app.MapPut(path, (VendorService service, VendorDto vendor) =>
-            {
-                var newVendor = service.CreateOrUpdate(vendor);
+        // TODO: add uri from query service
+        return Results.Created("todo", responseDto);
+    }
 
-                if (newVendor.Id != default)
-                {
-                    return Results.Ok();
-                }
-                
-                return Results.BadRequest();
-                
-            });
+    private static IResult UpdateVendor(
+        [FromRoute] long vendorId,
+        [FromBody] UpdateVendorDto dto,
+        [FromServices] VendorService vendorService,
+        [FromServices] IMapper mapper)
+    {
+        var vendor = vendorService.Update(vendorId, dto);
+        var responseDto = mapper.Map<VendorDto>(vendor);
 
-            app.MapDelete(path + "{id:long}", (VendorService service, long id) => 
-                service.SoftDelete(id) ? Results.Ok() : Results.NotFound());
-        }
+        // TODO: add uri from query service
+        return Results.Created("todo", responseDto);
+    }
+
+    private static IResult DeleteVendor(
+        [FromRoute] long vendorId,
+        [FromServices] VendorService vendorService)
+    {
+        vendorService.Delete(vendorId);
+        return Results.Ok();
     }
 }

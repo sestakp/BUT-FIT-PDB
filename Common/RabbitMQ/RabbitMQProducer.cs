@@ -12,7 +12,7 @@ namespace Common.RabbitMQ
         private readonly IConnection _connection;
         protected readonly ILogger<RabbitMQProducer> Logger;
 
-        public RabbitMQProducer(IOptions<RabbitMQConfiguration> rabbitMqOptions, IConnection connection, ILogger<RabbitMQProducer> logger) 
+        public RabbitMQProducer(IOptions<RabbitMQConfiguration> rabbitMqOptions, IConnection connection, ILogger<RabbitMQProducer> logger)
         {
             _exchangeName = string.Format(RabbitMQNames.Exchange, rabbitMqOptions.Value.QueueName);
             _connection = connection;
@@ -22,7 +22,7 @@ namespace Common.RabbitMQ
         public void SendMessage(string id)
         {
             using var channel = _connection.CreateModel();
-            channel.ExchangeDeclare(exchange: _exchangeName, type: "fanout", durable: false, autoDelete: false, arguments: null); 
+            channel.ExchangeDeclare(exchange: _exchangeName, type: "fanout", durable: false, autoDelete: false, arguments: null);
 
             var body = Encoding.UTF8.GetBytes(id);
 

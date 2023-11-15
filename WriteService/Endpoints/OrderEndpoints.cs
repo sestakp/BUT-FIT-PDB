@@ -1,51 +1,45 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WriteService.DTO;
+using WriteService.DTOs.Order;
 using WriteService.Services;
 
-namespace WriteService.Endpoints
+namespace WriteService.Endpoints;
+
+public static class OrderEndpoints
 {
-    public static class OrderEndpoints
+    public static void MapOrderEndpoints(this WebApplication app)
     {
-        
-        public static void MapOrderEndpoints(this WebApplication app)
-        {
-            string path = "/api/orders/";
+        var gb = app.MapGroup("api/orders");
 
-            app.MapPost(path, (OrderService service, OrderDto order) =>
-            {
-                var newOrder = service.Create(order);
+        gb.MapPost(string.Empty, CreateOrder);
+        gb.MapPost("{orderId:long}/add-to-cart/{productId:long}", AddProductToCart);
+        gb.MapPut("{orderId:long}/complete", CompleteOrder);
+    }
 
-                if (newOrder.Id != default)
-                {
-                    return Results.Created(path + newOrder.Id, newOrder);
-                }
+    private static IResult CreateOrder([FromServices] OrderService orderService)
+    {
+        var order = orderService.Create();
+        return Results.Ok(new { id = order.Id });
+    }
 
-                return Results.BadRequest();
-            });
+    private static IResult AddProductToCart(
+        [FromRoute] long orderId,
+        [FromRoute] long productId,
+        [FromServices] OrderService orderService)
+    {
+        orderService.AddToCart(orderId, productId);
 
-            app.MapPost(path+ "addToCart/{orderId}/{productId}", (OrderService service, long orderId, long productId) =>
-            {
-                var newOrder = service.AddToCart(orderId,productId);
+        // TODO: return order with products for demonstration purposes?
+        return Results.Ok();
+    }
 
-                if (newOrder.Id != default)
-                {
-                    return Results.Ok();
-                }
+    private static IResult CompleteOrder(
+        [FromRoute] long orderId,
+        [FromBody] CompleteOrderDto dto,
+        [FromServices] OrderService orderService)
+    {
+        orderService.CompleteOrder(orderId, dto);
 
-                return Results.BadRequest();
-            });
-
-            app.MapPut(path + "{orderId:long}/pay", (OrderService service, long orderId) =>
-            {
-                var newOrder = service.Pay(orderId);
-
-                if (newOrder.Id != default)
-                {
-                    return Results.Ok();
-                }
-
-                return Results.BadRequest();
-            });
-        }
+        // TODO: return order with products for demonstration purposes?
+        return Results.Ok();
     }
 }

@@ -1,21 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace WriteService.Entities;
 
-namespace WriteService.Entities
+public class ProductEntity : EntityBase
 {
-    public class ProductEntity
-    {
-        [Key]
-        public long Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public int PiecesInStock { get; set; }
-        public decimal Price { get; set; }
-        public bool isDeleted { get; set; }
-        
-        public long VendorId { get; set; }
-        public VendorEntity Vendor { get; set; }
-        public IList<ProductCategoryEntity> Categories { get; set; }
-        public IList<OrderEntity> Orders { get; set; }
-        public IList<ReviewEntity> Reviews { get; set; }
-    }
+    public required string Title { get; set; }
+    public required string Description { get; set; }
+    public required decimal Price { get; set; }
+    public required int PiecesInStock { get; set; }
+
+    public bool IsDeleted { get; set; }
+
+    public long VendorId { get; set; }
+    public VendorEntity Vendor { get; set; } = null!;
+
+    public IList<ProductCategoryEntity> Categories { get; set; } = null!;
+    public IList<OrderEntity> Orders { get; set; } = null!;
+    public IList<ReviewEntity> Reviews { get; set; } = null!;
 }
