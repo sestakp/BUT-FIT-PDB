@@ -14,7 +14,7 @@ namespace ReadService.Subscribers
         {
             Logger.LogInformation("Vendor subscriber receive message");
 
-            if (message.Entity != RabbitMQEntities.Vendor) return;
+            var vendor = (VendorMessageDTO)message.Data!;
 
             switch (message.Operation)
             {

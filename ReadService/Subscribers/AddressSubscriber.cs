@@ -14,7 +14,8 @@ namespace ReadService.Subscribers
         {
 
             Logger.LogInformation("Address subscriber receive message");
-            if (message.Entity != RabbitMQEntities.Address) return;
+
+            var address = (AddressMessageDTO)message.Data!;
 
             switch (message.Operation)
             {

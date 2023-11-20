@@ -14,7 +14,7 @@ namespace ReadService.Subscribers
         {
             Logger.LogInformation("Order subscriber receive message");
 
-            if (message.Entity != RabbitMQEntities.Order) return;
+            var order = (OrderMessageDTO)message.Data!;
 
             switch (message.Operation)
             {

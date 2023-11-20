@@ -13,8 +13,8 @@ namespace ReadService.Subscribers
         public override void HandleMessage(RabbitMQMessage message)
         {
             Logger.LogInformation("Product subscriber receive message");
-
-            if (message.Entity != RabbitMQEntities.Product) return;
+            
+            var product = (ProductMessageDto)message.Data!;
 
             switch (message.Operation)
             {
