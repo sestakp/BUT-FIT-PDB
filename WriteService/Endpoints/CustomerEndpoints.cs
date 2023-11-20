@@ -45,32 +45,32 @@ public static class CustomerEndpoints
         [FromRoute] long customerId,
         [FromServices] CustomerService service)
     {
-        service.Anonymize(customerId);
+        service.AnonymizeAsync(customerId);
         return Results.Ok();
     }
 
-    private static IResult CreateCustomerAddress(
+    private static async Task<IResult> CreateCustomerAddress(
         [FromBody] CreateAddressDto dto,
         [FromRoute] long customerId,
         [FromServices] CustomerService service,
         [FromServices] IMapper mapper)
 
     {
-        var address = service.CreateCustomerAddress(customerId, dto);
+        var address = await service.CreateCustomerAddressAsync(customerId, dto);
         var responseDto = mapper.Map<AddressDto>(address);
 
         // TODO: add uri from query service
         return Results.Created($"api/customers/{customerId}/addresses/{address.Id}", responseDto);
     }
 
-    private static IResult UpdateCustomerAddress(
+    private static async Task<IResult> UpdateCustomerAddress(
         [FromBody] UpdateAddressDto dto,
         [FromRoute] long customerId,
         [FromRoute] long addressId,
         [FromServices] CustomerService service,
         [FromServices] IMapper mapper)
     {
-        var address = service.UpdateCustomerAddress(customerId, addressId, dto);
+        var address = await service.UpdateCustomerAddressAsync(customerId, addressId, dto);
         var responseDto = mapper.Map<AddressDto>(address);
         return Results.Ok(responseDto);
     }
@@ -80,7 +80,7 @@ public static class CustomerEndpoints
         [FromRoute] long addressId,
         [FromServices] CustomerService service)
     {
-        service.DeleteCustomerAddress(customerId, addressId);
+        service.DeleteCustomerAddressAsync(customerId, addressId);
         return Results.Ok();
     }
 }
