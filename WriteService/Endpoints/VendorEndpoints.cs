@@ -11,12 +11,12 @@ public static class VendorEndpoints
     {
         var gb = app.MapGroup("api/vendors");
 
-        gb.MapPost(string.Empty, CreateVendor);
-        gb.MapPut("{vendorId:long}", UpdateVendor);
-        gb.MapDelete("{vendorId:long}", DeleteVendor);
+        gb.MapPost(string.Empty, CreateVendorAsync);
+        gb.MapPut("{vendorId:long}", UpdateVendorAsync);
+        gb.MapDelete("{vendorId:long}", DeleteVendorAsync);
     }
 
-    private static async Task<IResult> CreateVendor(
+    private static async Task<IResult> CreateVendorAsync(
         [FromBody] CreateVendorDto dto,
         [FromServices] VendorService vendorService,
         [FromServices] IMapper mapper)
@@ -28,7 +28,7 @@ public static class VendorEndpoints
         return Results.Created("todo", responseDto);
     }
 
-    private static async Task<IResult> UpdateVendor(
+    private static async Task<IResult> UpdateVendorAsync(
         [FromRoute] long vendorId,
         [FromBody] UpdateVendorDto dto,
         [FromServices] VendorService vendorService,
@@ -41,11 +41,11 @@ public static class VendorEndpoints
         return Results.Created("todo", responseDto);
     }
 
-    private static IResult DeleteVendor(
+    private static async Task<IResult> DeleteVendorAsync(
         [FromRoute] long vendorId,
         [FromServices] VendorService vendorService)
     {
-        vendorService.DeleteAsync(vendorId);
+        await vendorService.DeleteAsync(vendorId);
         return Results.Ok();
     }
 }

@@ -1,4 +1,9 @@
-﻿using WriteService.DTOs.Product;
+﻿using AutoMapper;
+using Common.RabbitMQ;
+using Common.RabbitMQ.MessageDTOs;
+using System.Transactions;
+using Microsoft.EntityFrameworkCore;
+using WriteService.DTOs.Product;
 using WriteService.DTOs.Review;
 using WriteService.Entities;
 using WriteService.Exceptions;
@@ -9,69 +14,129 @@ public class ProductService
 {
     private readonly ShopDbContext _context;
 
-    public ProductService(ShopDbContext context)
+    private readonly ILogger<ProductService> _logger;
+    private readonly IMapper _mapper;
+    private readonly RabbitMQProducer _producer;
+    public ProductService(ShopDbContext context, ILogger<ProductService> logger, IMapper mapper, RabbitMQProducer producer)
     {
         _context = context;
+        _logger = logger;
+        _mapper = mapper;
+        _producer = producer;
     }
 
-    public ProductEntity Create(CreateProductDto dto)
+    public async Task<ProductEntity> CreateAsync(CreateProductDto dto)
     {
-        var vendor = _context
-            .Vendors
-            .Find(dto.VendorId);
-
-        if (vendor is null)
+        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
-            throw new EntityNotFoundException(dto.VendorId);
+            try
+            {
+                var vendor = await _context
+                    .Vendors
+                    .FindAsync(dto.VendorId);
+
+                if (vendor is null)
+                {
+                    throw new EntityNotFoundException(dto.VendorId);
+                }
+
+                var product = new ProductEntity()
+                {
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    Price = dto.Price,
+                    PiecesInStock = dto.PricesInStock,
+                    VendorId = dto.VendorId
+                };
+
+                _context.Add(product);
+                var saveChangesTask = _context.SaveChangesAsync();
+                var productMessageDto = _mapper.Map<ProductMessageDto>(product);
+                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Product, productMessageDto);
+
+                await Task.WhenAll(saveChangesTask, sendMessageTask);
+
+                scope.Complete();
+                
+                return product;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error creating product: {ex.Message}", ex);
+                throw;
+            }
         }
+    }
 
-        var product = new ProductEntity()
+    public async Task<ReviewEntity> AddReviewAsync(long productId, CreateReviewDto dto)
+    {
+        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
-            Title = dto.Title,
-            Description = dto.Description,
-            Price = dto.Price,
-            PiecesInStock = dto.PricesInStock,
-            VendorId = dto.VendorId
-        };
+            try
+            {
+                var product = await FindProductAsync(productId);
 
-        _context.Add(product);
-        _context.SaveChanges();
+                var review = new ReviewEntity()
+                {
+                    Rating = dto.Rating,
+                    Text = dto.Text,
+                    Product = product
+                };
 
-        return product;
+                _context.Add(review);
+
+
+                var saveChangesTask = _context.SaveChangesAsync();
+                var reviewMessageDto = _mapper.Map<ReviewMessageDTO>(review);
+                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Review, reviewMessageDto);
+
+                await Task.WhenAll(saveChangesTask, sendMessageTask);
+
+                scope.Complete();
+                return review;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error creating review: {ex.Message}", ex);
+                throw;
+            }
+        }
     }
 
-    public ReviewEntity AddReview(long productId, CreateReviewDto dto)
+    public async Task DeleteAsync(long productId)
     {
-        var product = FindProduct(productId);
-
-        var review = new ReviewEntity()
+        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
-            Rating = dto.Rating,
-            Text = dto.Text,
-            Product = product
-        };
+            try
+            {
+                var product = await FindProductAsync(productId);
 
-        _context.Add(review);
-        _context.SaveChanges();
+                product.IsDeleted = true;
 
-        return review;
+                _context.Update(product);
+
+
+                var saveChangesTask = _context.SaveChangesAsync();
+                var productMessageDto = _mapper.Map<ProductMessageDto>(product);
+                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Product, productMessageDto);
+
+                await Task.WhenAll(saveChangesTask, sendMessageTask);
+
+                scope.Complete();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error deleting product: {ex.Message}", ex);
+                throw;
+            }
+        }
     }
 
-    public void Delete(long productId)
+    private async Task<ProductEntity> FindProductAsync(long id)
     {
-        var product = FindProduct(productId);
-
-        product.IsDeleted = true;
-
-        _context.Update(product);
-        _context.SaveChanges();
-    }
-
-    private ProductEntity FindProduct(long id)
-    {
-        var product = _context
+        var product = await _context
             .Products
-            .FirstOrDefault(v => v.Id == id);
+            .FirstOrDefaultAsync(v => v.Id == id);
 
         if (product is null)
         {

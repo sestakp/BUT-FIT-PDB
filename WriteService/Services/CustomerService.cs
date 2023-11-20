@@ -100,7 +100,7 @@ public class CustomerService
         }
     }
 
-    public async void AnonymizeAsync(long customerId)
+    public async Task AnonymizeAsync(long customerId)
     {
         using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -243,7 +243,7 @@ public class CustomerService
         }
     }
 
-    public async void DeleteCustomerAddressAsync(
+    public async Task DeleteCustomerAddressAsync(
         long customerId,
         long addressId)
     {

@@ -12,15 +12,15 @@ public static class CustomerEndpoints
     {
         var gb = app.MapGroup("api/customers");
 
-        gb.MapPost(string.Empty, CreateCustomer);
-        gb.MapPut("{customerId:long}", UpdateCustomer);
-        gb.MapDelete("{customerId:long}", DeleteCustomer);
+        gb.MapPost(string.Empty, CreateCustomerAsync);
+        gb.MapPut("{customerId:long}", UpdateCustomerAsync);
+        gb.MapDelete("{customerId:long}", DeleteCustomerAsync);
         gb.MapPost("{customerId:long}/addresses", CreateCustomerAddress);
-        gb.MapPut("{customerId:long}/addresses/{addressId:long}", UpdateCustomerAddress);
-        gb.MapDelete("{customerId:long}/addresses/{addressId:long}", DeleteCustomerAddress);
+        gb.MapPut("{customerId:long}/addresses/{addressId:long}", UpdateCustomerAddressAsync);
+        gb.MapDelete("{customerId:long}/addresses/{addressId:long}", DeleteCustomerAddressAsync);
     }
 
-    private static async Task<IResult> CreateCustomer(
+    private static async Task<IResult> CreateCustomerAsync(
         [FromBody] CreateCustomerDto dto,
         [FromServices] CustomerService service,
         [FromServices] IMapper mapper)
@@ -30,7 +30,7 @@ public static class CustomerEndpoints
         return Results.Created("api/customers" + customer.Id, responseDto);
     }
 
-    private static async Task<IResult> UpdateCustomer(
+    private static async Task<IResult> UpdateCustomerAsync(
         [FromRoute] long customerId,
         [FromBody] UpdateCustomerDto dto,
         [FromServices] CustomerService service,
@@ -41,11 +41,11 @@ public static class CustomerEndpoints
         return Results.Ok(responseDto);
     }
 
-    private static IResult DeleteCustomer(
+    private static async Task<IResult> DeleteCustomerAsync(
         [FromRoute] long customerId,
         [FromServices] CustomerService service)
     {
-        service.AnonymizeAsync(customerId);
+        await service.AnonymizeAsync(customerId);
         return Results.Ok();
     }
 
@@ -63,7 +63,7 @@ public static class CustomerEndpoints
         return Results.Created($"api/customers/{customerId}/addresses/{address.Id}", responseDto);
     }
 
-    private static async Task<IResult> UpdateCustomerAddress(
+    private static async Task<IResult> UpdateCustomerAddressAsync(
         [FromBody] UpdateAddressDto dto,
         [FromRoute] long customerId,
         [FromRoute] long addressId,
@@ -75,12 +75,12 @@ public static class CustomerEndpoints
         return Results.Ok(responseDto);
     }
 
-    private static IResult DeleteCustomerAddress(
+    private static async Task<IResult> DeleteCustomerAddressAsync(
         [FromRoute] long customerId,
         [FromRoute] long addressId,
         [FromServices] CustomerService service)
     {
-        service.DeleteCustomerAddressAsync(customerId, addressId);
+        await service.DeleteCustomerAddressAsync(customerId, addressId);
         return Results.Ok();
     }
 }

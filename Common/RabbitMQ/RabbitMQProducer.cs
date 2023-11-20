@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using System.Text;
 using Common.RabbitMQ.MessageDTOs;
+using Common.RabbitMQ.MessageDTOs.Interfaces;
 using Newtonsoft.Json;
 
 namespace Common.RabbitMQ

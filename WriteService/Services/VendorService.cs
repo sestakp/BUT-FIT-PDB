@@ -93,7 +93,7 @@ namespace WriteService.Services
             }
         }
 
-        public async void DeleteAsync(long vendorId)
+        public async Task DeleteAsync(long vendorId)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
