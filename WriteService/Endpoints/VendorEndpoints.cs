@@ -16,25 +16,25 @@ public static class VendorEndpoints
         gb.MapDelete("{vendorId:long}", DeleteVendor);
     }
 
-    private static IResult CreateVendor(
+    private static async Task<IResult> CreateVendor(
         [FromBody] CreateVendorDto dto,
         [FromServices] VendorService vendorService,
         [FromServices] IMapper mapper)
     {
-        var vendor = vendorService.Create(dto);
+        var vendor = await vendorService.CreateAsync(dto);
         var responseDto = mapper.Map<VendorDto>(vendor);
 
         // TODO: add uri from query service
         return Results.Created("todo", responseDto);
     }
 
-    private static IResult UpdateVendor(
+    private static async Task<IResult> UpdateVendor(
         [FromRoute] long vendorId,
         [FromBody] UpdateVendorDto dto,
         [FromServices] VendorService vendorService,
         [FromServices] IMapper mapper)
     {
-        var vendor = vendorService.Update(vendorId, dto);
+        var vendor = await vendorService.UpdateAsync(vendorId, dto);
         var responseDto = mapper.Map<VendorDto>(vendor);
 
         // TODO: add uri from query service
@@ -45,7 +45,7 @@ public static class VendorEndpoints
         [FromRoute] long vendorId,
         [FromServices] VendorService vendorService)
     {
-        vendorService.Delete(vendorId);
+        vendorService.DeleteAsync(vendorId);
         return Results.Ok();
     }
 }

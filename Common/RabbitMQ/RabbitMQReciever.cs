@@ -40,7 +40,7 @@ namespace Common.RabbitMQ
             var consumer = new EventingBasicConsumer(_channel);
             consumer.Received += (ch, ea) =>
             {
-                RabbitMQMessage<V>? message = JsonConvert.DeserializeObject<RabbitMQMessage<V>>(Encoding.UTF8.GetString(ea.Body.ToArray()));
+                RabbitMQMessage? message = JsonConvert.DeserializeObject<RabbitMQMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));
                 Logger.Log(LogLevel.Information, $"Received message from channel {queueName} with data {message}");
                 if (message != null)
                 {
@@ -53,7 +53,7 @@ namespace Common.RabbitMQ
             _channel.BasicConsume(queue: queueName, false, consumer);
         }
 
-        public virtual void HandleMessage<V>(RabbitMQMessage<V> message)
+        public virtual void HandleMessage(RabbitMQMessage message)
         {
             throw new NotImplementedException();
         }

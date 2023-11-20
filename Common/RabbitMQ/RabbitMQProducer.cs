@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using System.Text;
+using Common.RabbitMQ.MessageDTOs;
 using Newtonsoft.Json;
 
 namespace Common.RabbitMQ
@@ -18,12 +19,12 @@ namespace Common.RabbitMQ
             Logger = logger;
             Logger.LogDebug("Instantiating RabbitMQProducer");
         }
-        public void SendMessage<T>(RabbitMQOperation operation, RabbitMQEntities entity, T data)
+        public void SendMessage(RabbitMQOperation operation, RabbitMQEntities entity, IMessageDTO data)
         {
             using var channel = _connection.CreateModel();
             channel.ExchangeDeclare(exchange: RabbitMQNames.SyncExchange, type: "direct", durable: true, autoDelete: false, arguments: null);
             
-            var message = new RabbitMQMessage<T>
+            var message = new RabbitMQMessage
             {
                 Operation = operation,
                 Entity = entity,
@@ -37,13 +38,13 @@ namespace Common.RabbitMQ
             Logger.Log(LogLevel.Information, $"Message produced with id {message}");
         }
 
-        public async Task SendMessageAsync<T>(RabbitMQOperation operation, RabbitMQEntities entity, T data)
+        public async Task SendMessageAsync(RabbitMQOperation operation, RabbitMQEntities entity, IMessageDTO data)
         {
             using (var channel = _connection.CreateModel())
             {
                 channel.ExchangeDeclare(exchange: RabbitMQNames.SyncExchange, type: "direct", durable: true, autoDelete: false, arguments: null);
 
-                var message = new RabbitMQMessage<T>
+                var message = new RabbitMQMessage
                 {
                     Operation = operation,
                     Entity = entity,

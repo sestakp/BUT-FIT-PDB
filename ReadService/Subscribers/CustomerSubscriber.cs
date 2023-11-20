@@ -1,5 +1,6 @@
 ﻿using Common.Configuration;
 using Common.RabbitMQ;
+using Common.RabbitMQ.MessageDTOs;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using RabbitMQ.Client;
@@ -12,10 +13,12 @@ namespace ReadService.Subscribers
         {
         }
 
-        public override void HandleMessage<V>(RabbitMQMessage<V> message) where V : default
+        public override void HandleMessage(RabbitMQMessage message)
         {
             Logger.LogInformation("Customer subscriber receive message");
 
+            if (message.Data is not CustomerMessageDTO customer) return;
+            
             switch (message.Operation)
             {
                 case RabbitMQOperation.Create:
@@ -28,6 +31,7 @@ namespace ReadService.Subscribers
 
                     break;
             }
+
 
         }
     }

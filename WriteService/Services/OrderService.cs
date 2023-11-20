@@ -2,6 +2,7 @@
 using WriteService.Entities;
 using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Order;
+using WriteService.Exceptions;
 
 namespace WriteService.Services;
 
@@ -44,7 +45,7 @@ public class OrderService
 
         if (product == null)
         {
-            throw new Exception("Product with specified id does not exist.");
+            throw new EntityNotFoundException(orderId);
         }
 
         if (product.IsDeleted)
@@ -100,7 +101,7 @@ public class OrderService
 
         if (order is null)
         {
-            throw new Exception($"Order with id '{orderId}' does not exist.");
+            throw new EntityNotFoundException(orderId);
         }
 
         return order;

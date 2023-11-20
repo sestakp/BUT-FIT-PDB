@@ -22,7 +22,7 @@ public class ProductService
 
         if (vendor is null)
         {
-            throw new Exception("Specified vendor does not exist.");
+            throw new EntityNotFoundException(dto.VendorId);
         }
 
         var product = new ProductEntity()
