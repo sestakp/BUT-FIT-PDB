@@ -20,23 +20,23 @@ public static class CustomerEndpoints
         gb.MapDelete("{customerId:long}/addresses/{addressId:long}", DeleteCustomerAddress);
     }
 
-    private static IResult CreateCustomer(
+    private static async Task<IResult> CreateCustomer(
         [FromBody] CreateCustomerDto dto,
         [FromServices] CustomerService service,
         [FromServices] IMapper mapper)
     {
-        var customer = service.Create(dto);
+        var customer = await service.CreateAsync(dto);
         var responseDto = mapper.Map<CustomerDto>(customer);
         return Results.Created("api/customers" + customer.Id, responseDto);
     }
 
-    private static IResult UpdateCustomer(
+    private static async Task<IResult> UpdateCustomer(
         [FromRoute] long customerId,
         [FromBody] UpdateCustomerDto dto,
         [FromServices] CustomerService service,
         [FromServices] IMapper mapper)
     {
-        var customer = service.Update(customerId, dto);
+        var customer = await service.UpdateAsync(customerId, dto);
         var responseDto = mapper.Map<CustomerDto>(customer);
         return Results.Ok(responseDto);
     }

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Common.RabbitMQ;
+using Microsoft.EntityFrameworkCore;
+using System.Transactions;
 using WriteService.DTOs.Address;
 using WriteService.DTOs.Customer;
 using WriteService.Entities;
@@ -9,45 +11,87 @@ namespace WriteService.Services;
 public class CustomerService
 {
     private readonly ShopDbContext _context;
+    private readonly RabbitMQProducer _producer;
+    private readonly ILogger<CustomerService> _logger;
 
-    public CustomerService(ShopDbContext context)
+    public CustomerService(ShopDbContext context, RabbitMQProducer producer, ILogger<CustomerService> logger)
     {
         _context = context;
+        _producer = producer;
+        _logger = logger;
     }
 
-    public CustomerEntity Create(CreateCustomerDto dto)
+    public async Task<CustomerEntity> CreateAsync(CreateCustomerDto dto)
     {
-        var entity = new CustomerEntity()
+        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Suppress))
         {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Email = dto.Email,
-            PhoneNumber = dto.PhoneNumber,
-            PasswordHash = dto.PasswordHash
-        };
+            try
+            {
+                var entity = new CustomerEntity()
+                {
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    Email = dto.Email,
+                    PhoneNumber = dto.PhoneNumber,
+                    PasswordHash = dto.PasswordHash
+                };
 
-        _context.Add(entity);
-        _context.SaveChanges();
+                _context.Add(entity);
 
-        return entity;
-    }
+                var saveChangesTask = _context.SaveChangesAsync();
 
-    public CustomerEntity Update(long customerId, UpdateCustomerDto dto)
-    {
-        var entity = _context.Customers.Find(customerId);
-        if (entity is null)
-        {
-            throw new EntityNotFoundException(customerId);
+                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Customer, entity);
+
+                await Task.WhenAll(saveChangesTask, sendMessageTask);
+
+                scope.Complete();
+
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error creating customer: {ex.Message}", ex);
+                throw;
+            }
         }
+    }
 
-        // We do not allow to update email and phone number
-        entity.FirstName = dto.FirstName;
-        entity.LastName = dto.LastName;
+    public async Task<CustomerEntity> UpdateAsync(long customerId, UpdateCustomerDto dto)
+    {
+        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        {
+            try
+            {
+                var entity = await _context.Customers.FindAsync(customerId);
+                if (entity is null)
+                {
+                    throw new EntityNotFoundException(customerId);
+                }
 
-        _context.Update(entity);
-        _context.SaveChanges();
+                // We do not allow updating email and phone number
+                entity.FirstName = dto.FirstName;
+                entity.LastName = dto.LastName;
 
-        return entity;
+                _context.Update(entity);
+
+                var saveChangesTask = _context.SaveChangesAsync();
+
+                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer, entity);
+
+                await Task.WhenAll(saveChangesTask, sendMessageTask);
+
+                // If everything is successful, complete the transaction
+                scope.Complete();
+
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception as needed
+                _logger.LogError($"Error updating customer: {ex.Message}", ex);
+                throw;
+            }
+        }
     }
 
     public void Anonymize(long customerId)

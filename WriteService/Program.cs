@@ -1,4 +1,5 @@
 using AutoMapper;
+using Common.Extensions;
 using Microsoft.EntityFrameworkCore;
 using WriteService.Endpoints;
 using WriteService.Services;
@@ -16,6 +17,13 @@ internal class Program
             services.AddSwaggerGen();
 
             // TODO: add RabbitMQ configuration
+
+            builder.Configuration.AddUserSecrets<Program>();
+            builder.AddRabbitMQSettings();
+            builder.AddConnectionFactoryForRabbit();
+            builder.AddRabbitConnection();
+            builder.AddRabbitChannel();
+            builder.AddRabbitMQProducer();
 
             services.AddCors(options =>
             {
