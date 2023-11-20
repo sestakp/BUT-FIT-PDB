@@ -27,7 +27,7 @@ namespace WriteService.Services
 
         public async Task<VendorEntity> CreateAsync(CreateVendorDto dto)
         {
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Suppress))
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
@@ -57,6 +57,10 @@ namespace WriteService.Services
                 {
                     _logger.LogError($"Error creating vendor: {ex.Message}", ex);
                     throw;
+                }
+                finally
+                {
+                    scope.Dispose();
                 }
             }
         }

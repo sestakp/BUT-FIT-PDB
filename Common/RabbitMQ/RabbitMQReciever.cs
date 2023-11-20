@@ -25,23 +25,32 @@ namespace Common.RabbitMQ
             Logger.LogDebug("Instantiating RabbitMQReciever");
         }
 
-        public void ReceiveFromExchange<V>(string exchangeName, RabbitMQEntities entity)
+        public void ReceiveFromExchange(string exchangeName, RabbitMQEntities entity)
         {
-            _channel.ExchangeDeclare(exchange: exchangeName, type: "direct", durable: false, autoDelete: false, arguments: null);
+            _channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct, durable: true, autoDelete: false, arguments: null);
 
             // Use the entity name to create a unique queue
 
             var queueName = $"{entity.ToString()}Queue";
             var routingKey = entity.ToString();
 
-            _channel.QueueDeclare(queue: queueName, durable: false, exclusive: true, autoDelete: false, arguments: null);
+            _channel.QueueDeclare(queue: queueName, durable: true, exclusive: true, autoDelete: false, arguments: null);
             _channel.QueueBind(exchange: exchangeName, queue: queueName, routingKey: routingKey);
 
             var consumer = new EventingBasicConsumer(_channel);
             consumer.Received += (ch, ea) =>
             {
-                RabbitMQMessage? message = JsonConvert.DeserializeObject<RabbitMQMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));
-                Logger.Log(LogLevel.Information, $"Received message from channel {queueName} with data {message}");
+               // RabbitMQMessage? message = JsonConvert.DeserializeObject<RabbitMQMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));
+
+                RabbitMQMessage? message = JsonConvert.DeserializeObject<RabbitMQMessage>(
+                    Encoding.UTF8.GetString(ea.Body.ToArray()),
+                    new JsonSerializerSettings
+                    {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+
+               
+                Logger.LogInformation($"Received message from channel {queueName} with data {message}");
                 if (message != null)
                 {
                     HandleMessage(message);

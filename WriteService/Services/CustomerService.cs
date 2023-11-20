@@ -28,7 +28,7 @@ public class CustomerService
 
     public async Task<CustomerEntity> CreateAsync(CreateCustomerDto dto)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Suppress))
+        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
             try
             {
@@ -45,7 +45,8 @@ public class CustomerService
 
                 var saveChangesTask = _context.SaveChangesAsync();
                 var customerMessageDto = _mapper.Map<CustomerMessageDTO>(entity);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Customer, customerMessageDto);
+                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Customer,
+                    customerMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
 
@@ -57,6 +58,10 @@ public class CustomerService
             {
                 _logger.LogError($"Error creating customer: {ex.Message}", ex);
                 throw;
+            }
+            finally
+            {
+                scope.Dispose();
             }
         }
     }

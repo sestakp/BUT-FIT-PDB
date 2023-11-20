@@ -6,7 +6,7 @@ namespace ReadService.Subscribers
 {
     public class ProductSubscriber : RabbitMQReciever<object>
     {
-        public ProductSubscriber(IModel channel, ILogger<RabbitMQReciever<object>> logger) : base(channel, logger)
+        public ProductSubscriber(IModel channel, ILogger<ProductSubscriber> logger) : base(channel, logger)
         {
         }
 
@@ -14,7 +14,7 @@ namespace ReadService.Subscribers
         {
             Logger.LogInformation("Product subscriber receive message");
 
-            if (message.Data is not ProductMessageDto product) return;
+            if (message.Entity != RabbitMQEntities.Product) return;
 
             switch (message.Operation)
             {

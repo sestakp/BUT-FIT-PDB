@@ -101,6 +101,10 @@ namespace Common.Extensions
                 var username = rabbitMqOptions.Value.UserName;
                 var password = rabbitMqOptions.Value.Password;
 
+#if DEBUG
+                hostname = "localhost";
+#endif
+
                 return new ConnectionFactory
                 {
                     HostName = hostname,

@@ -6,7 +6,7 @@ namespace ReadService.Subscribers
 {
     public class VendorSubscriber : RabbitMQReciever<object>
     {
-        public VendorSubscriber(IModel channel, ILogger<RabbitMQReciever<object>> logger) : base(channel, logger)
+        public VendorSubscriber(IModel channel, ILogger<ProductSubscriber> logger) : base(channel, logger)
         {
         }
 
@@ -14,7 +14,7 @@ namespace ReadService.Subscribers
         {
             Logger.LogInformation("Vendor subscriber receive message");
 
-            if (message.Data is not VendorMessageDTO vendor) return;
+            if (message.Entity != RabbitMQEntities.Vendor) return;
 
             switch (message.Operation)
             {

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Common.RabbitMQ.MessageDTOs
 {
-    public class VendorMessageDTO : MessageDTOBase
+    public class MessageDTOBase
     {
+        public long Id { get; init; }
     }
 }

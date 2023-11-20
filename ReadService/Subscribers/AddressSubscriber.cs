@@ -6,15 +6,15 @@ namespace ReadService.Subscribers
 {
     public class AddressSubscriber : RabbitMQReciever<object>
     {
-        public AddressSubscriber(IModel channel, ILogger<RabbitMQReciever<object>> logger) : base(channel, logger)
+        public AddressSubscriber(IModel channel, ILogger<AddressSubscriber> logger) : base(channel, logger)
         {
         }
 
         public override void HandleMessage(RabbitMQMessage message)
         {
-            Logger.LogInformation("Address subscriber receive message");
 
-            if (message.Data is not AddressMessageDTO address) return;
+            Logger.LogInformation("Address subscriber receive message");
+            if (message.Entity != RabbitMQEntities.Address) return;
 
             switch (message.Operation)
             {

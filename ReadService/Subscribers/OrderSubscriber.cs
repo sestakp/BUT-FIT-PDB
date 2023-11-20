@@ -6,7 +6,7 @@ namespace ReadService.Subscribers
 {
     public class OrderSubscriber : RabbitMQReciever<object>
     {
-        public OrderSubscriber(IModel channel, ILogger<RabbitMQReciever<object>> logger) : base(channel, logger)
+        public OrderSubscriber(IModel channel, ILogger<OrderSubscriber> logger) : base(channel, logger)
         {
         }
 
@@ -14,7 +14,7 @@ namespace ReadService.Subscribers
         {
             Logger.LogInformation("Order subscriber receive message");
 
-            if (message.Data is not OrderMessageDTO order) return;
+            if (message.Entity != RabbitMQEntities.Order) return;
 
             switch (message.Operation)
             {
