@@ -13,11 +13,11 @@ namespace WriteService.Services
     public class VendorService
     {
         private readonly ShopDbContext _context;
-        private readonly ILogger<CustomerService> _logger;
+        private readonly ILogger<VendorService> _logger;
         private readonly IMapper _mapper;
         private readonly RabbitMQProducer _producer;
 
-        public VendorService(ShopDbContext context, ILogger<CustomerService> logger, IMapper mapper, RabbitMQProducer producer)
+        public VendorService(ShopDbContext context, ILogger<VendorService> logger, IMapper mapper, RabbitMQProducer producer)
         {
             _context = context;
             _logger = logger;
@@ -114,6 +114,8 @@ namespace WriteService.Services
                     var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Vendor, vendorMessageDto);
 
                     await Task.WhenAll(saveChangesTask, sendMessageTask);
+
+                    scope.Complete();
                 }
                 catch (Exception ex)
                 {

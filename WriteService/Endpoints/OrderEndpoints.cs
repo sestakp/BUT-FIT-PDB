@@ -15,29 +15,29 @@ public static class OrderEndpoints
         gb.MapPut("{orderId:long}/complete", CompleteOrder);
     }
 
-    private static IResult CreateOrder([FromServices] OrderService orderService)
+    private static async Task<IResult> CreateOrder([FromServices] OrderService orderService)
     {
-        var order = orderService.Create();
+        var order = await orderService.CreateAsync();
         return Results.Ok(new { id = order.Id });
     }
 
-    private static IResult AddProductToCart(
+    private static async Task<IResult> AddProductToCart(
         [FromRoute] long orderId,
         [FromRoute] long productId,
         [FromServices] OrderService orderService)
     {
-        orderService.AddToCart(orderId, productId);
+        await orderService.AddToCartAsync(orderId, productId);
 
         // TODO: return order with products for demonstration purposes?
         return Results.Ok();
     }
 
-    private static IResult CompleteOrder(
+    private static async Task<IResult> CompleteOrder(
         [FromRoute] long orderId,
         [FromBody] CompleteOrderDto dto,
         [FromServices] OrderService orderService)
     {
-        orderService.CompleteOrder(orderId, dto);
+        await orderService.CompleteOrderAsync(orderId, dto);
 
         // TODO: return order with products for demonstration purposes?
         return Results.Ok();
