@@ -155,8 +155,7 @@ public class CustomerService
 
                 if (!customerExists)
                 {
-                    throw new Exception(
-                        $"Cannot create new address because customer with id '{customerId}' does not exist.");
+                    throw new EntityNotFoundException(customerId);
                 }
 
                 var address = new AddressEntity()
@@ -201,15 +200,13 @@ public class CustomerService
 
                 if (customer is null)
                 {
-                    throw new Exception(
-                        $"Cannot update address because customer with id '{customerId}' does not exist.");
+                    throw new EntityNotFoundException(customerId);
                 }
 
                 var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
                 if (address is null)
                 {
-                    throw new Exception(
-                        $"Address with id '{addressId}' does not exist on customer with id '{customerId}'.");
+                    throw new EntityNotFoundException(addressId);
                 }
 
                 address.Country = dto.Country;
@@ -251,15 +248,13 @@ public class CustomerService
 
                 if (customer is null)
                 {
-                    throw new Exception(
-                        $"Cannot update address because customer with id '{customerId}' does not exist.");
+                    throw new EntityNotFoundException(customerId);
                 }
 
                 var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
                 if (address is null)
                 {
-                    throw new Exception(
-                        $"Address with id '{addressId}' does not exist on customer with id '{customerId}'.");
+                    throw new EntityNotFoundException(addressId);
                 }
 
                 _context.Remove(address);

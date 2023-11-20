@@ -10,15 +10,15 @@ using Newtonsoft.Json;
 
 namespace Common.RabbitMQ
 {
-    public class RabbitMQReciever<T> where T : IMongoItem
+    public class RabbitMQReciever<T>
     {
         private readonly IModel _channel;
-        protected readonly IMongoCollection<T> Collection;
+        //protected readonly IMongoCollection<T> Collection;
         protected readonly ILogger<RabbitMQReciever<T>> Logger;
 
-        public RabbitMQReciever(IOptions<RabbitMQConfiguration> rabbitMqOptions, IModel channel, IMongoCollection<T> collection, ILogger<RabbitMQReciever<T>> logger)
+        public RabbitMQReciever(IModel channel, ILogger<RabbitMQReciever<T>> logger)
         {
-            Collection = collection;
+            //Collection = collection;
             Logger = logger;
             
             _channel = channel;
@@ -40,9 +40,12 @@ namespace Common.RabbitMQ
             var consumer = new EventingBasicConsumer(_channel);
             consumer.Received += (ch, ea) =>
             {
-                V? data = JsonConvert.DeserializeObject<V>(Encoding.UTF8.GetString(ea.Body.ToArray()));
-                Logger.Log(LogLevel.Information, $"Received message from channel {queueName} with data {data}");
-                HandleMessage(data);
+                RabbitMQMessage<V>? message = JsonConvert.DeserializeObject<RabbitMQMessage<V>>(Encoding.UTF8.GetString(ea.Body.ToArray()));
+                Logger.Log(LogLevel.Information, $"Received message from channel {queueName} with data {message}");
+                if (message != null)
+                {
+                    HandleMessage(message);
+                }
 
                 _channel.BasicAck(ea.DeliveryTag, false);
             };
@@ -50,7 +53,7 @@ namespace Common.RabbitMQ
             _channel.BasicConsume(queue: queueName, false, consumer);
         }
 
-        public virtual void HandleMessage<V>(V? data)
+        public virtual void HandleMessage<V>(RabbitMQMessage<V> message)
         {
             throw new NotImplementedException();
         }
