@@ -12,41 +12,41 @@ public static class ProductEndpoints
     {
         var gb = app.MapGroup("api/products");
 
-        gb.MapPost(string.Empty, CreateProduct);
-        gb.MapPost("{productId:long}/reviews", AddReview);
-        gb.MapDelete("{productId:long}", DeleteProduct);
+        gb.MapPost(string.Empty, CreateProductAsync);
+        gb.MapPost("{productId:long}/reviews", AddReviewAsync);
+        gb.MapDelete("{productId:long}", DeleteProductAsync);
     }
 
-    private static IResult CreateProduct(
+    private static async Task<IResult> CreateProductAsync(
         [FromBody] CreateProductDto dto,
         [FromServices] ProductService productService,
         [FromServices] IMapper mapper)
     {
-        var product = productService.Create(dto);
+        var product = await productService.CreateAsync(dto);
         var responseDto = mapper.Map<ProductDto>(product);
 
         // TODO: add uri from query service
         return Results.Created("todo", responseDto);
     }
 
-    private static IResult AddReview(
+    private static async Task<IResult> AddReviewAsync(
         [FromRoute] long productId,
         [FromBody] CreateReviewDto dto,
         [FromServices] ProductService productService,
         [FromServices] IMapper mapper)
     {
-        var review = productService.AddReview(productId, dto);
+        var review = await productService.AddReviewAsync(productId, dto);
         var responseDto = mapper.Map<ReviewDto>(review);
 
         // TODO: add uri from query service
         return Results.Created("todo", responseDto);
     }
 
-    private static IResult DeleteProduct(
+    private static async Task<IResult> DeleteProductAsync(
         [FromRoute] long productId,
         [FromServices] ProductService productService)
     {
-        productService.Delete(productId);
+        await productService.DeleteAsync(productId);
         return Results.Ok();
     }
 }

@@ -2,7 +2,6 @@
 {
     public class RabbitMQConfiguration
     {
-        public string QueueName { get; set; } = null!;
 
         public string Hostname { get; set; } = null!;
 

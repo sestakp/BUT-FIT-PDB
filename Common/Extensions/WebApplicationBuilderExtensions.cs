@@ -96,11 +96,14 @@ namespace Common.Extensions
             builder.Services.AddSingleton(sp =>
             {
                 var rabbitMqOptions = sp.GetRequiredService<IOptions<RabbitMQConfiguration>>();
-                var exchangeName = string.Format(RabbitMQNames.Exchange, rabbitMqOptions.Value.QueueName);
                 var hostname = rabbitMqOptions.Value.Hostname;
                 var port = rabbitMqOptions.Value.Port;
                 var username = rabbitMqOptions.Value.UserName;
                 var password = rabbitMqOptions.Value.Password;
+
+#if DEBUG
+                hostname = "localhost";
+#endif
 
                 return new ConnectionFactory
                 {

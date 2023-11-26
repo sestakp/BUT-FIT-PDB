@@ -10,34 +10,34 @@ public static class OrderEndpoints
     {
         var gb = app.MapGroup("api/orders");
 
-        gb.MapPost(string.Empty, CreateOrder);
-        gb.MapPost("{orderId:long}/add-to-cart/{productId:long}", AddProductToCart);
-        gb.MapPut("{orderId:long}/complete", CompleteOrder);
+        gb.MapPost(string.Empty, CreateOrderAsync);
+        gb.MapPost("{orderId:long}/add-to-cart/{productId:long}", AddProductToCartAsync);
+        gb.MapPut("{orderId:long}/complete", CompleteOrderAsync);
     }
 
-    private static IResult CreateOrder([FromServices] OrderService orderService)
+    private static async Task<IResult> CreateOrderAsync([FromServices] OrderService orderService)
     {
-        var order = orderService.Create();
+        var order = await orderService.CreateAsync();
         return Results.Ok(new { id = order.Id });
     }
 
-    private static IResult AddProductToCart(
+    private static async Task<IResult> AddProductToCartAsync(
         [FromRoute] long orderId,
         [FromRoute] long productId,
         [FromServices] OrderService orderService)
     {
-        orderService.AddToCart(orderId, productId);
+        await orderService.AddToCartAsync(orderId, productId);
 
         // TODO: return order with products for demonstration purposes?
         return Results.Ok();
     }
 
-    private static IResult CompleteOrder(
+    private static async Task<IResult> CompleteOrderAsync(
         [FromRoute] long orderId,
         [FromBody] CompleteOrderDto dto,
         [FromServices] OrderService orderService)
     {
-        orderService.CompleteOrder(orderId, dto);
+        await orderService.CompleteOrderAsync(orderId, dto);
 
         // TODO: return order with products for demonstration purposes?
         return Results.Ok();

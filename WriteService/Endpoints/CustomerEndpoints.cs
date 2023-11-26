@@ -12,75 +12,75 @@ public static class CustomerEndpoints
     {
         var gb = app.MapGroup("api/customers");
 
-        gb.MapPost(string.Empty, CreateCustomer);
-        gb.MapPut("{customerId:long}", UpdateCustomer);
-        gb.MapDelete("{customerId:long}", DeleteCustomer);
+        gb.MapPost(string.Empty, CreateCustomerAsync);
+        gb.MapPut("{customerId:long}", UpdateCustomerAsync);
+        gb.MapDelete("{customerId:long}", DeleteCustomerAsync);
         gb.MapPost("{customerId:long}/addresses", CreateCustomerAddress);
-        gb.MapPut("{customerId:long}/addresses/{addressId:long}", UpdateCustomerAddress);
-        gb.MapDelete("{customerId:long}/addresses/{addressId:long}", DeleteCustomerAddress);
+        gb.MapPut("{customerId:long}/addresses/{addressId:long}", UpdateCustomerAddressAsync);
+        gb.MapDelete("{customerId:long}/addresses/{addressId:long}", DeleteCustomerAddressAsync);
     }
 
-    private static IResult CreateCustomer(
+    private static async Task<IResult> CreateCustomerAsync(
         [FromBody] CreateCustomerDto dto,
         [FromServices] CustomerService service,
         [FromServices] IMapper mapper)
     {
-        var customer = service.Create(dto);
+        var customer = await service.CreateAsync(dto);
         var responseDto = mapper.Map<CustomerDto>(customer);
         return Results.Created("api/customers" + customer.Id, responseDto);
     }
 
-    private static IResult UpdateCustomer(
+    private static async Task<IResult> UpdateCustomerAsync(
         [FromRoute] long customerId,
         [FromBody] UpdateCustomerDto dto,
         [FromServices] CustomerService service,
         [FromServices] IMapper mapper)
     {
-        var customer = service.Update(customerId, dto);
+        var customer = await service.UpdateAsync(customerId, dto);
         var responseDto = mapper.Map<CustomerDto>(customer);
         return Results.Ok(responseDto);
     }
 
-    private static IResult DeleteCustomer(
+    private static async Task<IResult> DeleteCustomerAsync(
         [FromRoute] long customerId,
         [FromServices] CustomerService service)
     {
-        service.Anonymize(customerId);
+        await service.AnonymizeAsync(customerId);
         return Results.Ok();
     }
 
-    private static IResult CreateCustomerAddress(
+    private static async Task<IResult> CreateCustomerAddress(
         [FromBody] CreateAddressDto dto,
         [FromRoute] long customerId,
         [FromServices] CustomerService service,
         [FromServices] IMapper mapper)
 
     {
-        var address = service.CreateCustomerAddress(customerId, dto);
+        var address = await service.CreateCustomerAddressAsync(customerId, dto);
         var responseDto = mapper.Map<AddressDto>(address);
 
         // TODO: add uri from query service
         return Results.Created($"api/customers/{customerId}/addresses/{address.Id}", responseDto);
     }
 
-    private static IResult UpdateCustomerAddress(
+    private static async Task<IResult> UpdateCustomerAddressAsync(
         [FromBody] UpdateAddressDto dto,
         [FromRoute] long customerId,
         [FromRoute] long addressId,
         [FromServices] CustomerService service,
         [FromServices] IMapper mapper)
     {
-        var address = service.UpdateCustomerAddress(customerId, addressId, dto);
+        var address = await service.UpdateCustomerAddressAsync(customerId, addressId, dto);
         var responseDto = mapper.Map<AddressDto>(address);
         return Results.Ok(responseDto);
     }
 
-    private static IResult DeleteCustomerAddress(
+    private static async Task<IResult> DeleteCustomerAddressAsync(
         [FromRoute] long customerId,
         [FromRoute] long addressId,
         [FromServices] CustomerService service)
     {
-        service.DeleteCustomerAddress(customerId, addressId);
+        await service.DeleteCustomerAddressAsync(customerId, addressId);
         return Results.Ok();
     }
 }

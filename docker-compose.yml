@@ -6,6 +6,7 @@ services:
       dockerfile: WriteService/Dockerfile  # Specify the path to WriteService's Dockerfile
     ports:
       - "5000:80"  # Adjust the port as needed
+      - "5001:443"  # Adjust the port as needed
     depends_on:
       - postgres
       - rabbitmq
@@ -15,7 +16,8 @@ services:
       context: .
       dockerfile: ReadService/Dockerfile  # Specify the path to WriteService's Dockerfile
     ports:
-      - "5001:80"  # Adjust the port as needed
+      - "5002:80"  # Adjust the port as needed
+      - "5003:80"  # Adjust the port as needed
     depends_on:
       - mongodb
       - rabbitmq

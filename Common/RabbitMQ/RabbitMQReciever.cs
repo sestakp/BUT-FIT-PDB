@@ -6,49 +6,65 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Common.RabbitMQ
 {
-    public class RabbitMQReciever<T> where T : IMongoItem
+    public class RabbitMQReciever<T>
     {
-        private readonly string _queueName;
         private readonly IModel _channel;
-        protected readonly IMongoCollection<T> Collection;
+        //protected readonly IMongoCollection<T> Collection;
         protected readonly ILogger<RabbitMQReciever<T>> Logger;
 
-        public RabbitMQReciever(IOptions<RabbitMQConfiguration> rabbitMqOptions, IModel channel, IMongoCollection<T> collection, ILogger<RabbitMQReciever<T>> logger)
+        public RabbitMQReciever(IModel channel, ILogger<RabbitMQReciever<T>> logger)
         {
-            Collection = collection;
+            //Collection = collection;
             Logger = logger;
-
-            _queueName = rabbitMqOptions.Value.QueueName;
-
+            
             _channel = channel;
             Logger.LogDebug("Instantiating RabbitMQReciever");
         }
 
-        public void ReceiveFromExchange(string exchangeName, string queueSuffix = "")
+        public void ReceiveFromExchange(string exchangeName, RabbitMQEntities entity)
         {
-            _channel.ExchangeDeclare(exchange: exchangeName, type: "fanout", durable: false, autoDelete: false, arguments: null);
+            _channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct, durable: true, autoDelete: false, arguments: null);
 
-            _channel.QueueDeclare(queue: _queueName + queueSuffix, durable: false, exclusive: true, autoDelete: false, arguments: null);
-            _channel.QueueBind(exchange: exchangeName, queue: _queueName + queueSuffix, routingKey: "");
+            // Use the entity name to create a unique queue
+
+            var queueName = $"{entity.ToString()}Queue";
+            var routingKey = entity.ToString();
+
+            _channel.QueueDeclare(queue: queueName, durable: true, exclusive: true, autoDelete: false, arguments: null);
+            _channel.QueueBind(exchange: exchangeName, queue: queueName, routingKey: routingKey);
 
             var consumer = new EventingBasicConsumer(_channel);
             consumer.Received += (ch, ea) =>
             {
-                var id = Encoding.UTF8.GetString(ea.Body.ToArray());
-                Logger.Log(LogLevel.Information, $"Received message from channel {_queueName + queueSuffix} with id {id}");
-                HandleMessage(id);
+               // RabbitMQMessage? message = JsonConvert.DeserializeObject<RabbitMQMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));
+
+                RabbitMQMessage? message = JsonConvert.DeserializeObject<RabbitMQMessage>(
+                    Encoding.UTF8.GetString(ea.Body.ToArray()),
+                    new JsonSerializerSettings
+                    {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+
+               
+                Logger.LogInformation($"Received message from channel {queueName} with data {message}");
+                if (message != null)
+                {
+                    HandleMessage(message);
+                }
 
                 _channel.BasicAck(ea.DeliveryTag, false);
             };
 
-            _channel.BasicConsume(_queueName + queueSuffix, false, consumer);
+            _channel.BasicConsume(queue: queueName, false, consumer);
         }
 
-        public virtual void HandleMessage(string id)
+        public virtual void HandleMessage(RabbitMQMessage message)
         {
+            throw new NotImplementedException();
         }
 
         ~RabbitMQReciever()
