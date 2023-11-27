@@ -8,10 +8,7 @@ public sealed record Order
     public int Id { get; init; }
 
     [BsonElement("customerId")]
-    public required int CustomerId { get; init; }
-
-    [BsonElement("status")]
-    public required string Status { get; init; }
+    public required string CustomerEmail { get; init; }
 
     [BsonElement("price")]
     public required decimal Price { get; init; }
@@ -22,21 +19,15 @@ public sealed record Order
     [BsonElement("created")]
     public required DateTime Created { get; init; }
 
-    [BsonElement("updated")]
-    public required DateTime Updated { get; init; }
-
     [BsonElement("isDeleted")]
-    public required bool IsDeleted { get; init; }
+    public bool IsDeleted { get; init; } = false;
 
     [BsonElement("products")]
-    public required List<Product> Products { get; init; }
+    public required IEnumerable<OrderProduct> Products { get; init; }
 }
 
 public sealed record OrderProduct
 {
-    [BsonId]
-    public int Id { get; set; }
-
     [BsonElement("title")]
     public required string Title { get; set; }
 
@@ -52,9 +43,6 @@ public sealed record OrderProduct
 
 public sealed record OrderProductVendor
 {
-    [BsonId]
-    public int Id { get; set; }
-
     [BsonElement("name")]
     public required string Name { get; set; }
 }

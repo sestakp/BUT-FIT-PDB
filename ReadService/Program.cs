@@ -48,6 +48,8 @@ internal static class Program
 
             app.UseSwagger();
             app.UseSwaggerUI();
+
+            Endpoints.MapEndpoints(app);
         }
 
         app.Services
