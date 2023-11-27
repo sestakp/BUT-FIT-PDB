@@ -1,13 +1,13 @@
-﻿using Common.Enums;
-using WriteService.Entities;
-using Microsoft.EntityFrameworkCore;
-using WriteService.DTOs.Order;
-using WriteService.Exceptions;
-using System.Transactions;
+﻿using System.Transactions;
 using AutoMapper;
-using Common.RabbitMQ.MessageDTOs;
+using Common.Enums;
 using Common.RabbitMQ;
+using Common.RabbitMQ.MessageDTOs;
+using Microsoft.EntityFrameworkCore;
 using SharpCompress.Common;
+using WriteService.DTOs.Order;
+using WriteService.Entities;
+using WriteService.Exceptions;
 
 namespace WriteService.Services;
 
@@ -99,7 +99,7 @@ public class OrderService
                 _context.Update(order);
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                
+
                 var productMessageDto = _mapper.Map<ProductMessageDto>(product);
                 var orderMessageDto = _mapper.Map<OrderMessageDTO>(order);
 

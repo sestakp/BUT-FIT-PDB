@@ -4,17 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common.RabbitMQ
+namespace Common.RabbitMQ;
+
+public enum RabbitMQEntities
 {
-    public enum RabbitMQEntities
-    {
-        Address,
-        Customer,
-        Order,
-        ProductCategory,
-        Product,
-        ProductSubCategory,
-        Review,
-        Vendor
-    }
+    Address,
+    Customer,
+    Order,
+    ProductCategory,
+    Product,
+    ProductSubCategory,
+    Review,
+    Vendor
 }

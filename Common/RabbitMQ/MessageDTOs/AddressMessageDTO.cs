@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-namespace Common.RabbitMQ.MessageDTOs
+namespace Common.RabbitMQ.MessageDTOs;
+
+public class AddressMessageDTO : MessageDTOBase
 {
-    public class AddressMessageDTO : MessageDTOBase
-    {
-    }
 }

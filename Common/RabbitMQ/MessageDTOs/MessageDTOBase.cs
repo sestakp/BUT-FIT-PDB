@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common.RabbitMQ.MessageDTOs
+namespace Common.RabbitMQ.MessageDTOs;
+
+public class MessageDTOBase
 {
-    public class MessageDTOBase
-    {
-        public long Id { get; init; }
-    }
+    public long Id { get; init; }
 }

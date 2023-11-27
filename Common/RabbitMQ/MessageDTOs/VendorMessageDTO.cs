@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common.RabbitMQ.MessageDTOs
+namespace Common.RabbitMQ.MessageDTOs;
+
+public class VendorMessageDTO : MessageDTOBase
 {
-    public class VendorMessageDTO : MessageDTOBase
-    {
-    }
 }

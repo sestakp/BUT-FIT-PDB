@@ -1,9 +1,9 @@
-﻿using Common.RabbitMQ;
+﻿using System.Transactions;
+using AutoMapper;
+using Common.RabbitMQ;
+using Common.RabbitMQ.MessageDTOs;
 using Microsoft.EntityFrameworkCore;
 using SharpCompress.Common;
-using System.Transactions;
-using AutoMapper;
-using Common.RabbitMQ.MessageDTOs;
 using WriteService.DTOs.Address;
 using WriteService.DTOs.Customer;
 using WriteService.Entities;
@@ -49,7 +49,7 @@ public class CustomerService
                 customerMessageDto);
 
             await transaction.CommitAsync();
-            
+
             return entity;
         }
     }

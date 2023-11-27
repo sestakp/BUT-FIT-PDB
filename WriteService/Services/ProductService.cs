@@ -1,7 +1,7 @@
-﻿using AutoMapper;
+﻿using System.Transactions;
+using AutoMapper;
 using Common.RabbitMQ;
 using Common.RabbitMQ.MessageDTOs;
-using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Product;
 using WriteService.DTOs.Review;
@@ -57,7 +57,7 @@ public class ProductService
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
 
                 scope.Complete();
-                
+
                 return product;
             }
             catch (Exception ex)
