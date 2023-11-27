@@ -91,7 +91,22 @@ internal class Program
             app.MapOrderEndpoints();
             app.MapCustomerEndpoints();
         }
+        
+        if (args.Length > 0 && args[0] == "--seed")
+        {
+            SeedDatabase(app);
+        }
 
         app.Run();
+    }
+
+    private static void SeedDatabase(WebApplication app)
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ShopDbContext>();
+            Seeds.ApplyDatabaseSeeds(dbContext);
+            dbContext.SaveChanges();
+        }
     }
 }

@@ -53,7 +53,15 @@ public class RabbitMQReceiver<T>
                 _ => throw new UnreachableException()
             };
 
-            handler(message);
+            try
+            {
+                handler(message);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Message handler failed.");
+                throw;
+            }
 
             _channel.BasicAck(ea.DeliveryTag, false);
         };

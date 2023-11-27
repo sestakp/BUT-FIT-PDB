@@ -17,6 +17,7 @@ public class ProductService
     private readonly ILogger<ProductService> _logger;
     private readonly IMapper _mapper;
     private readonly RabbitMQProducer _producer;
+
     public ProductService(ShopDbContext context, ILogger<ProductService> logger, IMapper mapper, RabbitMQProducer producer)
     {
         _context = context;
@@ -27,44 +28,48 @@ public class ProductService
 
     public async Task<ProductEntity> CreateAsync(CreateProductDto dto)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
+            var vendor = await _context
+                .Vendors
+                .FindAsync(dto.VendorId);
+
+            if (vendor is null)
             {
-                var vendor = await _context
-                    .Vendors
-                    .FindAsync(dto.VendorId);
-
-                if (vendor is null)
-                {
-                    throw new EntityNotFoundException(dto.VendorId);
-                }
-
-                var product = new ProductEntity()
-                {
-                    Title = dto.Title,
-                    Description = dto.Description,
-                    Price = dto.Price,
-                    PiecesInStock = dto.PricesInStock,
-                    VendorId = dto.VendorId
-                };
-
-                _context.Add(product);
-                var saveChangesTask = _context.SaveChangesAsync();
-                // var productMessageDto = _mapper.Map<ProductMessage>(product);
-                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Product, productMessageDto);
-                //
-                // await Task.WhenAll(saveChangesTask, sendMessageTask);
-                //
-                // scope.Complete();
-
-                return product;
+                throw new EntityNotFoundException(dto.VendorId);
             }
-            catch (Exception ex)
+
+            var product = new ProductEntity()
             {
-                _logger.LogError($"Error creating product: {ex.Message}", ex);
-                throw;
-            }
+                Title = dto.Title,
+                Description = dto.Description,
+                Price = dto.Price,
+                PiecesInStock = dto.PricesInStock,
+                VendorId = dto.VendorId
+            };
+
+            _context.Add(product);
+
+            await _context.SaveChangesAsync();
+
+            var message = new CreateProductMessage()
+            {
+                Title = product.Title,
+                Description = product.Description,
+                PiecesInStock = product.PiecesInStock,
+                Price = product.Price,
+                Rating = 5,
+                VendorId = product.Vendor.Id,
+                VendorName = product.Vendor.Name,
+                Categories = product.Categories.Select(x => x.Name),
+                SubCategories = product.SubCategories.Select(x => x.Name)
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Order, message);
+
+            await transaction.CommitAsync();
+
+            return product;
         }
     }
 
