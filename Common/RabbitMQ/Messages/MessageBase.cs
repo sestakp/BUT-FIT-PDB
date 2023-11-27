@@ -1,5 +1,5 @@
 ﻿namespace Common.RabbitMQ.Messages;
 
-public record MessageBase
+public abstract record MessageBase
 {
 }

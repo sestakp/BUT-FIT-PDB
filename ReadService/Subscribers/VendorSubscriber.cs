@@ -1,12 +1,26 @@
 ﻿using Common.RabbitMQ;
-using Common.RabbitMQ.Messages;
+using MongoDB.Driver;
 using RabbitMQ.Client;
 
 namespace ReadService.Subscribers;
 
-public class VendorSubscriber : RabbitMQReceiver<object>
+public class VendorSubscriber : RabbitMQReceiver<VendorSubscriber>
 {
-    public VendorSubscriber(IModel channel, ILogger<ProductSubscriber> logger) : base(channel, logger)
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+
+    public VendorSubscriber(IModel channel, ILogger<VendorSubscriber> logger, IServiceScopeFactory serviceScopeFactory)
+        : base(channel, logger)
     {
+        _serviceScopeFactory = serviceScopeFactory;
+    }
+
+    protected override void HandleCreate(RabbitMQMessage message)
+    {
+        using (var scope = _serviceScopeFactory.CreateScope())
+        {
+            var database = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
+
+            // TODO
+        }
     }
 }

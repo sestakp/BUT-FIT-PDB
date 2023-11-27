@@ -23,7 +23,6 @@ internal static class Program
             services.AddRabbitConnection();
             services.AddRabbitChannel();
 
-            services.AddSingleton<AddressSubscriber>();
             services.AddSingleton<CustomerSubscriber>();
             services.AddSingleton<OrderSubscriber>();
             services.AddSingleton<ProductSubscriber>();
@@ -52,24 +51,20 @@ internal static class Program
         }
 
         app.Services
-            .GetRequiredService<AddressSubscriber>()
-            .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Address);
-
-        app.Services
             .GetRequiredService<CustomerSubscriber>()
-            .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Customer);
+            .ReceiveFromExchange(RabbitMQEntities.Customer);
 
         app.Services
             .GetRequiredService<OrderSubscriber>()
-            .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Order);
+            .ReceiveFromExchange(RabbitMQEntities.Order);
 
         app.Services
             .GetRequiredService<ProductSubscriber>()
-            .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Product);
+            .ReceiveFromExchange(RabbitMQEntities.Product);
 
         app.Services
             .GetRequiredService<VendorSubscriber>()
-            .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Vendor);
+            .ReceiveFromExchange(RabbitMQEntities.Vendor);
 
         app.Run();
     }

@@ -100,7 +100,7 @@ public class OrderService
 
                 var saveChangesTask = _context.SaveChangesAsync();
 
-                var productMessageDto = _mapper.Map<ProductMessage>(product);
+                // var productMessageDto = _mapper.Map<ProductMessage>(product);
                 // var orderMessageDto = _mapper.Map<OrderMessage>(order);
                 //
                 // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Order, orderMessageDto);

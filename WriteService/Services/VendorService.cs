@@ -81,7 +81,7 @@ public class VendorService
 
                 _context.Update(vendor);
                 var saveChangesTask = _context.SaveChangesAsync();
-                var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
+                // var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
                 // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Vendor, vendorMessageDto);
                 //
                 // await Task.WhenAll(saveChangesTask, sendMessageTask);

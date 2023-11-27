@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
@@ -9,18 +10,20 @@ namespace Common.RabbitMQ;
 public class RabbitMQReceiver<T>
 {
     private readonly IModel _channel;
-    protected readonly ILogger<RabbitMQReceiver<T>> Logger;
+    private readonly ILogger<RabbitMQReceiver<T>> _logger;
 
     protected RabbitMQReceiver(IModel channel, ILogger<RabbitMQReceiver<T>> logger)
     {
         _channel = channel;
-        Logger = logger;
+        _logger = logger;
 
-        Logger.LogDebug("Instantiating consumer {ConsumerName}.", typeof(T).Name);
+        _logger.LogDebug("Instantiating consumer {ConsumerName}.", typeof(T).Name);
     }
 
-    public void ReceiveFromExchange(string exchangeName, RabbitMQEntities entity)
+    public void ReceiveFromExchange(RabbitMQEntities entity)
     {
+        var exchangeName = RabbitMQNames.SyncExchange;
+        
         _channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct, durable: true, autoDelete: false, arguments: null);
 
         // Use the entity name to create a unique queue
@@ -40,13 +43,14 @@ public class RabbitMQReceiver<T>
                 throw new Exception("Received message can not be null.");
             }
 
-            Logger.LogInformation("Received message from channel {QueueName} with data: {Message}", queueName, message);
+            _logger.LogInformation("Received message from channel {QueueName} with data: {Message}", queueName, message);
 
             Action<RabbitMQMessage> handler = message.Operation switch
             {
                 RabbitMQOperation.Create => HandleCreate,
                 RabbitMQOperation.Update => HandleUpdate,
-                RabbitMQOperation.Delete => HandleDelete
+                RabbitMQOperation.Delete => HandleDelete,
+                _ => throw new UnreachableException()
             };
 
             handler(message);
@@ -74,6 +78,6 @@ public class RabbitMQReceiver<T>
 
     ~RabbitMQReceiver()
     {
-        Logger.LogDebug("Destructing {ConsumerName}.", typeof(T).Name);
+        _logger.LogDebug("Destructing {ConsumerName}.", typeof(T).Name);
     }
 }
