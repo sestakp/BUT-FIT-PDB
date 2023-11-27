@@ -52,7 +52,7 @@ public class CustomerService
                 PhoneNumber = entity.PhoneNumber
             };
 
-            await _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Customer, message);
+            _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Customer, message);
 
             await transaction.CommitAsync();
 
@@ -177,12 +177,12 @@ public class CustomerService
 
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var addressMessageDto = _mapper.Map<AddressMessage>(address);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Address,
-                    addressMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
-                scope.Complete();
+                // var addressMessageDto = _mapper.Map<AddressMessage>(address);
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Address,
+                //     addressMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
+                // scope.Complete();
                 return address;
             }
             catch (Exception ex)
@@ -228,13 +228,13 @@ public class CustomerService
                 _context.Update(address);
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var addressMessageDto = _mapper.Map<AddressMessage>(address);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Address,
-                    addressMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
-
-                scope.Complete();
+                // var addressMessageDto = _mapper.Map<AddressMessage>(address);
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Address,
+                //     addressMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
+                //
+                // scope.Complete();
                 return address;
             }
             catch (Exception ex)
@@ -272,12 +272,12 @@ public class CustomerService
 
                 _context.Remove(address);
                 var saveChangesTask = _context.SaveChangesAsync();
-                var addressMessageDto = _mapper.Map<AddressMessage>(address);
-
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Address,
-                    addressMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
+                // var addressMessageDto = _mapper.Map<AddressMessage>(address);
+                //
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Address,
+                //     addressMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
                 scope.Complete();
             }
             catch (Exception ex)

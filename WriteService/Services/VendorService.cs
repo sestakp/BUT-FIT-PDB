@@ -45,12 +45,12 @@ public class VendorService
 
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Vendor, vendorMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
-
-                scope.Complete();
+                // var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Vendor, vendorMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
+                //
+                // scope.Complete();
                 return vendor;
             }
             catch (Exception ex)
@@ -82,11 +82,11 @@ public class VendorService
                 _context.Update(vendor);
                 var saveChangesTask = _context.SaveChangesAsync();
                 var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Vendor, vendorMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
-
-                scope.Complete();
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Vendor, vendorMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
+                //
+                // scope.Complete();
                 return vendor;
             }
             catch (Exception ex)
@@ -114,12 +114,12 @@ public class VendorService
                 _context.Update(vendor);
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Vendor, vendorMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
-
-                scope.Complete();
+                // var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Vendor, vendorMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
+                //
+                // scope.Complete();
             }
             catch (Exception ex)
             {

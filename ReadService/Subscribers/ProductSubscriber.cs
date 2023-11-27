@@ -4,7 +4,7 @@ using RabbitMQ.Client;
 
 namespace ReadService.Subscribers;
 
-public class ProductSubscriber : RabbitMQReciever<object>
+public class ProductSubscriber : RabbitMQReceiver<object>
 {
     public ProductSubscriber(IModel channel, ILogger<ProductSubscriber> logger) : base(channel, logger)
     {

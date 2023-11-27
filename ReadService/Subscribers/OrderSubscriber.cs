@@ -4,7 +4,7 @@ using RabbitMQ.Client;
 
 namespace ReadService.Subscribers;
 
-public class OrderSubscriber : RabbitMQReciever<object>
+public class OrderSubscriber : RabbitMQReceiver<object>
 {
     public OrderSubscriber(IModel channel, ILogger<OrderSubscriber> logger) : base(channel, logger)
     {

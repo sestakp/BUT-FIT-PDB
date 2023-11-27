@@ -3,7 +3,7 @@ using RabbitMQ.Client;
 
 namespace ReadService.Subscribers;
 
-public class CustomerSubscriber : RabbitMQReciever<CustomerSubscriber>
+public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
 {
     public CustomerSubscriber(IModel channel, ILogger<CustomerSubscriber> logger) : base(channel, logger)
     {

@@ -6,16 +6,17 @@ using RabbitMQ.Client.Events;
 
 namespace Common.RabbitMQ;
 
-public class RabbitMQReciever<T>
+public class RabbitMQReceiver<T>
 {
     private readonly IModel _channel;
-    protected readonly ILogger<RabbitMQReciever<T>> Logger;
+    protected readonly ILogger<RabbitMQReceiver<T>> Logger;
 
-    protected RabbitMQReciever(IModel channel, ILogger<RabbitMQReciever<T>> logger)
+    protected RabbitMQReceiver(IModel channel, ILogger<RabbitMQReceiver<T>> logger)
     {
-        Logger = logger;
         _channel = channel;
-        Logger.LogDebug("Instantiating RabbitMQReciever");
+        Logger = logger;
+
+        Logger.LogDebug("Instantiating consumer {ConsumerName}.", typeof(T).Name);
     }
 
     public void ReceiveFromExchange(string exchangeName, RabbitMQEntities entity)
@@ -23,7 +24,6 @@ public class RabbitMQReciever<T>
         _channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct, durable: true, autoDelete: false, arguments: null);
 
         // Use the entity name to create a unique queue
-
         var queueName = $"{entity.ToString()}Queue";
         var routingKey = entity.ToString();
 
@@ -55,8 +55,8 @@ public class RabbitMQReciever<T>
         throw new NotImplementedException();
     }
 
-    ~RabbitMQReciever()
+    ~RabbitMQReceiver()
     {
-        Logger.LogDebug("Destructing RabbitMQReciever");
+        Logger.LogDebug("Destructing {ConsumerName}.", typeof(T).Name);
     }
 }

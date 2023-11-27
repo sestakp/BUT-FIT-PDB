@@ -41,12 +41,12 @@ public class OrderService
                 _context.Orders.Add(order);
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var orderMessageDto = _mapper.Map<OrderMessage>(order);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Order, orderMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
-
-                scope.Complete();
+                // var orderMessageDto = _mapper.Map<OrderMessage>(order);
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Order, orderMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
+                //
+                // scope.Complete();
                 return order;
             }
             catch (Exception ex)
@@ -101,14 +101,14 @@ public class OrderService
                 var saveChangesTask = _context.SaveChangesAsync();
 
                 var productMessageDto = _mapper.Map<ProductMessage>(product);
-                var orderMessageDto = _mapper.Map<OrderMessage>(order);
-
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Order, orderMessageDto);
-                var sendMessageTask2 = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Product, productMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask, sendMessageTask2);
-
-                scope.Complete();
+                // var orderMessageDto = _mapper.Map<OrderMessage>(order);
+                //
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Order, orderMessageDto);
+                // var sendMessageTask2 = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Product, productMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask, sendMessageTask2);
+                //
+                // scope.Complete();
                 return order;
             }
             catch (Exception ex)
@@ -143,12 +143,12 @@ public class OrderService
 
                 _context.Update(order);
                 var saveChangesTask = _context.SaveChangesAsync();
-                var orderMessageDto = _mapper.Map<OrderMessage>(order);
-                var sendMessageTask =
-                    _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Order, orderMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
-                scope.Complete();
+                // var orderMessageDto = _mapper.Map<OrderMessage>(order);
+                // var sendMessageTask =
+                //     _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Order, orderMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
+                // scope.Complete();
                 return order;
             }
             catch (Exception ex)

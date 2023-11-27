@@ -51,12 +51,12 @@ public class ProductService
 
                 _context.Add(product);
                 var saveChangesTask = _context.SaveChangesAsync();
-                var productMessageDto = _mapper.Map<ProductMessage>(product);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Product, productMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
-
-                scope.Complete();
+                // var productMessageDto = _mapper.Map<ProductMessage>(product);
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Product, productMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
+                //
+                // scope.Complete();
 
                 return product;
             }
@@ -87,12 +87,12 @@ public class ProductService
 
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var reviewMessageDto = _mapper.Map<ReviewMessage>(review);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Review, reviewMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
-
-                scope.Complete();
+                // var reviewMessageDto = _mapper.Map<ReviewMessage>(review);
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Review, reviewMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
+                //
+                // scope.Complete();
                 return review;
             }
             catch (Exception ex)
@@ -117,12 +117,12 @@ public class ProductService
 
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var productMessageDto = _mapper.Map<ProductMessage>(product);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Product, productMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
-
-                scope.Complete();
+                // var productMessageDto = _mapper.Map<ProductMessage>(product);
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Product, productMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
+                //
+                // scope.Complete();
             }
             catch (Exception ex)
             {
