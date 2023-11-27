@@ -9,14 +9,11 @@ namespace Common.RabbitMQ;
 public class RabbitMQReciever<T>
 {
     private readonly IModel _channel;
-    //protected readonly IMongoCollection<T> Collection;
     protected readonly ILogger<RabbitMQReciever<T>> Logger;
 
-    public RabbitMQReciever(IModel channel, ILogger<RabbitMQReciever<T>> logger)
+    protected RabbitMQReciever(IModel channel, ILogger<RabbitMQReciever<T>> logger)
     {
-        //Collection = collection;
         Logger = logger;
-
         _channel = channel;
         Logger.LogDebug("Instantiating RabbitMQReciever");
     }
@@ -36,21 +33,16 @@ public class RabbitMQReciever<T>
         var consumer = new EventingBasicConsumer(_channel);
         consumer.Received += (ch, ea) =>
         {
-            // RabbitMQMessage? message = JsonConvert.DeserializeObject<RabbitMQMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));
-
-            RabbitMQMessage? message = JsonConvert.DeserializeObject<RabbitMQMessage>(
-                Encoding.UTF8.GetString(ea.Body.ToArray()),
-                new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
-
-
-            Logger.LogInformation($"Received message from channel {queueName} with data {message}");
-            if (message != null)
+            var serializerOptions = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
+            var message = JsonConvert.DeserializeObject<RabbitMQMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()), serializerOptions);
+            if (message is null)
             {
-                HandleMessage(message);
+                throw new Exception("Received message can not be null.");
             }
+
+            Logger.LogInformation("Received message from channel {QueueName} with data: {Message}", queueName, message);
+
+            HandleMessage(message);
 
             _channel.BasicAck(ea.DeliveryTag, false);
         };
@@ -58,7 +50,7 @@ public class RabbitMQReciever<T>
         _channel.BasicConsume(queue: queueName, false, consumer);
     }
 
-    public virtual void HandleMessage(RabbitMQMessage message)
+    protected virtual void HandleMessage(RabbitMQMessage message)
     {
         throw new NotImplementedException();
     }

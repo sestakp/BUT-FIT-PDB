@@ -1,5 +1,5 @@
 ﻿using Common.RabbitMQ;
-using Common.RabbitMQ.MessageDTOs;
+using Common.RabbitMQ.Messages;
 using RabbitMQ.Client;
 
 namespace ReadService.Subscribers;
@@ -10,12 +10,12 @@ public class AddressSubscriber : RabbitMQReciever<object>
     {
     }
 
-    public override void HandleMessage(RabbitMQMessage message)
+    protected override void HandleMessage(RabbitMQMessage message)
     {
 
         Logger.LogInformation("Address subscriber receive message");
 
-        var address = (AddressMessageDTO)message.Data!;
+        var address = (AddressMessage)message.Data!;
 
         switch (message.Operation)
         {

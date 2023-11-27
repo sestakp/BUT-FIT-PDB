@@ -1,7 +1,7 @@
 ﻿using System.Transactions;
 using AutoMapper;
 using Common.RabbitMQ;
-using Common.RabbitMQ.MessageDTOs;
+using Common.RabbitMQ.Messages;
 using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Product;
 using WriteService.DTOs.Review;
@@ -51,7 +51,7 @@ public class ProductService
 
                 _context.Add(product);
                 var saveChangesTask = _context.SaveChangesAsync();
-                var productMessageDto = _mapper.Map<ProductMessageDto>(product);
+                var productMessageDto = _mapper.Map<ProductMessage>(product);
                 var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Product, productMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
@@ -87,7 +87,7 @@ public class ProductService
 
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var reviewMessageDto = _mapper.Map<ReviewMessageDTO>(review);
+                var reviewMessageDto = _mapper.Map<ReviewMessage>(review);
                 var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Review, reviewMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
@@ -117,7 +117,7 @@ public class ProductService
 
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var productMessageDto = _mapper.Map<ProductMessageDto>(product);
+                var productMessageDto = _mapper.Map<ProductMessage>(product);
                 var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Product, productMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);

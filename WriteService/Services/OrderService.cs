@@ -2,7 +2,7 @@
 using AutoMapper;
 using Common.Enums;
 using Common.RabbitMQ;
-using Common.RabbitMQ.MessageDTOs;
+using Common.RabbitMQ.Messages;
 using Microsoft.EntityFrameworkCore;
 using SharpCompress.Common;
 using WriteService.DTOs.Order;
@@ -41,7 +41,7 @@ public class OrderService
                 _context.Orders.Add(order);
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var orderMessageDto = _mapper.Map<OrderMessageDTO>(order);
+                var orderMessageDto = _mapper.Map<OrderMessage>(order);
                 var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Order, orderMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
@@ -100,8 +100,8 @@ public class OrderService
 
                 var saveChangesTask = _context.SaveChangesAsync();
 
-                var productMessageDto = _mapper.Map<ProductMessageDto>(product);
-                var orderMessageDto = _mapper.Map<OrderMessageDTO>(order);
+                var productMessageDto = _mapper.Map<ProductMessage>(product);
+                var orderMessageDto = _mapper.Map<OrderMessage>(order);
 
                 var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Order, orderMessageDto);
                 var sendMessageTask2 = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Product, productMessageDto);
@@ -143,7 +143,7 @@ public class OrderService
 
                 _context.Update(order);
                 var saveChangesTask = _context.SaveChangesAsync();
-                var orderMessageDto = _mapper.Map<OrderMessageDTO>(order);
+                var orderMessageDto = _mapper.Map<OrderMessage>(order);
                 var sendMessageTask =
                     _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Order, orderMessageDto);
 

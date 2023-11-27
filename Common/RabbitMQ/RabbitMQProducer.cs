@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using Common.Configuration;
-using Common.RabbitMQ.MessageDTOs;
+using Common.RabbitMQ.Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -40,7 +40,7 @@ public class RabbitMQProducer
     }
     */
 
-    public async Task SendMessageAsync(RabbitMQOperation operation, RabbitMQEntities entity, MessageDTOBase data)
+    public async Task SendMessageAsync(RabbitMQOperation operation, RabbitMQEntities entity, MessageBase data)
     {
         using (var channel = _connection.CreateModel())
         {

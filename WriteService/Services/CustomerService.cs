@@ -1,7 +1,7 @@
 ﻿using System.Transactions;
 using AutoMapper;
 using Common.RabbitMQ;
-using Common.RabbitMQ.MessageDTOs;
+using Common.RabbitMQ.Messages;
 using Microsoft.EntityFrameworkCore;
 using SharpCompress.Common;
 using WriteService.DTOs.Address;
@@ -44,9 +44,15 @@ public class CustomerService
 
             await _context.SaveChangesAsync();
 
-            var customerMessageDto = _mapper.Map<CustomerMessageDTO>(entity);
-            var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Customer,
-                customerMessageDto);
+            var message = new CreateCustomerMessage()
+            {
+                FirstName = entity.FirstName,
+                LastName = entity.LastName,
+                Email = entity.Email,
+                PhoneNumber = entity.PhoneNumber
+            };
+
+            await _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Customer, message);
 
             await transaction.CommitAsync();
 
@@ -74,11 +80,11 @@ public class CustomerService
 
                 var saveChangesTask = _context.SaveChangesAsync();
 
-                var customerMessageDto = _mapper.Map<CustomerMessageDTO>(entity);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer,
-                    customerMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
+                // var customerMessageDto = _mapper.Map<CustomerMessage>(entity);
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer,
+                //     customerMessageDto);
+                //
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
 
                 // If everything is successful, complete the transaction
                 scope.Complete();
@@ -125,13 +131,13 @@ public class CustomerService
                     _context.Remove(address);
                 }
 
-                var saveChangesTask = _context.SaveChangesAsync();
-                var customerMessageDto = _mapper.Map<CustomerMessageDTO>(customer);
+                // var saveChangesTask = _context.SaveChangesAsync();
+                // var customerMessageDto = _mapper.Map<CustomerMessage>(customer);
+                //
+                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Customer,
+                //     customerMessageDto);
 
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Customer,
-                    customerMessageDto);
-
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
+                // await Task.WhenAll(saveChangesTask, sendMessageTask);
                 scope.Complete();
             }
             catch (Exception ex)
@@ -171,7 +177,7 @@ public class CustomerService
 
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var addressMessageDto = _mapper.Map<AddressMessageDTO>(address);
+                var addressMessageDto = _mapper.Map<AddressMessage>(address);
                 var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Address,
                     addressMessageDto);
 
@@ -222,7 +228,7 @@ public class CustomerService
                 _context.Update(address);
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var addressMessageDto = _mapper.Map<AddressMessageDTO>(address);
+                var addressMessageDto = _mapper.Map<AddressMessage>(address);
                 var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Address,
                     addressMessageDto);
 
@@ -266,7 +272,7 @@ public class CustomerService
 
                 _context.Remove(address);
                 var saveChangesTask = _context.SaveChangesAsync();
-                var addressMessageDto = _mapper.Map<AddressMessageDTO>(address);
+                var addressMessageDto = _mapper.Map<AddressMessage>(address);
 
                 var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Address,
                     addressMessageDto);

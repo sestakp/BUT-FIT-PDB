@@ -1,7 +1,7 @@
 ﻿using System.Transactions;
 using AutoMapper;
 using Common.RabbitMQ;
-using Common.RabbitMQ.MessageDTOs;
+using Common.RabbitMQ.Messages;
 using Microsoft.EntityFrameworkCore;
 using SharpCompress.Common;
 using WriteService.DTOs.Vendor;
@@ -45,7 +45,7 @@ public class VendorService
 
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var vendorMessageDto = _mapper.Map<VendorMessageDTO>(vendor);
+                var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
                 var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Vendor, vendorMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
@@ -81,7 +81,7 @@ public class VendorService
 
                 _context.Update(vendor);
                 var saveChangesTask = _context.SaveChangesAsync();
-                var vendorMessageDto = _mapper.Map<VendorMessageDTO>(vendor);
+                var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
                 var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Vendor, vendorMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
@@ -114,7 +114,7 @@ public class VendorService
                 _context.Update(vendor);
 
                 var saveChangesTask = _context.SaveChangesAsync();
-                var vendorMessageDto = _mapper.Map<VendorMessageDTO>(vendor);
+                var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
                 var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Vendor, vendorMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);

@@ -1,5 +1,5 @@
 ﻿using Common.RabbitMQ;
-using Common.RabbitMQ.MessageDTOs;
+using Common.RabbitMQ.Messages;
 using RabbitMQ.Client;
 
 namespace ReadService.Subscribers;
@@ -10,11 +10,11 @@ public class ProductSubscriber : RabbitMQReciever<object>
     {
     }
 
-    public override void HandleMessage(RabbitMQMessage message)
+    protected override void HandleMessage(RabbitMQMessage message)
     {
         Logger.LogInformation("Product subscriber receive message");
 
-        var product = (ProductMessageDto)message.Data!;
+        var product = (ProductMessage)message.Data!;
 
         switch (message.Operation)
         {

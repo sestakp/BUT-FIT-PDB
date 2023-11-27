@@ -1,27 +1,16 @@
-﻿using Common.Configuration;
-using Common.RabbitMQ;
-using Common.RabbitMQ.MessageDTOs;
-using Microsoft.Extensions.Options;
-using MongoDB.Driver;
+﻿using Common.RabbitMQ;
 using RabbitMQ.Client;
 
 namespace ReadService.Subscribers;
 
-public class CustomerSubscriber : RabbitMQReciever<object>
+public class CustomerSubscriber : RabbitMQReciever<CustomerSubscriber>
 {
     public CustomerSubscriber(IModel channel, ILogger<CustomerSubscriber> logger) : base(channel, logger)
     {
     }
 
-    public override void HandleMessage(RabbitMQMessage message)
+    protected override void HandleMessage(RabbitMQMessage message)
     {
-
-        Logger.LogInformation($"Customer subscriber receive message");
-        if (message.Entity != RabbitMQEntities.Customer) return;
-        var customer = (CustomerMessageDTO)message.Data!;
-
-
-
         switch (message.Operation)
         {
             case RabbitMQOperation.Create:

@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Common.RabbitMQ.MessageDTOs;
+﻿using Common.RabbitMQ.Messages;
 
 namespace Common.RabbitMQ;
 
-public class RabbitMQMessage
+public record RabbitMQMessage
 {
-    public RabbitMQOperation Operation { get; set; }
-    public RabbitMQEntities Entity { get; set; }
-    public MessageDTOBase? Data { get; set; }
-
+    public RabbitMQOperation Operation { get; init; }
+    public RabbitMQEntities Entity { get; init; }
+    public MessageBase? Data { get; init; }
 }

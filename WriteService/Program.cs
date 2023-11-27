@@ -1,6 +1,6 @@
 using AutoMapper;
 using Common.Extensions;
-using Common.RabbitMQ.MessageDTOs;
+using Common.RabbitMQ.Messages;
 using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Address;
 using WriteService.DTOs.Customer;
@@ -59,27 +59,26 @@ internal class Program
             {
                 cfg.CreateMap<VendorEntity, VendorDto>();
                 cfg.CreateMap<VendorDto, VendorEntity>();
-                cfg.CreateMap<VendorEntity, VendorMessageDTO>();
+                cfg.CreateMap<VendorEntity, VendorMessage>();
 
                 cfg.CreateMap<AddressEntity, AddressDto>();
                 cfg.CreateMap<AddressDto, AddressEntity>();
-                cfg.CreateMap<AddressEntity, AddressMessageDTO>();
+                cfg.CreateMap<AddressEntity, AddressMessage>();
 
                 cfg.CreateMap<CustomerEntity, CustomerDto>();
                 cfg.CreateMap<CustomerDto, CustomerEntity>();
-                cfg.CreateMap<CustomerEntity, CustomerMessageDTO>();
 
                 cfg.CreateMap<OrderEntity, CompleteOrderDto>();
                 cfg.CreateMap<CompleteOrderDto, OrderEntity>();
-                cfg.CreateMap<OrderEntity, OrderMessageDTO>();
+                cfg.CreateMap<OrderEntity, OrderMessage>();
 
                 cfg.CreateMap<ProductEntity, ProductDto>();
                 cfg.CreateMap<ProductDto, ProductEntity>();
-                cfg.CreateMap<ProductEntity, ProductMessageDto>();
+                cfg.CreateMap<ProductEntity, ProductMessage>();
 
                 cfg.CreateMap<ReviewEntity, ReviewDto>();
                 cfg.CreateMap<ReviewDto, ReviewEntity>();
-                cfg.CreateMap<ReviewEntity, ReviewMessageDTO>();
+                cfg.CreateMap<ReviewEntity, ReviewMessage>();
             });
 
             var mapper = mapperConfig.CreateMapper();
