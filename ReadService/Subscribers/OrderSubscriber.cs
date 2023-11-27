@@ -9,26 +9,4 @@ public class OrderSubscriber : RabbitMQReceiver<object>
     public OrderSubscriber(IModel channel, ILogger<OrderSubscriber> logger) : base(channel, logger)
     {
     }
-
-    protected override void HandleMessage(RabbitMQMessage message)
-    {
-        Logger.LogInformation("Order subscriber receive message");
-
-        var order = (OrderMessage)message.Data!;
-
-        switch (message.Operation)
-        {
-            case RabbitMQOperation.Create:
-
-                break;
-            case RabbitMQOperation.Update:
-
-                break;
-            case RabbitMQOperation.Delete:
-
-                break;
-        }
-
-
-    }
 }

@@ -42,7 +42,14 @@ public class RabbitMQReceiver<T>
 
             Logger.LogInformation("Received message from channel {QueueName} with data: {Message}", queueName, message);
 
-            HandleMessage(message);
+            Action<RabbitMQMessage> handler = message.Operation switch
+            {
+                RabbitMQOperation.Create => HandleCreate,
+                RabbitMQOperation.Update => HandleUpdate,
+                RabbitMQOperation.Delete => HandleDelete
+            };
+
+            handler(message);
 
             _channel.BasicAck(ea.DeliveryTag, false);
         };
@@ -50,7 +57,17 @@ public class RabbitMQReceiver<T>
         _channel.BasicConsume(queue: queueName, false, consumer);
     }
 
-    protected virtual void HandleMessage(RabbitMQMessage message)
+    protected virtual void HandleCreate(RabbitMQMessage message)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected virtual void HandleUpdate(RabbitMQMessage message)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected virtual void HandleDelete(RabbitMQMessage message)
     {
         throw new NotImplementedException();
     }
