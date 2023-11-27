@@ -1,9 +1,7 @@
-﻿using System.Transactions;
-using AutoMapper;
+﻿using AutoMapper;
 using Common.RabbitMQ;
 using Common.RabbitMQ.Messages;
 using Microsoft.EntityFrameworkCore;
-using SharpCompress.Common;
 using WriteService.DTOs.Vendor;
 using WriteService.Entities;
 using WriteService.Exceptions;
@@ -27,105 +25,84 @@ public class VendorService
 
     public async Task<VendorEntity> CreateAsync(CreateVendorDto dto)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
+            var vendor = new VendorEntity()
             {
-                var vendor = new VendorEntity()
-                {
-                    Name = dto.Name,
-                    Country = dto.Country,
-                    ZipCode = dto.ZipCode,
-                    City = dto.City,
-                    Street = dto.Street,
-                    HouseNumber = dto.HouseNumber
-                };
+                Name = dto.Name,
+                Country = dto.Country,
+                ZipCode = dto.ZipCode,
+                City = dto.City,
+                Street = dto.Street,
+                HouseNumber = dto.HouseNumber
+            };
 
-                _context.Add(vendor);
+            _context.Add(vendor);
 
+            await _context.SaveChangesAsync();
 
-                var saveChangesTask = _context.SaveChangesAsync();
-                // var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
-                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Vendor, vendorMessageDto);
-                //
-                // await Task.WhenAll(saveChangesTask, sendMessageTask);
-                //
-                // scope.Complete();
-                return vendor;
-            }
-            catch (Exception ex)
+            var message = new CreateVendorMessage()
             {
-                _logger.LogError($"Error creating vendor: {ex.Message}", ex);
-                throw;
-            }
-            finally
-            {
-                scope.Dispose();
-            }
+                Id = vendor.Id,
+                Name = vendor.Name,
+                AddressCountry = vendor.Country,
+                AddressZipCode = vendor.ZipCode,
+                AddressCity = vendor.City,
+                AddressStreet = vendor.Street,
+                AddressHouseNumber = vendor.HouseNumber
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Vendor, message);
+
+            await transaction.CommitAsync();
+
+            return vendor;
         }
     }
 
     public async Task<VendorEntity> UpdateAsync(long vendorId, UpdateVendorDto dto)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
-            {
-                var vendor = await FindVendorAsync(vendorId);
+            var vendor = await FindVendorAsync(vendorId);
 
-                vendor.Country = dto.Country;
-                vendor.ZipCode = dto.ZipCode;
-                vendor.City = dto.City;
-                vendor.Street = dto.Street;
-                vendor.HouseNumber = dto.HouseNumber;
+            vendor.Country = dto.Country;
+            vendor.ZipCode = dto.ZipCode;
+            vendor.City = dto.City;
+            vendor.Street = dto.Street;
+            vendor.HouseNumber = dto.HouseNumber;
 
-                _context.Update(vendor);
-                var saveChangesTask = _context.SaveChangesAsync();
-                // var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
-                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Vendor, vendorMessageDto);
-                //
-                // await Task.WhenAll(saveChangesTask, sendMessageTask);
-                //
-                // scope.Complete();
-                return vendor;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error updating vendor: {ex.Message}", ex);
-                throw;
-            }
+            _context.Update(vendor);
+
+            await _context.SaveChangesAsync();
+
+            // TODO: send message
+
+            await transaction.CommitAsync();
+
+            return vendor;
         }
     }
 
     public async Task DeleteAsync(long vendorId)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
+            var vendor = await FindVendorAsync(vendorId, includeProducts: true);
+
+            vendor.IsDeleted = true;
+            foreach (var product in vendor.Products)
             {
-                var vendor = await FindVendorAsync(vendorId, includeProducts: true);
-
-                vendor.IsDeleted = true;
-                foreach (var product in vendor.Products)
-                {
-                    product.IsDeleted = true;
-                }
-
-                _context.Update(vendor);
-
-                var saveChangesTask = _context.SaveChangesAsync();
-                // var vendorMessageDto = _mapper.Map<VendorMessage>(vendor);
-                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Vendor, vendorMessageDto);
-                //
-                // await Task.WhenAll(saveChangesTask, sendMessageTask);
-                //
-                // scope.Complete();
+                product.IsDeleted = true;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error deleting vendor: {ex.Message}", ex);
-                throw;
-            }
+
+            _context.Update(vendor);
+
+            await _context.SaveChangesAsync();
+
+            // TODO: send message
+
+            await transaction.CommitAsync();
         }
     }
 

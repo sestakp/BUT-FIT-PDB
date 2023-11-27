@@ -23,7 +23,13 @@ public static class ProductEndpoints
         [FromServices] IMapper mapper)
     {
         var product = await productService.CreateAsync(dto);
-        var responseDto = mapper.Map<ProductDto>(product);
+
+        var responseDto = new ProductDto(
+            product.Id,
+            product.Title,
+            product.Description,
+            product.Price,
+            product.PiecesInStock);
 
         // TODO: add uri from query service
         return Results.Created("todo", responseDto);

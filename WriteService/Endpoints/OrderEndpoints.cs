@@ -15,9 +15,11 @@ public static class OrderEndpoints
         gb.MapPut("{orderId:long}/complete", CompleteOrderAsync);
     }
 
-    private static async Task<IResult> CreateOrderAsync([FromServices] OrderService orderService)
+    private static async Task<IResult> CreateOrderAsync(
+        [FromBody] CreateOrderDto dto,
+        [FromServices] OrderService orderService)
     {
-        var order = await orderService.CreateAsync();
+        var order = await orderService.CreateAsync(dto.CustomerId);
         return Results.Ok(new { id = order.Id });
     }
 

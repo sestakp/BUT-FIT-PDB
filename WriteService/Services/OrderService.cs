@@ -24,12 +24,13 @@ public class OrderService
         _logger = logger;
     }
 
-    public async Task<OrderEntity> CreateAsync()
+    public async Task<OrderEntity> CreateAsync(long customerId)
     {
         var order = new OrderEntity()
         {
             Created = DateTime.UtcNow,
-            Status = OrderStatusEnum.InProgress
+            Status = OrderStatusEnum.InProgress,
+            CustomerId = customerId
         };
 
         _context.Orders.Add(order);

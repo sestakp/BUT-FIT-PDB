@@ -12,7 +12,7 @@ public static class VendorEndpoints
         var gb = app.MapGroup("api/vendors");
 
         gb.MapPost(string.Empty, CreateVendorAsync);
-        gb.MapPut("{vendorId:long}", UpdateVendorAsync);
+        // gb.MapPut("{vendorId:long}", UpdateVendorAsync);
         gb.MapDelete("{vendorId:long}", DeleteVendorAsync);
     }
 
@@ -22,24 +22,32 @@ public static class VendorEndpoints
         [FromServices] IMapper mapper)
     {
         var vendor = await vendorService.CreateAsync(dto);
-        var responseDto = mapper.Map<VendorDto>(vendor);
+
+        var responseDto = new VendorDto(
+            vendor.Id,
+            vendor.Name,
+            vendor.Country,
+            vendor.ZipCode,
+            vendor.City,
+            vendor.Street,
+            vendor.HouseNumber);
 
         // TODO: add uri from query service
         return Results.Created("todo", responseDto);
     }
 
-    private static async Task<IResult> UpdateVendorAsync(
-        [FromRoute] long vendorId,
-        [FromBody] UpdateVendorDto dto,
-        [FromServices] VendorService vendorService,
-        [FromServices] IMapper mapper)
-    {
-        var vendor = await vendorService.UpdateAsync(vendorId, dto);
-        var responseDto = mapper.Map<VendorDto>(vendor);
-
-        // TODO: add uri from query service
-        return Results.Created("todo", responseDto);
-    }
+    // private static async Task<IResult> UpdateVendorAsync(
+    //     [FromRoute] long vendorId,
+    //     [FromBody] UpdateVendorDto dto,
+    //     [FromServices] VendorService vendorService,
+    //     [FromServices] IMapper mapper)
+    // {
+    //     var vendor = await vendorService.UpdateAsync(vendorId, dto);
+    //     var responseDto = mapper.Map<VendorDto>(vendor);
+    //
+    //     // TODO: add uri from query service
+    //     return Results.Created("todo", responseDto);
+    // }
 
     private static async Task<IResult> DeleteVendorAsync(
         [FromRoute] long vendorId,

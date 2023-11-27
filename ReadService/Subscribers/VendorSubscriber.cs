@@ -1,6 +1,9 @@
 ﻿using Common.RabbitMQ;
+using Common.RabbitMQ.Messages;
 using MongoDB.Driver;
 using RabbitMQ.Client;
+using ReadService.Data;
+using ReadService.Data.Models;
 
 namespace ReadService.Subscribers;
 
@@ -20,7 +23,25 @@ public class VendorSubscriber : RabbitMQReceiver<VendorSubscriber>
         {
             var database = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
 
-            // TODO
+            var data = (message.Data as CreateVendorMessage)!;
+
+            var collection = database.Collection<Vendor>();
+
+            var document = new Vendor()
+            {
+                Id = data.Id,
+                Name = data.Name,
+                Address = new Address()
+                {
+                    Country = data.AddressCountry,
+                    City = data.AddressCity,
+                    ZipCode = data.AddressZipCode,
+                    Street = data.AddressStreet,
+                    HouseNumber = data.AddressHouseNumber
+                }
+            };
+
+            collection.InsertOne(document);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Transactions;
-using AutoMapper;
+﻿using AutoMapper;
 using Common.RabbitMQ;
 using Common.RabbitMQ.Messages;
 using Microsoft.EntityFrameworkCore;
@@ -75,65 +74,44 @@ public class ProductService
 
     public async Task<ReviewEntity> AddReviewAsync(long productId, CreateReviewDto dto)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
+            var product = await FindProductAsync(productId);
+
+            var review = new ReviewEntity()
             {
-                var product = await FindProductAsync(productId);
+                Rating = dto.Rating,
+                Text = dto.Text,
+                Product = product
+            };
 
-                var review = new ReviewEntity()
-                {
-                    Rating = dto.Rating,
-                    Text = dto.Text,
-                    Product = product
-                };
+            _context.Add(review);
 
-                _context.Add(review);
+            await _context.SaveChangesAsync();
 
+            // TODO: send message
 
-                var saveChangesTask = _context.SaveChangesAsync();
-                // var reviewMessageDto = _mapper.Map<ReviewMessage>(review);
-                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Review, reviewMessageDto);
-                //
-                // await Task.WhenAll(saveChangesTask, sendMessageTask);
-                //
-                // scope.Complete();
-                return review;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error creating review: {ex.Message}", ex);
-                throw;
-            }
+            await transaction.CommitAsync();
+
+            return review;
         }
     }
 
     public async Task DeleteAsync(long productId)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
-            {
-                var product = await FindProductAsync(productId);
+            var product = await FindProductAsync(productId);
 
-                product.IsDeleted = true;
+            product.IsDeleted = true;
 
-                _context.Update(product);
+            _context.Update(product);
 
+            await _context.SaveChangesAsync();
 
-                var saveChangesTask = _context.SaveChangesAsync();
-                // var productMessageDto = _mapper.Map<ProductMessage>(product);
-                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Product, productMessageDto);
-                //
-                // await Task.WhenAll(saveChangesTask, sendMessageTask);
-                //
-                // scope.Complete();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error deleting product: {ex.Message}", ex);
-                throw;
-            }
+            // TODO: send message
+
+            await transaction.CommitAsync();
         }
     }
 

@@ -60,6 +60,7 @@ public class CustomerService
         }
     }
 
+    // TODO
     public async Task<CustomerEntity> UpdateAsync(long customerId, UpdateCustomerDto dto)
     {
         using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -100,6 +101,7 @@ public class CustomerService
         }
     }
 
+    // TODO
     public async Task AnonymizeAsync(long customerId)
     {
         using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -149,6 +151,7 @@ public class CustomerService
         }
     }
 
+    // TODO
     public async Task<AddressEntity> CreateCustomerAddressAsync(long customerId, CreateAddressDto dto)
     {
         using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -194,6 +197,7 @@ public class CustomerService
         }
     }
 
+    // TODO
     public async Task<AddressEntity> UpdateCustomerAddressAsync(
         long customerId,
         long addressId,
@@ -246,6 +250,7 @@ public class CustomerService
         }
     }
 
+    // TODO
     public async Task DeleteCustomerAddressAsync(
         long customerId,
         long addressId)
