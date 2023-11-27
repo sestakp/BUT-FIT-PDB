@@ -1,34 +1,74 @@
 using Common.Extensions;
-using Common.Pipelines;
 using Common.RabbitMQ;
-using ReadService.Pipelines;
+using ReadService.Data;
 using ReadService.Subscribers;
 
-var builder = ReadServiceBuilderPipeline.CreateBuilder(args);
+namespace ReadService;
 
-builder.Configuration.AddUserSecrets<Program>();
-builder.AddRabbitMQSettings();
-builder.AddConnectionFactoryForRabbit();
-builder.AddRabbitConnection();
-builder.AddRabbitChannel();
+internal static class Program
+{
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+        {
+            var services = builder.Services;
 
-builder.Services.AddSingleton<AddressSubscriber>();
-builder.Services.AddSingleton<CustomerSubscriber>();
-builder.Services.AddSingleton<OrderSubscriber>();
-builder.Services.AddSingleton<ProductSubscriber>();
-builder.Services.AddSingleton<VendorSubscriber>();
+            services.AddSwaggerGen();
 
+            // TODO: refactor this to one extension method
+            builder.AddRabbitMQSettings();
+            builder.AddConnectionFactoryForRabbit();
+            builder.AddRabbitConnection();
+            builder.AddRabbitChannel();
 
-var app = AppPipeline.Build(builder);
+            services.AddSingleton<AddressSubscriber>();
+            services.AddSingleton<CustomerSubscriber>();
+            services.AddSingleton<OrderSubscriber>();
+            services.AddSingleton<ProductSubscriber>();
+            services.AddSingleton<VendorSubscriber>();
 
-app.Services.GetRequiredService<AddressSubscriber>().ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Address);
-app.Services.GetRequiredService<CustomerSubscriber>().ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Customer);
-app.Services.GetRequiredService<OrderSubscriber>().ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Order);
-app.Services.GetRequiredService<ProductSubscriber>().ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Product);
-app.Services.GetRequiredService<VendorSubscriber>().ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Vendor);
+            services.AddCors(options =>
+            {
+                options.AddPolicy("ReadServiceCorsPolicy", policyBuilder =>
+                {
+                    policyBuilder
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .WithMethods("GET");
+                });
+            });
+            
+            services.AddMongoDb(builder.Configuration);
+        }
 
+        var app = builder.Build();
+        {
+            app.UseCors("ReadServiceCorsPolicy");
 
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
+            app.Services
+                .GetRequiredService<AddressSubscriber>()
+                .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Address);
 
-app.Run();
+            app.Services
+                .GetRequiredService<CustomerSubscriber>()
+                .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Customer);
 
+            app.Services
+                .GetRequiredService<OrderSubscriber>()
+                .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Order);
+
+            app.Services
+                .GetRequiredService<ProductSubscriber>()
+                .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Product);
+
+            app.Services
+                .GetRequiredService<VendorSubscriber>()
+                .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Vendor);
+        }
+
+        app.Run();
+    }
+}

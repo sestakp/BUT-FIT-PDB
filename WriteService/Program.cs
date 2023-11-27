@@ -24,9 +24,7 @@ internal class Program
 
             services.AddSwaggerGen();
 
-            // TODO: add RabbitMQ configuration
-
-            builder.Configuration.AddUserSecrets<Program>();
+            // TODO: refactor this to one extension method
             builder.AddRabbitMQSettings();
             builder.AddConnectionFactoryForRabbit();
             builder.AddRabbitConnection();
@@ -50,48 +48,39 @@ internal class Program
             services.AddScoped<VendorService>();
             services.AddEndpointsApiExplorer();
 
-            builder.Services.AddLogging(loggingBuilder =>
-            {
-                loggingBuilder.AddConsole();
-            });
-
             services.AddDbContext<ShopDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbContext")));
 
             services.AddHostedService<ProductGarbageCollector>();
 
-            // TODO: add mapping configurations
+            // TODO: refactor to one extension method
             var mapperConfig = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<VendorEntity, VendorDto>();
                 cfg.CreateMap<VendorDto, VendorEntity>();
                 cfg.CreateMap<VendorEntity, VendorMessageDTO>();
 
-
                 cfg.CreateMap<AddressEntity, AddressDto>();
                 cfg.CreateMap<AddressDto, AddressEntity>();
                 cfg.CreateMap<AddressEntity, AddressMessageDTO>();
-
 
                 cfg.CreateMap<CustomerEntity, CustomerDto>();
                 cfg.CreateMap<CustomerDto, CustomerEntity>();
                 cfg.CreateMap<CustomerEntity, CustomerMessageDTO>();
 
-
                 cfg.CreateMap<OrderEntity, CompleteOrderDto>();
                 cfg.CreateMap<CompleteOrderDto, OrderEntity>();
                 cfg.CreateMap<OrderEntity, OrderMessageDTO>();
-
 
                 cfg.CreateMap<ProductEntity, ProductDto>();
                 cfg.CreateMap<ProductDto, ProductEntity>();
                 cfg.CreateMap<ProductEntity, ProductMessageDto>();
 
-
                 cfg.CreateMap<ReviewEntity, ReviewDto>();
                 cfg.CreateMap<ReviewDto, ReviewEntity>();
                 cfg.CreateMap<ReviewEntity, ReviewMessageDTO>();
             });
+
             var mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
         }
@@ -99,9 +88,10 @@ internal class Program
         var app = builder.Build();
         {
             app.UseCors("WriteServiceCorsPolicy");
-            //app.UseHttpsRedirection();
+
             app.UseSwagger();
             app.UseSwaggerUI();
+
             app.MapVendorEndpoints();
             app.MapProductEndpoints();
             app.MapOrderEndpoints();

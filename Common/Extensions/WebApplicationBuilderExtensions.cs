@@ -45,45 +45,6 @@ namespace Common.Extensions
             return builder;
         }
 
-        public static WebApplicationBuilder AddMongoClient(this WebApplicationBuilder builder, string connectionString)
-        {
-
-            builder.Services.AddSingleton<IMongoClient>(sp =>
-            {
-                var databaseSettings = sp.GetRequiredService<IOptions<DatabaseConfiguration>>().Value;
-
-                var settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
-
-                return new MongoClient(settings);
-            });
-
-            return builder;
-        }
-
-        public static WebApplicationBuilder AddMongoDatabase(this WebApplicationBuilder builder, string databaseName)
-        {
-            builder.Services.AddScoped(sp =>
-            {
-                var client = sp.GetRequiredService<IMongoClient>();
-                return client.GetDatabase(databaseName);
-            });
-
-            return builder;
-        }
-
-        public static WebApplicationBuilder AddMongoCollection<T>(this WebApplicationBuilder builder)
-            where T : IMongoItem
-        {
-            builder.Services.AddScoped(sp =>
-            {
-                var db = sp.GetRequiredService<IMongoDatabase>();
-                return db.GetCollection<T>(
-                    sp.GetRequiredService<IOptions<DatabaseConfiguration>>().Value.CollectionName);
-            });
-
-            return builder;
-        }
-
         public static WebApplicationBuilder AddRabbitMQProducer(this WebApplicationBuilder builder)
         {
             builder.Services.AddScoped<RabbitMQProducer>();
