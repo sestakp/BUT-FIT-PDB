@@ -1,8 +1,4 @@
-﻿using Common.Configuration;
-using Common.Models.Interfaces;
-using Microsoft.Extensions.Options;
-using MongoDB.Driver;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 using Microsoft.Extensions.Logging;

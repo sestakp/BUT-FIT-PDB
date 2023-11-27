@@ -7,14 +7,14 @@ public static class ConfigureServices
 {
     public static void AddMongoDb(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOptions<MongoDbOptions>()
-            .Bind(configuration.GetSection(nameof(MongoDbOptions)))
+        services.AddOptions<MongoDbConfiguration>()
+            .Bind(configuration.GetSection(nameof(MongoDbConfiguration)))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
         services.AddScoped<IMongoDatabase>((sp) =>
         {
-            var options = sp.GetRequiredService<IOptions<MongoDbOptions>>().Value;
+            var options = sp.GetRequiredService<IOptions<MongoDbConfiguration>>().Value;
             return new MongoClient(options.ConnectionString).GetDatabase(options.DatabaseName);
         });
     }

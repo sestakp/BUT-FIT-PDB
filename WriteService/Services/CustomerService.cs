@@ -18,7 +18,8 @@ public class CustomerService
     private readonly ILogger<CustomerService> _logger;
     private readonly IMapper _mapper;
 
-    public CustomerService(ShopDbContext context, RabbitMQProducer producer, ILogger<CustomerService> logger, IMapper mapper)
+    public CustomerService(ShopDbContext context, RabbitMQProducer producer, ILogger<CustomerService> logger,
+        IMapper mapper)
     {
         _context = context;
         _producer = producer;
@@ -28,41 +29,28 @@ public class CustomerService
 
     public async Task<CustomerEntity> CreateAsync(CreateCustomerDto dto)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
+            var entity = new CustomerEntity()
             {
-                var entity = new CustomerEntity()
-                {
-                    FirstName = dto.FirstName,
-                    LastName = dto.LastName,
-                    Email = dto.Email,
-                    PhoneNumber = dto.PhoneNumber,
-                    PasswordHash = dto.PasswordHash
-                };
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                PasswordHash = dto.PasswordHash
+            };
 
-                _context.Add(entity);
+            _context.Add(entity);
 
-                var saveChangesTask = _context.SaveChangesAsync();
-                var customerMessageDto = _mapper.Map<CustomerMessageDTO>(entity);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Customer,
-                    customerMessageDto);
+            await _context.SaveChangesAsync();
 
-                await Task.WhenAll(saveChangesTask, sendMessageTask);
+            var customerMessageDto = _mapper.Map<CustomerMessageDTO>(entity);
+            var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Customer,
+                customerMessageDto);
 
-                scope.Complete();
-
-                return entity;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error creating customer: {ex.Message}", ex);
-                throw;
-            }
-            finally
-            {
-                scope.Dispose();
-            }
+            await transaction.CommitAsync();
+            
+            return entity;
         }
     }
 
@@ -87,7 +75,8 @@ public class CustomerService
                 var saveChangesTask = _context.SaveChangesAsync();
 
                 var customerMessageDto = _mapper.Map<CustomerMessageDTO>(entity);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer, customerMessageDto);
+                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer,
+                    customerMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
 
@@ -139,7 +128,8 @@ public class CustomerService
                 var saveChangesTask = _context.SaveChangesAsync();
                 var customerMessageDto = _mapper.Map<CustomerMessageDTO>(customer);
 
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Customer, customerMessageDto);
+                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Customer,
+                    customerMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
                 scope.Complete();
@@ -182,7 +172,8 @@ public class CustomerService
 
                 var saveChangesTask = _context.SaveChangesAsync();
                 var addressMessageDto = _mapper.Map<AddressMessageDTO>(address);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Address, addressMessageDto);
+                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Address,
+                    addressMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
                 scope.Complete();
@@ -232,7 +223,8 @@ public class CustomerService
 
                 var saveChangesTask = _context.SaveChangesAsync();
                 var addressMessageDto = _mapper.Map<AddressMessageDTO>(address);
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Address, addressMessageDto);
+                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Address,
+                    addressMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
 
@@ -276,7 +268,8 @@ public class CustomerService
                 var saveChangesTask = _context.SaveChangesAsync();
                 var addressMessageDto = _mapper.Map<AddressMessageDTO>(address);
 
-                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Address, addressMessageDto);
+                var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Address,
+                    addressMessageDto);
 
                 await Task.WhenAll(saveChangesTask, sendMessageTask);
                 scope.Complete();

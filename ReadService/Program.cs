@@ -12,14 +12,16 @@ internal static class Program
         var builder = WebApplication.CreateBuilder(args);
         {
             var services = builder.Services;
+            var configuration = builder.Configuration;
 
             services.AddSwaggerGen();
+            services.AddEndpointsApiExplorer();
 
-            // TODO: refactor this to one extension method
-            builder.AddRabbitMQSettings();
-            builder.AddConnectionFactoryForRabbit();
-            builder.AddRabbitConnection();
-            builder.AddRabbitChannel();
+            // RabbitMQ configuration
+            services.AddRabbitMQSettings(configuration);
+            services.AddConnectionFactoryForRabbit();
+            services.AddRabbitConnection();
+            services.AddRabbitChannel();
 
             services.AddSingleton<AddressSubscriber>();
             services.AddSingleton<CustomerSubscriber>();
@@ -37,8 +39,8 @@ internal static class Program
                         .WithMethods("GET");
                 });
             });
-            
-            services.AddMongoDb(builder.Configuration);
+
+            services.AddMongoDb(configuration);
         }
 
         var app = builder.Build();

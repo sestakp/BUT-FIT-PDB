@@ -23,13 +23,14 @@ internal class Program
             var services = builder.Services;
 
             services.AddSwaggerGen();
+            services.AddEndpointsApiExplorer();
 
-            // TODO: refactor this to one extension method
-            builder.AddRabbitMQSettings();
-            builder.AddConnectionFactoryForRabbit();
-            builder.AddRabbitConnection();
-            builder.AddRabbitChannel();
-            builder.AddRabbitMQProducer();
+            // RabbitMQ configuration
+            services.AddRabbitMQSettings(builder.Configuration);
+            services.AddConnectionFactoryForRabbit();
+            services.AddRabbitConnection();
+            services.AddRabbitChannel();
+            services.AddRabbitMQProducer();
 
             services.AddCors(options =>
             {
