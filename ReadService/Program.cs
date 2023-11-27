@@ -49,27 +49,27 @@ internal static class Program
 
             app.UseSwagger();
             app.UseSwaggerUI();
-
-            app.Services
-                .GetRequiredService<AddressSubscriber>()
-                .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Address);
-
-            app.Services
-                .GetRequiredService<CustomerSubscriber>()
-                .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Customer);
-
-            app.Services
-                .GetRequiredService<OrderSubscriber>()
-                .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Order);
-
-            app.Services
-                .GetRequiredService<ProductSubscriber>()
-                .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Product);
-
-            app.Services
-                .GetRequiredService<VendorSubscriber>()
-                .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Vendor);
         }
+
+        app.Services
+            .GetRequiredService<AddressSubscriber>()
+            .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Address);
+
+        app.Services
+            .GetRequiredService<CustomerSubscriber>()
+            .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Customer);
+
+        app.Services
+            .GetRequiredService<OrderSubscriber>()
+            .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Order);
+
+        app.Services
+            .GetRequiredService<ProductSubscriber>()
+            .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Product);
+
+        app.Services
+            .GetRequiredService<VendorSubscriber>()
+            .ReceiveFromExchange(RabbitMQNames.SyncExchange, RabbitMQEntities.Vendor);
 
         app.Run();
     }
