@@ -53,6 +53,7 @@ public class ProductService
 
             var message = new CreateProductMessage()
             {
+                Id = product.Id,
                 Title = product.Title,
                 Description = product.Description,
                 PiecesInStock = product.PiecesInStock,

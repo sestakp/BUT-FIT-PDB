@@ -25,8 +25,6 @@ public class VendorSubscriber : RabbitMQReceiver<VendorSubscriber>
 
             var data = (message.Data as CreateVendorMessage)!;
 
-            var collection = database.Collection<Vendor>();
-
             var document = new Vendor()
             {
                 Id = data.Id,
@@ -41,7 +39,7 @@ public class VendorSubscriber : RabbitMQReceiver<VendorSubscriber>
                 }
             };
 
-            collection.InsertOne(document);
+            database.Collection<Vendor>().InsertOne(document);
         }
     }
 }

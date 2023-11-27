@@ -104,6 +104,7 @@ public class OrderService
 
         var message = new OrderCompletedMessage()
         {
+            Id = order.Id,
             CustomerEmail = order.Customer.Email,
             Price = 10000,
             AddressCountry = order.Country,

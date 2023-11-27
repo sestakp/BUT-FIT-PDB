@@ -2,6 +2,7 @@ namespace Common.RabbitMQ.Messages;
 
 public sealed record CreateProductMessage : MessageBase
 {
+    public required long Id { get; init; }
     public required string Title { get; init; }
     public required string Description { get; init; }
     public required decimal Price { get; init; }

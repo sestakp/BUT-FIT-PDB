@@ -5,7 +5,7 @@ namespace ReadService.Data.Models;
 public sealed record Order
 {
     [BsonId]
-    public int Id { get; init; }
+    public long Id { get; init; }
 
     [BsonElement("customerId")]
     public required string CustomerEmail { get; init; }
