@@ -26,7 +26,7 @@ public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
 
             var data = (message.Data as CreateCustomerMessage)!;
 
-            var collection = database.GetCollection<Customer>(nameof(Customer));
+            var collection = database.Collection<Customer>();
 
             var document = new Customer()
             {
@@ -167,6 +167,32 @@ public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
 
                 _logger.LogInformation("Removed {Count} customer addresses.", result.MatchedCount);
             }
+        }
+    }
+
+    protected override void HandleDelete(RabbitMQMessage message)
+    {
+        using (var scope = _serviceScopeFactory.CreateScope())
+        {
+            var database = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
+
+            var data = (message.Data as DeleteCustomerMessage)!;
+
+            var customerFilter = Builders<Customer>
+                .Filter
+                .Eq(x => x.Email, data.CustomerEmail);
+
+            var r1 = database.Collection<Customer>().DeleteOne(customerFilter);
+
+            _logger.LogInformation("Removed {Count} customers.", r1.DeletedCount);
+
+            var ordersFilter = Builders<Order>
+                .Filter
+                .Eq(x => x.CustomerEmail, data.CustomerEmail);
+
+            var r2 = database.Collection<Order>().DeleteMany(ordersFilter);
+
+            _logger.LogInformation("Removed {Count} customer orders.", r2.DeletedCount);
         }
     }
 }

@@ -101,6 +101,8 @@ public class CustomerService
                 throw new EntityNotFoundException(customerId);
             }
 
+            var customerEmail = customer.Email;
+
             const string anonymizationValue = "anonymized";
 
             customer.Email = anonymizationValue;
@@ -118,7 +120,9 @@ public class CustomerService
 
             await _context.SaveChangesAsync();
 
-            // TODO: send message
+            var message = new DeleteCustomerMessage() { CustomerEmail = customerEmail };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Customer, message);
 
             await transaction.CommitAsync();
         }
