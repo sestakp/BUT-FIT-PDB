@@ -5,7 +5,7 @@ namespace ReadService.Data.Models;
 public sealed record ProductsOfSubCategory
 {
     [BsonId]
-    public required (string, string) Id { get; set; }
+    public required (string ParentCategory, string SubCategory) Id { get; set; }
 
     [BsonElement("products")]
     public List<Product> Products { get; set; } = new();
@@ -13,7 +13,7 @@ public sealed record ProductsOfSubCategory
     public sealed record Product
     {
         [BsonId]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [BsonElement("title")]
         public required string Title { get; set; }
@@ -25,7 +25,7 @@ public sealed record ProductsOfSubCategory
         public required decimal Price { get; set; }
 
         [BsonElement("rating")]
-        public required int Rating { get; set; }
+        public required double Rating { get; set; }
 
         [BsonElement("vendor")]
         public required ProductVendor Vendor { get; set; }
@@ -33,7 +33,7 @@ public sealed record ProductsOfSubCategory
         public sealed record ProductVendor
         {
             [BsonElement("_id")]
-            public int Id { get; set; }
+            public long Id { get; set; }
 
             [BsonElement("name")]
             public required string Name { get; set; }

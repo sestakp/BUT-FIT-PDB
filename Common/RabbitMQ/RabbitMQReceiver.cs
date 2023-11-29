@@ -10,7 +10,7 @@ namespace Common.RabbitMQ;
 public class RabbitMQReceiver<T>
 {
     private readonly IModel _channel;
-    private readonly ILogger<RabbitMQReceiver<T>> _logger;
+    protected readonly ILogger<RabbitMQReceiver<T>> _logger;
 
     protected RabbitMQReceiver(IModel channel, ILogger<RabbitMQReceiver<T>> logger)
     {
@@ -23,7 +23,7 @@ public class RabbitMQReceiver<T>
     public void ReceiveFromExchange(RabbitMQEntities entity)
     {
         var exchangeName = RabbitMQNames.SyncExchange;
-        
+
         _channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct, durable: true, autoDelete: false, arguments: null);
 
         // Use the entity name to create a unique queue
@@ -36,34 +36,42 @@ public class RabbitMQReceiver<T>
         var consumer = new EventingBasicConsumer(_channel);
         consumer.Received += (ch, ea) =>
         {
-            var serializerOptions = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
-            var message = JsonConvert.DeserializeObject<RabbitMQMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()), serializerOptions);
-            if (message is null)
-            {
-                throw new Exception("Received message can not be null.");
-            }
-
-            _logger.LogInformation("Received message from channel {QueueName} with data: {Message}", queueName, message);
-
-            Action<RabbitMQMessage> handler = message.Operation switch
-            {
-                RabbitMQOperation.Create => HandleCreate,
-                RabbitMQOperation.Update => HandleUpdate,
-                RabbitMQOperation.Delete => HandleDelete,
-                _ => throw new UnreachableException()
-            };
-
             try
             {
-                handler(message);
+                var serializerOptions = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
+                var message = JsonConvert.DeserializeObject<RabbitMQMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()), serializerOptions);
+                if (message is null)
+                {
+                    throw new Exception("Received message can not be null.");
+                }
+
+                _logger.LogInformation("Received message from channel {QueueName} with data: {Message}", queueName, message);
+
+                Action<RabbitMQMessage> handler = message.Operation switch
+                {
+                    RabbitMQOperation.Create => HandleCreate,
+                    RabbitMQOperation.Update => HandleUpdate,
+                    RabbitMQOperation.Delete => HandleDelete,
+                    _ => throw new UnreachableException()
+                };
+
+                try
+                {
+                    handler(message);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Message handler failed.");
+                    throw;
+                }
+
+                _channel.BasicAck(ea.DeliveryTag, false);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Message handler failed.");
+                _logger.LogError(e, "Unexpected failure of the message receiver.");
                 throw;
             }
-
-            _channel.BasicAck(ea.DeliveryTag, false);
         };
 
         _channel.BasicConsume(queue: queueName, false, consumer);
