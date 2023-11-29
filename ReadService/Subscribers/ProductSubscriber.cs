@@ -53,9 +53,9 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
                         .ToList(),
                 };
 
-                _logger.LogInformation("Inserting record into Products collection.");
-
                 collection.InsertOne(product);
+
+                _logger.LogInformation("Inserted new document into Products collection.");
             }
 
             // Update collection of ProductsByCategory
@@ -84,9 +84,9 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
                     .Update
                     .Push(x => x.Products, product);
 
-                _logger.LogInformation("Updating records in ProductsOfCategory collection.");
+                var result = collection.UpdateMany(filter, update);
 
-                collection.UpdateMany(filter, update);
+                _logger.LogInformation("Updated {Count} records in ProductsOfCategory collection.", result.MatchedCount);
             }
 
             // Update collection of ProductsBySubCategory
@@ -115,9 +115,9 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
                     .Update
                     .Push(x => x.Products, product);
 
-                _logger.LogInformation("Updating records in ProductsOfSubCategory collection.");
+                var result = collection.UpdateMany(filter, update);
 
-                collection.UpdateMany(filter, update);
+                _logger.LogInformation("Updated {Count} records in ProductsOfSubCategory collection.", result.MatchedCount);
             }
 
             // Update collection of Vendors.
@@ -132,9 +132,9 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
                     .Update
                     .AddToSetEach(vendor => vendor.Categories, productCategories);
 
-                _logger.LogInformation("Updating record in Vendors collection.");
+                var result = collection.UpdateOne(filter, update);
 
-                collection.UpdateOne(filter, update);
+                _logger.LogInformation("Updated {Count} records in Vendors collection.", result.MatchedCount);
             }
         }
     }

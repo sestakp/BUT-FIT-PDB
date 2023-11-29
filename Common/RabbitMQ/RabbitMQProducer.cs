@@ -40,6 +40,8 @@ public class RabbitMQProducer
             var jsonMessage = JsonConvert.SerializeObject(message, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
             var body = Encoding.UTF8.GetBytes(jsonMessage);
 
+            _logger.LogInformation("Sending json: {Json}", jsonMessage);
+            
             channel.BasicPublish(
                 exchange: RabbitMQNames.SyncExchange,
                 routingKey: entity.ToString(),

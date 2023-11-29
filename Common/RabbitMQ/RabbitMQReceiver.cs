@@ -38,8 +38,12 @@ public class RabbitMQReceiver<T>
         {
             try
             {
+                var body = Encoding.UTF8.GetString(ea.Body.ToArray());
+                
+                _logger.LogInformation("Received json: {Json}", body);
+                
                 var serializerOptions = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
-                var message = JsonConvert.DeserializeObject<RabbitMQMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()), serializerOptions);
+                var message = JsonConvert.DeserializeObject<RabbitMQMessage>(body, serializerOptions);
                 if (message is null)
                 {
                     throw new Exception("Received message can not be null.");

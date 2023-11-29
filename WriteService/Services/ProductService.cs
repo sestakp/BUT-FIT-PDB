@@ -47,6 +47,12 @@ public class ProductService
                 VendorId = dto.VendorId
             };
 
+            var category = await _context
+                .ProductCategories
+                .SingleAsync(x => x.Id == dto.CategoryId);
+
+            product.Categories.Add(category);
+
             _context.Add(product);
 
             await _context.SaveChangesAsync();
@@ -61,11 +67,16 @@ public class ProductService
                 Rating = 5,
                 VendorId = product.Vendor.Id,
                 VendorName = product.Vendor.Name,
-                Categories = product.Categories.Select(x => x.Name),
-                SubCategories = product.SubCategories.Select(x => x.Name)
+                Categories = product.Categories
+                    .Select(x => x.Name)
+                    .ToList(),
+                SubCategories = product
+                    .SubCategories
+                    .Select(x => x.Name)
+                    .ToList()
             };
 
-            _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Order, message);
+            _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Product, message);
 
             await transaction.CommitAsync();
 

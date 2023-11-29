@@ -5,4 +5,5 @@ public sealed record CreateProductDto(
     string Description,
     int PricesInStock,
     decimal Price,
-    long VendorId);
+    long VendorId,
+    long CategoryId);

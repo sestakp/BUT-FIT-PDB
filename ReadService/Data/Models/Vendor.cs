@@ -14,5 +14,5 @@ public sealed record Vendor
     public required Address Address { get; set; }
 
     [BsonElement("categories")]
-    public List<string> Categories { get; set; } = null!;
+    public List<string> Categories { get; init; } = new();
 }
