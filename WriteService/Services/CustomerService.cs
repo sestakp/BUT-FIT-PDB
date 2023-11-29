@@ -2,6 +2,7 @@
 using AutoMapper;
 using Common.RabbitMQ;
 using Common.RabbitMQ.Messages;
+using Common.RabbitMQ.Messages.Customer;
 using Microsoft.EntityFrameworkCore;
 using SharpCompress.Common;
 using WriteService.DTOs.Address;
@@ -37,7 +38,7 @@ public class CustomerService
                 LastName = dto.LastName,
                 Email = dto.Email,
                 PhoneNumber = dto.PhoneNumber,
-                PasswordHash = dto.PasswordHash
+                PasswordHash = dto.Password
             };
 
             _context.Add(entity);

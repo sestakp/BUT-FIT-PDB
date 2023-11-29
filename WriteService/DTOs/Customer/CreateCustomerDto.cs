@@ -5,4 +5,4 @@ public record CreateCustomerDto(
     string LastName,
     string Email,
     string PhoneNumber,
-    string PasswordHash);
+    string Password);

@@ -1,4 +1,4 @@
-namespace Common.RabbitMQ.Messages;
+namespace Common.RabbitMQ.Messages.Customer;
 
 public record CreateCustomerMessage : MessageBase
 {
