@@ -127,9 +127,10 @@ public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
                     .Filter
                     .Eq(x => x.Email, data.CustomerEmail);
 
-                var addressFilter = new BsonDocument("address._id", data.AddressId);
+                var addressFilter = Builders<Customer>
+                    .Filter
+                    .ElemMatch(x => x.Addresses, a => a.Id == data.AddressId);
 
-                // TODO: are field selectors in Set correct?
                 var updateDefinition = Builders<Customer>
                     .Update
                     .Set("addresses.$.country", data.Country)
@@ -138,14 +139,9 @@ public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
                     .Set("addresses.$.street", data.Street)
                     .Set("addresses.$.houseNumber", data.HouseNumber);
 
-                var updateOptions = new UpdateOptions
-                {
-                    ArrayFilters = new List<ArrayFilterDefinition> { new BsonDocumentArrayFilterDefinition<Customer>(addressFilter) }
-                };
-
                 var result = database
                     .Collection<Customer>()
-                    .UpdateOne(customerFilter, updateDefinition, updateOptions);
+                    .UpdateOne(customerFilter & addressFilter, updateDefinition);
 
                 _logger.LogInformation("Updated {Count} documents in Customers collection.", result.MatchedCount);
             }

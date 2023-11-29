@@ -29,7 +29,7 @@ public class VendorSubscriber : RabbitMQReceiver<VendorSubscriber>
             {
                 Id = data.Id,
                 Name = data.Name,
-                Address = new Address()
+                Address = new VendorAddress()
                 {
                     Country = data.AddressCountry,
                     City = data.AddressCity,

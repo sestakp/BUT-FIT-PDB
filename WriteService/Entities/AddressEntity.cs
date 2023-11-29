@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace WriteService.Entities;
+﻿namespace WriteService.Entities;
 
 public class AddressEntity : EntityBase
 {

@@ -14,7 +14,7 @@ public sealed record Order
     public required decimal Price { get; init; }
 
     [BsonElement("address")]
-    public required Address Address { get; init; }
+    public required OrderAddress Address { get; init; }
 
     [BsonElement("created")]
     public required DateTime Created { get; init; }
@@ -45,4 +45,22 @@ public sealed record OrderProductVendor
 {
     [BsonElement("name")]
     public required string Name { get; set; }
+}
+
+public sealed record OrderAddress
+{
+    [BsonElement("country")]
+    public required string Country { get; set; }
+
+    [BsonElement("zipCode")]
+    public required string ZipCode { get; set; }
+
+    [BsonElement("city")]
+    public required string City { get; set; }
+
+    [BsonElement("street")]
+    public required string Street { get; set; }
+
+    [BsonElement("houseNumber")]
+    public required string HouseNumber { get; set; }
 }

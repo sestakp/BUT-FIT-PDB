@@ -31,7 +31,7 @@ public class OrderSubscriber : RabbitMQReceiver<OrderSubscriber>
                 CustomerEmail = data.CustomerEmail,
                 Created = data.DateTimeCreated,
                 Price = data.Price,
-                Address = new Address()
+                Address = new OrderAddress()
                 {
                     Country = data.AddressCountry,
                     City = data.AddressCity,

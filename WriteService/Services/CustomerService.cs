@@ -1,10 +1,6 @@
-﻿using System.Transactions;
-using AutoMapper;
-using Common.RabbitMQ;
-using Common.RabbitMQ.Messages;
+﻿using Common.RabbitMQ;
 using Common.RabbitMQ.Messages.Customer;
 using Microsoft.EntityFrameworkCore;
-using SharpCompress.Common;
 using WriteService.DTOs.Address;
 using WriteService.DTOs.Customer;
 using WriteService.Entities;
@@ -17,15 +13,12 @@ public class CustomerService
     private readonly ShopDbContext _context;
     private readonly RabbitMQProducer _producer;
     private readonly ILogger<CustomerService> _logger;
-    private readonly IMapper _mapper;
 
-    public CustomerService(ShopDbContext context, RabbitMQProducer producer, ILogger<CustomerService> logger,
-        IMapper mapper)
+    public CustomerService(ShopDbContext context, RabbitMQProducer producer, ILogger<CustomerService> logger)
     {
         _context = context;
         _producer = producer;
         _logger = logger;
-        _mapper = mapper;
     }
 
     public async Task<CustomerEntity> CreateAsync(CreateCustomerDto dto)
@@ -61,237 +54,209 @@ public class CustomerService
         }
     }
 
-    // TODO
     public async Task<CustomerEntity> UpdateAsync(long customerId, UpdateCustomerDto dto)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
+            var entity = await _context.Customers.FindAsync(customerId);
+            if (entity is null)
             {
-                var entity = await _context.Customers.FindAsync(customerId);
-                if (entity is null)
-                {
-                    throw new EntityNotFoundException(customerId);
-                }
-
-                // We do not allow updating email and phone number
-                entity.FirstName = dto.FirstName;
-                entity.LastName = dto.LastName;
-
-                _context.Update(entity);
-
-                var saveChangesTask = _context.SaveChangesAsync();
-
-                // var customerMessageDto = _mapper.Map<CustomerMessage>(entity);
-                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer,
-                //     customerMessageDto);
-                //
-                // await Task.WhenAll(saveChangesTask, sendMessageTask);
-
-                // If everything is successful, complete the transaction
-                scope.Complete();
-
-                return entity;
+                throw new EntityNotFoundException(customerId);
             }
-            catch (Exception ex)
+
+            // We do not allow updating email and phone number
+            entity.FirstName = dto.FirstName;
+            entity.LastName = dto.LastName;
+
+            _context.Update(entity);
+
+            await _context.SaveChangesAsync();
+
+            var message = new UpdateCustomerMessage()
             {
-                // Log or handle the exception as needed
-                _logger.LogError($"Error updating customer: {ex.Message}", ex);
-                throw;
-            }
+                CustomerEmail = entity.Email,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer, message);
+
+            await transaction.CommitAsync();
+
+            return entity;
         }
     }
 
-    // TODO
     public async Task AnonymizeAsync(long customerId)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
+            var customer = await _context
+                .Customers
+                .Include(c => c.Addresses)
+                .FirstOrDefaultAsync(c => c.Id == customerId);
+
+            if (customer is null)
             {
-                var customer = await _context
-                    .Customers
-                    .Include(c => c.Addresses)
-                    .FirstOrDefaultAsync(c => c.Id == customerId);
-
-                if (customer is null)
-                {
-                    throw new EntityNotFoundException(customerId);
-                }
-
-                const string anonymizationValue = "anonymized";
-
-                customer.Email = anonymizationValue;
-                customer.FirstName = anonymizationValue;
-                customer.LastName = anonymizationValue;
-                customer.PhoneNumber = anonymizationValue;
-                customer.PasswordHash = anonymizationValue;
-                customer.IsDeleted = true;
-
-                _context.Update(customer);
-                foreach (var address in customer.Addresses)
-                {
-                    _context.Remove(address);
-                }
-
-                // var saveChangesTask = _context.SaveChangesAsync();
-                // var customerMessageDto = _mapper.Map<CustomerMessage>(customer);
-                //
-                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Customer,
-                //     customerMessageDto);
-
-                // await Task.WhenAll(saveChangesTask, sendMessageTask);
-                scope.Complete();
+                throw new EntityNotFoundException(customerId);
             }
-            catch (Exception ex)
+
+            const string anonymizationValue = "anonymized";
+
+            customer.Email = anonymizationValue;
+            customer.FirstName = anonymizationValue;
+            customer.LastName = anonymizationValue;
+            customer.PhoneNumber = anonymizationValue;
+            customer.PasswordHash = anonymizationValue;
+            customer.IsDeleted = true;
+
+            _context.Update(customer);
+            foreach (var address in customer.Addresses)
             {
-                // Log or handle the exception as needed
-                _logger.LogError($"Error anonymizing customer: {ex.Message}", ex);
-                throw;
+                _context.Remove(address);
             }
+
+            await _context.SaveChangesAsync();
+
+            // TODO: send message
+
+            await transaction.CommitAsync();
         }
     }
 
-    // TODO
     public async Task<AddressEntity> CreateCustomerAddressAsync(long customerId, CreateAddressDto dto)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
+            var customer = await _context
+                .Customers
+                .FirstOrDefaultAsync(x => x.Id == customerId);
+
+            if (customer is null)
             {
-                var customerExists = await _context
-                    .Customers
-                    .AnyAsync(x => x.Id == customerId);
-
-                if (!customerExists)
-                {
-                    throw new EntityNotFoundException(customerId);
-                }
-
-                var address = new AddressEntity()
-                {
-                    Country = dto.Country,
-                    ZipCode = dto.ZipCode,
-                    City = dto.City,
-                    Street = dto.Street,
-                    HouseNumber = dto.HouseNumber
-                };
-
-                _context.Add(address);
-
-
-                var saveChangesTask = _context.SaveChangesAsync();
-                // var addressMessageDto = _mapper.Map<AddressMessage>(address);
-                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Address,
-                //     addressMessageDto);
-                //
-                // await Task.WhenAll(saveChangesTask, sendMessageTask);
-                // scope.Complete();
-                return address;
+                throw new EntityNotFoundException(customerId);
             }
-            catch (Exception ex)
+
+            var address = new AddressEntity()
             {
-                // Log or handle the exception as needed
-                _logger.LogError($"Error creating customer address: {ex.Message}", ex);
-                throw;
-            }
+                CustomerId = customer.Id,
+                Country = dto.Country,
+                ZipCode = dto.ZipCode,
+                City = dto.City,
+                Street = dto.Street,
+                HouseNumber = dto.HouseNumber,
+            };
+
+            _context.Add(address);
+
+            await _context.SaveChangesAsync();
+
+            var message = new AddCustomerAddressMessage()
+            {
+                CustomerEmail = customer.Email,
+                Id = address.Id,
+                Country = address.Country,
+                ZipCode = address.ZipCode,
+                City = address.City,
+                Street = address.Street,
+                HouseNumber = address.HouseNumber
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer, message);
+
+            await transaction.CommitAsync();
+
+            return address;
         }
     }
 
-    // TODO
     public async Task<AddressEntity> UpdateCustomerAddressAsync(
         long customerId,
         long addressId,
         UpdateAddressDto dto)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
+            var customer = await _context
+                .Customers
+                .Include(x => x.Addresses)
+                .FirstOrDefaultAsync(x => x.Id == customerId);
+
+            if (customer is null)
             {
-                var customer = await _context
-                    .Customers
-                    .Include(x => x.Addresses)
-                    .FirstOrDefaultAsync(x => x.Id == customerId);
-
-                if (customer is null)
-                {
-                    throw new EntityNotFoundException(customerId);
-                }
-
-                var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
-                if (address is null)
-                {
-                    throw new EntityNotFoundException(addressId);
-                }
-
-                address.Country = dto.Country;
-                address.ZipCode = dto.ZipCode;
-                address.City = dto.City;
-                address.Street = dto.Street;
-                address.HouseNumber = dto.HouseNumber;
-
-                _context.Update(address);
-
-                var saveChangesTask = _context.SaveChangesAsync();
-                // var addressMessageDto = _mapper.Map<AddressMessage>(address);
-                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Address,
-                //     addressMessageDto);
-                //
-                // await Task.WhenAll(saveChangesTask, sendMessageTask);
-                //
-                // scope.Complete();
-                return address;
+                throw new EntityNotFoundException(customerId);
             }
-            catch (Exception ex)
+
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
+            if (address is null)
             {
-                // Log or handle the exception as needed
-                _logger.LogError($"Error updating customer address: {ex.Message}", ex);
-                throw;
+                throw new EntityNotFoundException(addressId);
             }
+
+            address.Country = dto.Country;
+            address.ZipCode = dto.ZipCode;
+            address.City = dto.City;
+            address.Street = dto.Street;
+            address.HouseNumber = dto.HouseNumber;
+
+            _context.Update(address);
+
+            await _context.SaveChangesAsync();
+
+            var message = new UpdateCustomerAddressMessage()
+            {
+                CustomerEmail = customer.Email,
+                AddressId = address.Id,
+                Country = address.Country,
+                ZipCode = address.ZipCode,
+                City = address.City,
+                Street = address.Street,
+                HouseNumber = address.HouseNumber
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer, message);
+
+            await transaction.CommitAsync();
+
+            return address;
         }
     }
 
-    // TODO
     public async Task DeleteCustomerAddressAsync(
         long customerId,
         long addressId)
     {
-        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            try
+            var customer = await _context
+                .Customers
+                .Include(x => x.Addresses)
+                .FirstOrDefaultAsync(x => x.Id == customerId);
+
+            if (customer is null)
             {
-                var customer = await _context
-                    .Customers
-                    .Include(x => x.Addresses)
-                    .FirstOrDefaultAsync(x => x.Id == customerId);
-
-                if (customer is null)
-                {
-                    throw new EntityNotFoundException(customerId);
-                }
-
-                var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
-                if (address is null)
-                {
-                    throw new EntityNotFoundException(addressId);
-                }
-
-                _context.Remove(address);
-                var saveChangesTask = _context.SaveChangesAsync();
-                // var addressMessageDto = _mapper.Map<AddressMessage>(address);
-                //
-                // var sendMessageTask = _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Address,
-                //     addressMessageDto);
-                //
-                // await Task.WhenAll(saveChangesTask, sendMessageTask);
-                scope.Complete();
+                throw new EntityNotFoundException(customerId);
             }
-            catch (Exception ex)
+
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
+            if (address is null)
             {
-                // Log or handle the exception as needed
-                _logger.LogError($"Error deleting customer address: {ex.Message}", ex);
-                throw;
+                throw new EntityNotFoundException(addressId);
             }
+
+            _context.Remove(address);
+
+            await _context.SaveChangesAsync();
+
+            var message = new DeleteCustomerAddressMessage()
+            {
+                CustomerEmail = customer.Email,
+                AddressId = addressId
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer, message);
+
+            await transaction.CommitAsync();
         }
     }
 }
