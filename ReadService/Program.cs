@@ -1,5 +1,6 @@
 using Common.Extensions;
 using Common.RabbitMQ;
+using MongoDB.Driver;
 using ReadService.Data;
 using ReadService.Subscribers;
 
@@ -68,6 +69,20 @@ internal static class Program
             .GetRequiredService<VendorSubscriber>()
             .ReceiveFromExchange(RabbitMQEntities.Vendor);
 
+        if (args.Length > 0 && args[0] == "--seed")
+        {
+            SeedDatabase(app);
+        }
+
         app.Run();
+    }
+
+    private static void SeedDatabase(WebApplication app)
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var database = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
+            Seeds.ApplyDatabaseSeeds(database);
+        }
     }
 }

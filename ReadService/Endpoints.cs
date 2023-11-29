@@ -15,7 +15,7 @@ public sealed class Endpoints
         app.MapGet("api/vendors/{id:long}", GetVendorDetail);
         app.MapGet("api/products", GetProducts);
         app.MapGet("api/products/{category}", GetProductsByCategory);
-        app.MapGet("api/products/{subcategory}", GetProductsBySubcategory);
+        app.MapGet("api/products/{category}/{subcategory}", GetProductsBySubcategory);
         app.MapGet("api/products/{id:long}", GetProductDetail);
         app.MapGet("api/products/{id:long}/reviews", GetProductReviews);
         app.MapGet("api/orders", GetOrdersForCustomer);
@@ -23,64 +23,162 @@ public sealed class Endpoints
         app.MapGet("api/categories", GetCategories);
     }
 
-    private static IResult GetCustomers([FromServices] IMongoDatabase database)
+    private static IResult GetCustomers(
+        [FromServices] IMongoDatabase database)
     {
-        var data = database.Collection<Customer>().AsQueryable();
-        return Results.Ok(data);
+        var customers = database
+            .Collection<Customer>()
+            .AsQueryable();
+
+        return Results.Ok(customers);
     }
 
-    private static Task GetCustomerDetail([FromRoute] string email)
+    private static IResult GetCustomerDetail(
+        [FromRoute] string email,
+        [FromServices] IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        var customer = database
+            .Collection<Customer>()
+            .Find(x => x.Email == email)
+            .Single();
+
+        if (customer is null)
+        {
+            return Results.NotFound();
+        }
+
+        return Results.Ok(customer);
     }
 
-    private static Task GetVendors()
+    private static IResult GetVendors(
+        [FromServices] IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        var vendors = database
+            .Collection<Vendor>()
+            .AsQueryable();
+
+        return Results.Ok(vendors);
     }
 
-    private static Task GetVendorDetail([FromRoute] long id)
+    private static IResult GetVendorDetail(
+        [FromRoute] long id,
+        [FromServices] IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        var vendor = database
+            .Collection<Vendor>()
+            .Find(x => x.Id == id)
+            .Single();
+
+        if (vendor is null)
+        {
+            return Results.NotFound();
+        }
+
+        return Results.Ok(vendor);
     }
 
-    private static Task GetProducts()
+    // TODO: add pagination
+    private static IResult GetProducts(
+        [FromServices] IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        var products = database
+            .Collection<Product>()
+            .AsQueryable();
+
+        return Results.Ok(products);
     }
 
-    private static Task GetProductsByCategory([FromRoute] string category)
+    private static IResult GetProductsByCategory(
+        [FromRoute] string category,
+        [FromServices] IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        var products = database
+            .Collection<ProductsOfCategory>()
+            .Find(x => x.CategoryName == category)
+            .ToList();
+
+        return Results.Ok(products);
     }
 
-    private static Task GetProductsBySubcategory([FromRoute] string subcategory)
+    private static IResult GetProductsBySubcategory(
+        [FromRoute] string category,
+        [FromRoute] string subcategory,
+        [FromServices] IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        var products = database
+            .Collection<ProductsOfSubCategory>()
+            .Find(x => x.Id.ParentCategory == category && x.Id.SubCategory == subcategory)
+            .ToList();
+
+        return Results.Ok(products);
     }
 
-    private static Task GetProductDetail([FromRoute] long id)
+    private static IResult GetProductDetail(
+        [FromRoute] long id,
+        [FromServices] IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        var product = database
+            .Collection<Product>()
+            .Find(x => x.Id == id)
+            .Single();
+
+        if (product is null)
+        {
+            return Results.NotFound();
+        }
+
+        return Results.Ok(product);
     }
 
-    private static Task GetProductReviews([FromRoute] long id)
+    // TODO: add pagination
+    private static IResult GetProductReviews(
+        [FromRoute] long id,
+        [FromServices] IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        var reviews = database
+            .Collection<Review>()
+            .Find(x => x.ProductId == id)
+            .ToList();
+
+        return Results.Ok(reviews);
     }
 
-    private static Task GetOrdersForCustomer([FromQuery] string customerEmail)
+    private static IResult GetOrdersForCustomer(
+        [FromQuery] string customerEmail,
+        [FromServices] IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        var products = database
+            .Collection<Order>()
+            .Find(x => x.CustomerEmail == customerEmail)
+            .ToList();
+
+        return Results.Ok(products);
     }
 
-    private static Task GetOrderDetail([FromRoute] long id)
+    private static IResult GetOrderDetail(
+        [FromRoute] long id,
+        [FromServices] IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        var order = database
+            .Collection<Order>()
+            .Find(x => x.Id == id)
+            .Single();
+
+        if (order is null)
+        {
+            return Results.NotFound();
+        }
+
+        return Results.Ok(order);
     }
 
-    private static Task GetCategories()
+    private static IResult GetCategories(
+        [FromServices] IMongoDatabase database)
     {
-        throw new NotImplementedException();
+        var categories = database
+            .Collection<Category>()
+            .AsQueryable();
+
+        return Results.Ok(categories);
     }
 }

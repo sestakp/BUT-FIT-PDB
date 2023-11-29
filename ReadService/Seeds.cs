@@ -1,21 +1,23 @@
-using WriteService.Entities;
+using MongoDB.Driver;
+using ReadService.Data;
+using ReadService.Data.Models;
 
-namespace WriteService;
+namespace ReadService;
 
 public static class Seeds
 {
-    public static void ApplyDatabaseSeeds(ShopDbContext dbContext)
+    public static void ApplyDatabaseSeeds(IMongoDatabase database)
     {
-        dbContext.ProductCategories.AddRange(ProductCategories);
+        database.Collection<Category>().InsertMany(Categories);
     }
 
-    private static readonly List<ProductCategoryEntity> ProductCategories = new()
+    private static readonly List<Category> Categories = new()
     {
-        new ProductCategoryEntity
+        new Category()
         {
             Name = "Electronics",
             Description = "Devices and gadgets including smartphones, laptops, and cameras",
-            SubCategories = new List<ProductSubCategoryEntity>()
+            SubCategories = new List<SubCategory>()
             {
                 new()
                 {
@@ -34,11 +36,11 @@ public static class Seeds
                 }
             }
         },
-        new ProductCategoryEntity
+        new Category()
         {
             Name = "Clothing",
             Description = "Apparel for men, women, and children in various styles and sizes",
-            SubCategories = new List<ProductSubCategoryEntity>()
+            SubCategories = new List<SubCategory>()
             {
                 new()
                 {
@@ -57,11 +59,11 @@ public static class Seeds
                 }
             }
         },
-        new ProductCategoryEntity
+        new Category()
         {
             Name = "Home Appliances",
             Description = "Essential appliances for home such as refrigerators, washing machines, and microwaves",
-            SubCategories = new List<ProductSubCategoryEntity>
+            SubCategories = new List<SubCategory>
             {
                 new()
                 {
@@ -80,11 +82,11 @@ public static class Seeds
                 }
             }
         },
-        new ProductCategoryEntity
+        new Category()
         {
             Name = "Books",
             Description = "A wide range of books from fiction to educational textbooks",
-            SubCategories = new List<ProductSubCategoryEntity>
+            SubCategories = new List<SubCategory>
             {
                 new()
                 {
@@ -108,11 +110,11 @@ public static class Seeds
                 }
             }
         },
-        new ProductCategoryEntity
+        new Category()
         {
             Name = "Fitness",
             Description = "Fitness equipment and accessories including weights, yoga mats, and treadmills",
-            SubCategories = new List<ProductSubCategoryEntity>
+            SubCategories = new List<SubCategory>
             {
                 new()
                 {
