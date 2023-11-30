@@ -5,13 +5,13 @@ namespace ReadService.Data.Models;
 public sealed record Review
 {
     [BsonId]
-    public int Id { get; init; }
+    public long Id { get; init; }
 
     [BsonElement("productId")]
-    public required int ProductId { get; init; }
+    public required long ProductId { get; init; }
 
     [BsonElement("rating")]
-    public required int Rating { get; init; }
+    public required double Rating { get; init; }
 
     [BsonElement("text")]
     public required string Text { get; init; }

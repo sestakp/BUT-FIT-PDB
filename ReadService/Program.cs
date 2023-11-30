@@ -28,6 +28,7 @@ internal static class Program
             services.AddSingleton<OrderSubscriber>();
             services.AddSingleton<ProductSubscriber>();
             services.AddSingleton<VendorSubscriber>();
+            services.AddSingleton<ReviewSubscriber>();
 
             services.AddCors(options =>
             {
@@ -68,6 +69,10 @@ internal static class Program
         app.Services
             .GetRequiredService<VendorSubscriber>()
             .ReceiveFromExchange(RabbitMQEntities.Vendor);
+
+        app.Services
+            .GetRequiredService<ReviewSubscriber>()
+            .ReceiveFromExchange(RabbitMQEntities.Review);
 
         if (args.Length > 0 && args[0] == "--seed")
         {
