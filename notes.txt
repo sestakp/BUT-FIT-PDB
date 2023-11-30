@@ -1,0 +1,82 @@
+# READ API OPERATIONS AND THEIR PROJECTION IN READ SERVICE:
+
+POST	/api/customers - CreateCustomerMessage ✅️
+	- Customers
+
+PUT	/api/customers/{customerId} - UpdateCustomerMessage ✅️
+	- Customers
+
+DELETE	/api/customers/{customerId} ✅️
+	- Customers
+	- Orders - zmazanie všetkých objednávok daného customera
+
+POST	/api/customers/{customerId}/addresses - AddCustomerAddressMessage ✅️
+	- Customers
+
+PUT	/api/customers/{customerId}/addresses/{addressId} - UpdateCustomerAddressMessage ✅️
+	- Customers
+
+DELETE	/api/customers/{customerId}/addresses/{addressId} - DeleteCustomerAddressMessage ✅️
+	- Customers
+
+POST	/api/orders ❓️
+
+POST	/api/orders/{orderId}/add-to-cart/{productId} ❓️
+
+PUT	/api/orders/{orderId}/complete - OrderCompletedMessage ❓️
+	- Orders
+
+POST	/api/products - CreateProductMessage ✅️
+	- Products
+	- Products of category
+	- Products of subcategory
+	- Vendors - lebo pri vytvarani productu sa špecifikuju kategories a vendor ma na sebe všetky catgories kt. ponúka
+
+POST	/api/products/{productId}/reviews - CreateReviewMessage ✅️ - TESTING REQUIRED
+	- Reviews
+	- Products - lebo tam je rating
+	- Products of category - lebo tam je rating
+	- Products of subcategory - lebo tam je rating
+
+DELETE	/api/products/{productId} - DeleteProductMessage ✅️ - TESTING REQUIRED
+	- Products
+	- Products of category
+	- Products of subcategory
+	- Reviews
+
+POST	/api/vendors - CreateVendorMessage ✅️
+	- Vendors
+
+PUT	/api/vendors/{vendorId} ✅️
+	- Vendors
+	- Products - lebo tam je embedded vendor v ramci kt. je meno
+	- Products of category - lebo tam je embedded vendor v ramci kt. je meno
+	- Products of subcategory - lebo tam je embedded vendor v ramci kt. je meno
+
+DELETE	/api/vendors/{vendorId} ✅️
+	- Vendors
+	- Products - treba pomazať všetky jeho produkty
+	- Products of category - treba pomazať všetky jeho produkty
+	- Products of subcategory - treba pomazať všetky jeho produkty
+	- Reviews - treba pomazať reviews pre všetky produkty ktore boli odstranene
+
+# NOSQL COLLECTIONS:
+
+- Vendors
+- Customers
+- Products
+- Orders
+- Reviews
+- Products of category
+- Products of subcategory
+- Categories
+
+# DATABASE SEEDING:
+
+- NoSQL database collections
+	- Category
+	- ProductsOfCategory
+	- ProductsOfSubcategory
+- SQL database tables
+	- Categories
+	- SubCategories

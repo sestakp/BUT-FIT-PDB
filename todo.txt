@@ -1,0 +1,10 @@
+BUGS:
+
+- Pri mazaní vendora sa nezmažú aj jeho produkty
+
+TODO:
+
+- Pridat transakcie v messsage handleroch ktoré pracujú s viacerými kolekciami
+- Pofixovať todočka v kóde
+- Celé to otestovať
+- Nachystať sa na demo
