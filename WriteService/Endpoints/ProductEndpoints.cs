@@ -41,7 +41,10 @@ public static class ProductEndpoints
         [FromServices] ProductService productService,
         [FromServices] IMapper mapper)
     {
-        var review = await productService.AddReviewAsync(productId, dto);
+        // TODO: get customer id from the request
+        var customerId = 1;
+
+        var review = await productService.AddReviewAsync(productId, customerId, dto);
         var responseDto = mapper.Map<ReviewDto>(review);
 
         // TODO: add uri from query service

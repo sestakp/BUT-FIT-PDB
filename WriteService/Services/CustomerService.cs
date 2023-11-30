@@ -143,7 +143,6 @@ public class CustomerService
 
             var address = new AddressEntity()
             {
-                CustomerId = customer.Id,
                 Country = dto.Country,
                 ZipCode = dto.ZipCode,
                 City = dto.City,
@@ -151,7 +150,9 @@ public class CustomerService
                 HouseNumber = dto.HouseNumber,
             };
 
-            _context.Add(address);
+            customer.Addresses.Add(address);
+
+            _context.Update(customer);
 
             await _context.SaveChangesAsync();
 

@@ -22,19 +22,49 @@ namespace WriteService.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("OrderEntityProductEntity", b =>
+            modelBuilder.Entity("OrderProductsJoinTable", b =>
                 {
-                    b.Property<long>("OrdersId")
+                    b.Property<long>("OrderId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("ProductsId")
+                    b.Property<long>("ProductId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("OrdersId", "ProductsId");
+                    b.HasKey("OrderId", "ProductId");
 
-                    b.HasIndex("ProductsId");
+                    b.HasIndex("ProductId");
 
-                    b.ToTable("OrderEntityProductEntity");
+                    b.ToTable("OrderProductsJoinTable");
+                });
+
+            modelBuilder.Entity("ProductCategoriesJoinTable", b =>
+                {
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("CategoryId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductCategoriesJoinTable");
+                });
+
+            modelBuilder.Entity("ProductSubCategoriesJoinTable", b =>
+                {
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SubCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ProductId", "SubCategoryId");
+
+                    b.HasIndex("SubCategoryId");
+
+                    b.ToTable("ProductSubCategoriesJoinTable");
                 });
 
             modelBuilder.Entity("WriteService.Entities.AddressEntity", b =>
@@ -53,7 +83,7 @@ namespace WriteService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CustomerId")
+                    b.Property<long?>("CustomerEntityId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("HouseNumber")
@@ -70,7 +100,7 @@ namespace WriteService.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("CustomerEntityId");
 
                     b.ToTable("AddressEntity");
                 });
@@ -172,12 +202,7 @@ namespace WriteService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long?>("ProductEntityId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductEntityId");
 
                     b.ToTable("ProductCategories");
                 });
@@ -236,14 +261,9 @@ namespace WriteService.Migrations
                     b.Property<long?>("ProductCategoryEntityId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("ProductEntityId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ProductCategoryEntityId");
-
-                    b.HasIndex("ProductEntityId");
 
                     b.ToTable("ProductSubCategories");
                 });
@@ -256,6 +276,12 @@ namespace WriteService.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<long>("CustomerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ProductEntityId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint");
 
@@ -267,6 +293,10 @@ namespace WriteService.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ProductEntityId");
 
                     b.HasIndex("ProductId");
 
@@ -313,30 +343,56 @@ namespace WriteService.Migrations
                     b.ToTable("Vendors");
                 });
 
-            modelBuilder.Entity("OrderEntityProductEntity", b =>
+            modelBuilder.Entity("OrderProductsJoinTable", b =>
                 {
                     b.HasOne("WriteService.Entities.OrderEntity", null)
                         .WithMany()
-                        .HasForeignKey("OrdersId")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WriteService.Entities.ProductEntity", null)
                         .WithMany()
-                        .HasForeignKey("ProductsId")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProductCategoriesJoinTable", b =>
+                {
+                    b.HasOne("WriteService.Entities.ProductCategoryEntity", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WriteService.Entities.ProductEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProductSubCategoriesJoinTable", b =>
+                {
+                    b.HasOne("WriteService.Entities.ProductEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WriteService.Entities.ProductSubCategoryEntity", null)
+                        .WithMany()
+                        .HasForeignKey("SubCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("WriteService.Entities.AddressEntity", b =>
                 {
-                    b.HasOne("WriteService.Entities.CustomerEntity", "Customer")
+                    b.HasOne("WriteService.Entities.CustomerEntity", null)
                         .WithMany("Addresses")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
+                        .HasForeignKey("CustomerEntityId");
                 });
 
             modelBuilder.Entity("WriteService.Entities.OrderEntity", b =>
@@ -350,17 +406,10 @@ namespace WriteService.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("WriteService.Entities.ProductCategoryEntity", b =>
-                {
-                    b.HasOne("WriteService.Entities.ProductEntity", null)
-                        .WithMany("Categories")
-                        .HasForeignKey("ProductEntityId");
-                });
-
             modelBuilder.Entity("WriteService.Entities.ProductEntity", b =>
                 {
                     b.HasOne("WriteService.Entities.VendorEntity", "Vendor")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("VendorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -373,21 +422,25 @@ namespace WriteService.Migrations
                     b.HasOne("WriteService.Entities.ProductCategoryEntity", null)
                         .WithMany("SubCategories")
                         .HasForeignKey("ProductCategoryEntityId");
-
-                    b.HasOne("WriteService.Entities.ProductEntity", null)
-                        .WithMany("SubCategories")
-                        .HasForeignKey("ProductEntityId");
                 });
 
             modelBuilder.Entity("WriteService.Entities.ReviewEntity", b =>
                 {
-                    b.HasOne("WriteService.Entities.ProductEntity", "Product")
-                        .WithMany("Reviews")
-                        .HasForeignKey("ProductId")
+                    b.HasOne("WriteService.Entities.CustomerEntity", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
+                    b.HasOne("WriteService.Entities.ProductEntity", null)
+                        .WithMany("Reviews")
+                        .HasForeignKey("ProductEntityId");
+
+                    b.HasOne("WriteService.Entities.ProductEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WriteService.Entities.CustomerEntity", b =>
@@ -404,16 +457,7 @@ namespace WriteService.Migrations
 
             modelBuilder.Entity("WriteService.Entities.ProductEntity", b =>
                 {
-                    b.Navigation("Categories");
-
                     b.Navigation("Reviews");
-
-                    b.Navigation("SubCategories");
-                });
-
-            modelBuilder.Entity("WriteService.Entities.VendorEntity", b =>
-                {
-                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

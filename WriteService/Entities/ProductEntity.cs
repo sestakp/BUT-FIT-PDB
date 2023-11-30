@@ -14,6 +14,5 @@ public class ProductEntity : EntityBase
 
     public List<ProductCategoryEntity> Categories { get; set; } = new();
     public List<ProductSubCategoryEntity> SubCategories { get; set; } = new();
-    public IList<OrderEntity> Orders { get; set; } = null!;
-    public IList<ReviewEntity> Reviews { get; set; } = null!;
+    public List<ReviewEntity> Reviews { get; set; } = new();
 }

@@ -84,7 +84,7 @@ public class ProductService
         }
     }
 
-    public async Task<ReviewEntity> AddReviewAsync(long productId, CreateReviewDto dto)
+    public async Task<ReviewEntity> AddReviewAsync(long productId, long customerId, CreateReviewDto dto)
     {
         await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
@@ -94,7 +94,8 @@ public class ProductService
             {
                 Rating = dto.Rating,
                 Text = dto.Text,
-                Product = product
+                ProductId = productId,
+                CustomerId = customerId
             };
 
             _context.Add(review);
