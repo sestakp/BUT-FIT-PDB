@@ -107,7 +107,7 @@ public sealed class Endpoints
     {
         var products = database
             .Collection<ProductsOfSubCategory>()
-            .Find(x => x.Id.ParentCategory == category && x.Id.SubCategory == subcategory)
+            .Find(x => x.CategoryName == category && x.SubCategoryName == subcategory)
             .ToList();
 
         return Results.Ok(products);

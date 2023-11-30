@@ -46,82 +46,98 @@ public static class Seeds
     {
         new()
         {
-            Id = ("Electronics", "Smartphones"),
+            CategoryName = "Electronics",
+            SubCategoryName = "Smartphones",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Electronics", "Laptops"),
+            CategoryName = "Electronics",
+            SubCategoryName = "Laptops",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Electronics", "Cameras"),
+            CategoryName = "Electronics",
+            SubCategoryName = "Cameras",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Clothing", "Men's Wear"),
+            CategoryName = "Clothing",
+            SubCategoryName = "Men's Wear",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Clothing", "Women's Wear"),
+            CategoryName = "Clothing",
+            SubCategoryName = "Women's Wear",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Clothing", "Children's Wear"),
+            CategoryName = "Clothing",
+            SubCategoryName = "Children's Wear",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Home Appliances", "Kitchen Appliances"),
+            CategoryName = "Home Appliances",
+            SubCategoryName = "Kitchen Appliances",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Home Appliances", "Laundry Appliances"),
+            CategoryName = "Home Appliances",
+            SubCategoryName = "Laundry Appliances",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Home Appliances", "Small Appliances"),
+            CategoryName = "Home Appliances",
+            SubCategoryName = "Small Appliances",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Books", "Fiction"),
+            CategoryName = "Books",
+            SubCategoryName = "Fiction",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Books", "Non-Fiction"),
+            CategoryName = "Books",
+            SubCategoryName = "Non-Fiction",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Books", "Textbooks"),
+            CategoryName = "Books",
+            SubCategoryName = "Textbooks",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Books", "Children's Books"),
+            CategoryName = "Books",
+            SubCategoryName = "Children's Books",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Fitness", "Gym"),
+            CategoryName = "Fitness",
+            SubCategoryName = "Gym",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Fitness", "Yoga"),
+            CategoryName = "Fitness",
+            SubCategoryName = "Yoga",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
-            Id = ("Fitness", "Outdoor"),
+            CategoryName = "Fitness",
+            SubCategoryName = "Outdoor",
             Products = new List<ProductsOfSubCategory.Product>()
         }
     };

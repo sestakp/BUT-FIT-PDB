@@ -64,7 +64,6 @@ public class ProductService
                 Description = product.Description,
                 PiecesInStock = product.PiecesInStock,
                 Price = product.Price,
-                Rating = 5,
                 VendorId = product.Vendor.Id,
                 VendorName = product.Vendor.Name,
                 Categories = product.Categories

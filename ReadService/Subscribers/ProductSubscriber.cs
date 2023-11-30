@@ -28,7 +28,7 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
             var productCategories = data.Categories.ToList();
             var productSubcategories = data.SubCategories.ToList();
 
-            // Update collection of Products
+            // Add new product to collection of Products
             {
                 var collection = database.Collection<Product>();
 
@@ -39,7 +39,7 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
                     Description = data.Description,
                     PiecesInStock = data.PiecesInStock,
                     Price = data.Price,
-                    Rating = data.Rating,
+                    Rating = null,
                     Vendor = new ProductVendor()
                     {
                         Id = data.VendorId,
@@ -58,7 +58,7 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
                 _logger.LogInformation("Inserted new document into Products collection.");
             }
 
-            // Update collection of ProductsByCategory
+            // Update collection of ProductsByCategory - add product to collection of products in given category
             {
                 var collection = database.Collection<ProductsOfCategory>();
 
@@ -68,7 +68,7 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
                     Title = data.Title,
                     Description = data.Description,
                     Price = data.Price,
-                    Rating = data.Rating,
+                    Rating = null,
                     Vendor = new ProductsOfCategory.Product.ProductVendor()
                     {
                         Id = data.VendorId,
@@ -89,7 +89,7 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
                 _logger.LogInformation("Updated {Count} records in ProductsOfCategory collection.", result.MatchedCount);
             }
 
-            // Update collection of ProductsBySubCategory
+            // Update collection of ProductsBySubCategory - add product to collection of products in given category
             {
                 var collection = database.Collection<ProductsOfSubCategory>();
 
@@ -99,7 +99,7 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
                     Title = data.Title,
                     Description = data.Description,
                     Price = data.Price,
-                    Rating = data.Rating,
+                    Rating = null,
                     Vendor = new ProductsOfSubCategory.Product.ProductVendor()
                     {
                         Id = data.VendorId,
@@ -109,7 +109,7 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
 
                 var filter = Builders<ProductsOfSubCategory>
                     .Filter
-                    .In(x => x.Id.SubCategory, productSubcategories);
+                    .In(x => x.SubCategoryName, productSubcategories);
 
                 var update = Builders<ProductsOfSubCategory>
                     .Update
@@ -120,7 +120,7 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
                 _logger.LogInformation("Updated {Count} records in ProductsOfSubCategory collection.", result.MatchedCount);
             }
 
-            // Update collection of Vendors.
+            // Update collection of Vendors - try to add category of the new product to vendor
             {
                 var collection = database.Collection<Vendor>();
 

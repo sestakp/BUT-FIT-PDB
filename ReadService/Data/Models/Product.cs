@@ -20,7 +20,7 @@ public sealed record Product
     public required decimal Price { get; set; }
 
     [BsonElement("rating")]
-    public required double Rating { get; set; }
+    public required double? Rating { get; set; }
 
     [BsonElement("vendor")]
     public required ProductVendor Vendor { get; set; }

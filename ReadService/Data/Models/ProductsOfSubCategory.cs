@@ -4,8 +4,15 @@ namespace ReadService.Data.Models;
 
 public sealed record ProductsOfSubCategory
 {
-    [BsonId]
-    public required (string ParentCategory, string SubCategory) Id { get; set; }
+    // Tuple (string ParentCategory, string SubCategory) can not be used as BsonId because it is serialized to array, and arrays are not supported for ids in MongoDB.
+    // For that reason, are have Category and SubCategory as separate properties.
+    // As we do not have any explicit BsonId, MongoDb will create it for us and it will be of type ObjectId.
+
+    [BsonElement("category")]
+    public required string CategoryName { get; init; }
+
+    [BsonElement("subcategory")]
+    public required string SubCategoryName { get; init; }
 
     [BsonElement("products")]
     public List<Product> Products { get; set; } = new();
@@ -25,7 +32,7 @@ public sealed record ProductsOfSubCategory
         public required decimal Price { get; set; }
 
         [BsonElement("rating")]
-        public required double Rating { get; set; }
+        public required double? Rating { get; set; }
 
         [BsonElement("vendor")]
         public required ProductVendor Vendor { get; set; }

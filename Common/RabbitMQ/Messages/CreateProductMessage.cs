@@ -7,7 +7,6 @@ public sealed record CreateProductMessage : MessageBase
     public required string Description { get; init; }
     public required decimal Price { get; init; }
     public required int PiecesInStock { get; init; }
-    public required double Rating { get; init; }
     public required long VendorId { get; init; }
     public required string VendorName { get; init; }
     public required IEnumerable<string> Categories { get; init; }

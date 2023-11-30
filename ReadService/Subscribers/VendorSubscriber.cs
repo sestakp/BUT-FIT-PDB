@@ -80,7 +80,7 @@ public class VendorSubscriber : RabbitMQReceiver<VendorSubscriber>
         {
             var database = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
 
-            var data = (message.Data as UpdateVendorMessage)!;
+            var data = (message.Data as DeleteVendorMessage)!;
             var vendorId = data.VendorId;
 
             // Delete vendor from Vendors collection
