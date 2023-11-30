@@ -48,11 +48,11 @@ public class ProductService
                 VendorId = dto.VendorId
             };
 
-            var category = await _context
-                .ProductCategories
-                .SingleAsync(x => x.Id == dto.CategoryId);
+            var categories = LoadEntities<ProductCategoryEntity>(dto.Categories);
+            var subCategories = LoadEntities<ProductSubCategoryEntity>(dto.SubCategories);
 
-            product.Categories.Add(category);
+            product.Categories.AddRange(categories);
+            product.SubCategories.AddRange(subCategories);
 
             _context.Add(product);
 
@@ -67,7 +67,8 @@ public class ProductService
                 Price = product.Price,
                 VendorId = product.Vendor.Id,
                 VendorName = product.Vendor.Name,
-                Categories = product.Categories
+                Categories = product
+                    .Categories
                     .Select(x => x.Name)
                     .ToList(),
                 SubCategories = product
@@ -82,6 +83,26 @@ public class ProductService
 
             return product;
         }
+    }
+
+    private IEnumerable<T> LoadEntities<T>(IEnumerable<long> ids) where T : EntityBase
+    {
+        var result = new List<T>();
+        foreach (var id in ids)
+        {
+            var entity = _context
+                .Set<T>()
+                .FirstOrDefault(x => x.Id == id);
+
+            if (entity is null)
+            {
+                throw new EntityNotFoundException(id);
+            }
+
+            result.Add(entity);
+        }
+
+        return result;
     }
 
     public async Task<ReviewEntity> AddReviewAsync(long productId, long customerId, CreateReviewDto dto)
