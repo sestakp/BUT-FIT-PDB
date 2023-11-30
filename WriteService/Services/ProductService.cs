@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Common.RabbitMQ;
 using Common.RabbitMQ.Messages;
+using Common.RabbitMQ.Messages.Products;
 using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Product;
 using WriteService.DTOs.Review;
@@ -100,7 +101,15 @@ public class ProductService
 
             await _context.SaveChangesAsync();
 
-            // TODO: send message
+            var message = new CreateReviewMessage()
+            {
+                Id = review.Id,
+                Rating = review.Rating,
+                Text = review.Text,
+                ProductId = product.Id
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Review, message);
 
             await transaction.CommitAsync();
 
@@ -118,9 +127,13 @@ public class ProductService
 
             _context.Update(product);
 
+            // TODO: remove reviews of the product?
+
             await _context.SaveChangesAsync();
 
-            // TODO: send message
+            var message = new DeleteProductMessage() { ProductId = product.Id };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Product, message);
 
             await transaction.CommitAsync();
         }

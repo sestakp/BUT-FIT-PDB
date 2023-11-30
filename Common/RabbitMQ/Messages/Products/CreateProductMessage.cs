@@ -1,4 +1,4 @@
-namespace Common.RabbitMQ.Messages;
+namespace Common.RabbitMQ.Messages.Products;
 
 public sealed record CreateProductMessage : MessageBase
 {

@@ -1,5 +1,5 @@
 ﻿using Common.RabbitMQ;
-using Common.RabbitMQ.Messages;
+using Common.RabbitMQ.Messages.Products;
 using MongoDB.Driver;
 using RabbitMQ.Client;
 using ReadService.Data;
@@ -135,6 +135,82 @@ public class ProductSubscriber : RabbitMQReceiver<ProductSubscriber>
                 var result = collection.UpdateOne(filter, update);
 
                 _logger.LogInformation("Updated {Count} records in Vendors collection.", result.MatchedCount);
+            }
+        }
+    }
+
+    protected override void HandleDelete(RabbitMQMessage message)
+    {
+        using (var scope = _serviceScopeFactory.CreateScope())
+        {
+            var database = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
+
+            var data = (message.Data as DeleteProductMessage)!;
+
+            var productId = data.ProductId;
+
+            // Delete product from Product collection
+            {
+                var filter = Builders<Product>
+                    .Filter
+                    .Eq(x => x.Id, productId);
+
+                database.Collection<Product>().DeleteOne(filter);
+
+                _logger.LogInformation("Deleted one document from {Collection} collection.", nameof(Product));
+            }
+
+            // Delete product from ProductsOfCategory collection
+            {
+                var filter = Builders<ProductsOfCategory>
+                    .Filter
+                    .ElemMatch(x => x.Products, product => product.Id == productId);
+
+                var update = Builders<ProductsOfCategory>
+                    .Update
+                    .PullFilter(x => x.Products, x => x.Id == productId);
+
+                var result = database
+                    .Collection<ProductsOfCategory>()
+                    .UpdateMany(filter, update);
+
+                _logger.LogInformation("Updated {Count} documents from {Collection} collection.",
+                    result.MatchedCount,
+                    nameof(ProductsOfCategory));
+            }
+
+            // Delete product from ProductsOfSubcategory collection
+            {
+                var filter = Builders<ProductsOfSubCategory>
+                    .Filter
+                    .ElemMatch(x => x.Products, product => product.Id == productId);
+
+                var update = Builders<ProductsOfSubCategory>
+                    .Update
+                    .PullFilter(x => x.Products, x => x.Id == productId);
+
+                var result = database
+                    .Collection<ProductsOfSubCategory>()
+                    .UpdateMany(filter, update);
+
+                _logger.LogInformation("Updated {Count} documents from {Collection} collection.",
+                    result.MatchedCount,
+                    nameof(ProductsOfSubCategory));
+            }
+
+            // Delete product reviews
+            {
+                var filter = Builders<Review>
+                    .Filter
+                    .Eq(x => x.ProductId, productId);
+
+                var result = database
+                    .Collection<Review>()
+                    .DeleteMany(filter);
+
+                _logger.LogInformation("Deleted {Count} documents from {Collection} collection.",
+                    result.DeletedCount,
+                    nameof(Product));
             }
         }
     }
