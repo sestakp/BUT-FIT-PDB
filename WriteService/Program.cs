@@ -90,6 +90,8 @@ public class Program
             app.MapProductEndpoints();
             app.MapOrderEndpoints();
             app.MapCustomerEndpoints();
+            app.MapCategoryEndpoints();
+            app.MapSubCategoryEndpoints();
         }
         
         if (args.Length > 0 && args[0] == "--seed")

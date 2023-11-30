@@ -20,7 +20,7 @@ public static class Seeds
                 new()
                 {
                     Name = "Smartphones",
-                    Description = "Latest and advanced smartphones"
+                    Description = "Latest and advanced smartphones",
                 },
                 new()
                 {

@@ -128,7 +128,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
             "Description",
             10,
             15,
-            vendor.Id,
+            vendor.Id
         );
 
         var writeResponse = await _writeServiceClient.PostAsJsonAsync("/api/products", productDto);

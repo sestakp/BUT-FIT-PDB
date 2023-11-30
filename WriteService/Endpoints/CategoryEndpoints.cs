@@ -8,16 +8,13 @@ namespace WriteService.Endpoints;
 
 public static class CategoryEndpoints
 {
-    public static void MapCustomerEndpoints(this WebApplication app)
+    public static void MapCategoryEndpoints(this WebApplication app)
     {
         var gb = app.MapGroup("api/categories");
 
         gb.MapPost(string.Empty, CreateCategoryAsync);
-        gb.MapPut("{customerId:long}", UpdateCustomerAsync);
-        gb.MapDelete("{customerId:long}", DeleteCustomerAsync);
-        gb.MapPost("{customerId:long}/addresses", CreateCustomerAddress);
-        gb.MapPut("{customerId:long}/addresses/{addressId:long}", UpdateCustomerAddressAsync);
-        gb.MapDelete("{customerId:long}/addresses/{addressId:long}", DeleteCustomerAddressAsync);
+        gb.MapPut("{categoryId:long}", UpdateCategoryAsync);
+        gb.MapDelete("{categoryId:long}", DeleteCategoryAsync);
     }
 
     private static async Task<IResult> CreateCategoryAsync(
@@ -25,8 +22,27 @@ public static class CategoryEndpoints
         [FromServices] CategoryService service,
         [FromServices] IMapper mapper)
     {
-        var customer = await service.CreateAsync(dto);
+        var category = await service.CreateAsync(dto);
+        var responseDto = mapper.Map<CategoryDto>(category);
+        return Results.Created("api/categories" + category.Id, responseDto);
+    }
+
+    private static async Task<IResult> UpdateCategoryAsync(
+        [FromRoute] long categoryId,
+        [FromBody] UpdateCategoryDto dto,
+        [FromServices] CategoryService service,
+        [FromServices] IMapper mapper)
+    {
+        var customer = await service.UpdateAsync(categoryId, dto);
         var responseDto = mapper.Map<CategoryDto>(customer);
-        return Results.Created("api/customers" + customer.Email, responseDto);
+        return Results.Ok(responseDto);
+    }
+
+    private static async Task<IResult> DeleteCategoryAsync(
+        [FromRoute] long categoryId,
+        [FromServices] CategoryService service)
+    {
+        await service.DeleteAsync(categoryId);
+        return Results.Ok();
     }
 }

@@ -83,6 +83,18 @@ public class ShopDbContext : DbContext
             .HasMany<AddressEntity>()
             .WithOne()
             .HasForeignKey(a => a.CustomerId);
+
+
+        modelBuilder.Entity<ProductCategoryEntity>()
+            .HasMany<ProductSubCategoryEntity>()
+            .WithOne()
+            .HasForeignKey(c => c.CategoryId);
+
+
+        modelBuilder.Entity<ProductSubCategoryEntity>()
+            .HasOne<ProductCategoryEntity>()
+            .WithMany()
+            .HasForeignKey(c => c.CategoryId);
     }
 
 #nullable disable
