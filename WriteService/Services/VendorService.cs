@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Common.RabbitMQ;
 using Common.RabbitMQ.Messages;
+using Common.RabbitMQ.Messages.Vendor;
 using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Vendor;
 using WriteService.Entities;
@@ -66,6 +67,7 @@ public class VendorService
         {
             var vendor = await FindVendorAsync(vendorId);
 
+            vendor.Name = dto.Name;
             vendor.Country = dto.Country;
             vendor.ZipCode = dto.ZipCode;
             vendor.City = dto.City;
@@ -76,7 +78,18 @@ public class VendorService
 
             await _context.SaveChangesAsync();
 
-            // TODO: send message
+            var message = new UpdateVendorMessage()
+            {
+                VendorId = vendor.Id,
+                Name = vendor.Name,
+                Country = vendor.Country,
+                ZipCode = vendor.ZipCode,
+                City = vendor.City,
+                Street = vendor.Street,
+                HouseNumber = vendor.HouseNumber
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Vendor, message);
 
             await transaction.CommitAsync();
 

@@ -1,4 +1,4 @@
-namespace Common.RabbitMQ.Messages;
+namespace Common.RabbitMQ.Messages.Vendor;
 
 public sealed record CreateVendorMessage : MessageBase
 {
