@@ -28,7 +28,7 @@ public class OrderSubscriber : RabbitMQReceiver<OrderSubscriber>
             var order = new Order()
             {
                 Id = data.Id,
-                CustomerEmail = data.CustomerEmail,
+                CustomerId = data.CustomerId,
                 Created = data.DateTimeCreated,
                 Price = data.Price,
                 Address = new OrderAddress()

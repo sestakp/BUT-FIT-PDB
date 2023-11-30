@@ -46,6 +46,7 @@ public class Program
             services.AddScoped<OrderService>();
             services.AddScoped<ProductService>();
             services.AddScoped<VendorService>();
+            services.AddScoped<CategoryService>();
 
             services.AddDbContext<ShopDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbContext")));

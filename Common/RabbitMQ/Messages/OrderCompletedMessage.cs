@@ -3,7 +3,7 @@ namespace Common.RabbitMQ.Messages;
 public sealed record OrderCompletedMessage : MessageBase
 {
     public required long Id { get; init; }
-    public required string CustomerEmail { get; init; }
+    public required long CustomerId { get; init; }
     public required decimal Price { get; init; }
     public required string AddressCountry { get; init; }
     public required string AddressZipCode { get; init; }

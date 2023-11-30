@@ -20,7 +20,8 @@ public static class OrderEndpoints
         [FromServices] OrderService orderService)
     {
         var order = await orderService.CreateAsync(dto.CustomerId);
-        return Results.Ok(new { id = order.Id });
+        
+        return Results.Ok(order.Id);
     }
 
     private static async Task<IResult> AddProductToCartAsync(

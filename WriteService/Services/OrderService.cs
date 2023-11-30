@@ -26,6 +26,15 @@ public class OrderService
 
     public async Task<OrderEntity> CreateAsync(long customerId)
     {
+        var orderInProgress = await _context.Orders.Where(o => o.CustomerId == customerId && o.Status == OrderStatusEnum.InProgress)
+            .FirstOrDefaultAsync();
+
+        if (orderInProgress != null)
+        {
+            return orderInProgress;
+        }
+
+
         var order = new OrderEntity()
         {
             Created = DateTime.UtcNow,
@@ -105,7 +114,7 @@ public class OrderService
         var message = new OrderCompletedMessage()
         {
             Id = order.Id,
-            CustomerEmail = order.Customer.Email,
+            CustomerId = order.Customer.Id,
             Price = 10000,
             AddressCountry = order.Country,
             AddressZipCode = order.ZipCode,

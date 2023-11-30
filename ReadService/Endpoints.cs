@@ -144,12 +144,12 @@ public sealed class Endpoints
     }
 
     private static IResult GetOrdersForCustomer(
-        [FromQuery] string customerEmail,
+        [FromQuery] long customerId,
         [FromServices] IMongoDatabase database)
     {
         var products = database
             .Collection<Order>()
-            .Find(x => x.CustomerEmail == customerEmail)
+            .Find(x => x.CustomerId == customerId)
             .ToList();
 
         return Results.Ok(products);
