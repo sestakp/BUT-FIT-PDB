@@ -9,7 +9,122 @@ public static class Seeds
     public static void ApplyDatabaseSeeds(IMongoDatabase database)
     {
         database.Collection<Category>().InsertMany(Categories);
+        database.Collection<ProductsOfCategory>().InsertMany(ProductsOfCategory);
+        database.Collection<ProductsOfSubCategory>().InsertMany(ProductsOfSubCategory);
     }
+
+    private static readonly List<ProductsOfCategory> ProductsOfCategory = new()
+    {
+        new()
+        {
+            CategoryName = "Electronics",
+            Products = new List<ProductsOfCategory.Product>()
+        },
+        new()
+        {
+            CategoryName = "Clothing",
+            Products = new List<ProductsOfCategory.Product>()
+        },
+        new()
+        {
+            CategoryName = "Home Appliances",
+            Products = new List<ProductsOfCategory.Product>()
+        },
+        new()
+        {
+            CategoryName = "Books",
+            Products = new List<ProductsOfCategory.Product>()
+        },
+        new()
+        {
+            CategoryName = "Fitness",
+            Products = new List<ProductsOfCategory.Product>()
+        }
+    };
+
+    private static readonly List<ProductsOfSubCategory> ProductsOfSubCategory = new()
+    {
+        new()
+        {
+            Id = ("Electronics", "Smartphones"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Electronics", "Laptops"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Electronics", "Cameras"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Clothing", "Men's Wear"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Clothing", "Women's Wear"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Clothing", "Children's Wear"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Home Appliances", "Kitchen Appliances"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Home Appliances", "Laundry Appliances"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Home Appliances", "Small Appliances"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Books", "Fiction"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Books", "Non-Fiction"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Books", "Textbooks"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Books", "Children's Books"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Fitness", "Gym"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Fitness", "Yoga"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        },
+        new()
+        {
+            Id = ("Fitness", "Outdoor"),
+            Products = new List<ProductsOfSubCategory.Product>()
+        }
+    };
 
     private static readonly List<Category> Categories = new()
     {
@@ -118,17 +233,17 @@ public static class Seeds
             {
                 new()
                 {
-                    Name = "Gym Equipment",
+                    Name = "Gym",
                     Description = "Equipment for gym workouts like weights and machines"
                 },
                 new()
                 {
-                    Name = "Yoga Accessories",
+                    Name = "Yoga",
                     Description = "Accessories for yoga, including mats, blocks, and straps"
                 },
                 new()
                 {
-                    Name = "Outdoor Fitness",
+                    Name = "Outdoor",
                     Description = "Equipment for outdoor fitness activities, such as running gear and bicycles"
                 }
             }
