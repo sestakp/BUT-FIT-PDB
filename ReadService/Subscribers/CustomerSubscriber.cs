@@ -30,6 +30,7 @@ public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
 
             var document = new Customer()
             {
+                Id = data.Id,
                 Email = data.Email,
                 FirstName = data.FirstName,
                 LastName = data.LastName,
@@ -70,7 +71,7 @@ public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
 
                 var filter = Builders<Customer>
                     .Filter
-                    .Eq(x => x.Email, data.CustomerEmail);
+                    .Eq(x => x.Id, data.Id);
 
                 var updateDefinition = Builders<Customer>
                     .Update
@@ -103,7 +104,7 @@ public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
 
                 var filter = Builders<Customer>
                     .Filter
-                    .Eq(x => x.Email, data.CustomerEmail);
+                    .Eq(x => x.Id, data.CustomerId);
 
                 var updateDefinition = Builders<Customer>
                     .Update
@@ -125,7 +126,7 @@ public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
 
                 var customerFilter = Builders<Customer>
                     .Filter
-                    .Eq(x => x.Email, data.CustomerEmail);
+                    .Eq(x => x.Id, data.Id);
 
                 var addressFilter = Builders<Customer>
                     .Filter
@@ -155,7 +156,7 @@ public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
 
                 var customerFilter = Builders<Customer>
                     .Filter
-                    .Eq(x => x.Email, data.CustomerEmail);
+                    .Eq(x => x.Id, data.Id);
 
                 var updateDefinition = Builders<Customer>
                     .Update
@@ -180,7 +181,7 @@ public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
 
             var customerFilter = Builders<Customer>
                 .Filter
-                .Eq(x => x.Email, data.CustomerEmail);
+                .Eq(x => x.Id, data.Id);
 
             var r1 = database.Collection<Customer>().DeleteOne(customerFilter);
 
@@ -188,7 +189,7 @@ public class CustomerSubscriber : RabbitMQReceiver<CustomerSubscriber>
 
             var ordersFilter = Builders<Order>
                 .Filter
-                .Eq(x => x.CustomerEmail, data.CustomerEmail);
+                .Eq(x => x.Id, data.Id);
 
             var r2 = database.Collection<Order>().DeleteMany(ordersFilter);
 

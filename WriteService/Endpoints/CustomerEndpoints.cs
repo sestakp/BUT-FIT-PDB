@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Net;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using WriteService.DTOs.Address;
 using WriteService.DTOs.Customer;
@@ -27,7 +28,7 @@ public static class CustomerEndpoints
     {
         var customer = await service.CreateAsync(dto);
         var responseDto = mapper.Map<CustomerDto>(customer);
-        return Results.Created("api/customers" + customer.Id, responseDto);
+        return Results.Created("api/customers" + customer.Email, responseDto);
     }
 
     private static async Task<IResult> UpdateCustomerAsync(

@@ -1,54 +1,70 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Common.Extensions;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
+using ReadService.Data;
+using WriteService;
 using WriteService.DTOs.Address;
 using WriteService.DTOs.Customer;
 using WriteService.DTOs.Order;
 using WriteService.DTOs.Product;
 using WriteService.DTOs.Review;
 using WriteService.DTOs.Vendor;
-using WriteService.Endpoints;
 using WriteService.Entities;
 using WriteService.Services;
 
-namespace WriteService;
-
-public class Program
+namespace CQRS.EndToEndTests.Factories;
+public class WriteServiceWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
 {
-    public static void Main(string[] args)
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        var builder = WebApplication.CreateBuilder(args);
+
+        builder.ConfigureAppConfiguration((context, config) =>
         {
-            var services = builder.Services;
+
+            var relativePath = "..\\..\\..\\..\\WriteService\\appsettings.Development.json";
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var fullPath = Path.Combine(currentDirectory, relativePath);
+            config.AddJsonFile(fullPath);
+        });
+
+
+        builder.ConfigureServices((context,services) =>
+        {
+
+            var configuration = context.Configuration;
+
+            // Configure SQL (Entity Framework Core)
+            services.AddDbContext<ShopDbContext>(options =>
+            {
+                options.UseInMemoryDatabase("CqrsPdbInMemoryForTesting"); // Use an in-memory database for testing
+            });
 
             services.AddSwaggerGen();
             services.AddEndpointsApiExplorer();
 
             // RabbitMQ configuration
-            services.AddRabbitMQSettings(builder.Configuration);
+            services.AddRabbitMQSettings(configuration);
             services.AddConnectionFactoryForRabbit();
             services.AddRabbitConnection();
             services.AddRabbitChannel();
             services.AddRabbitMQProducer();
-
-            services.AddCors(options =>
-            {
-                options.AddPolicy("WriteServiceCorsPolicy", policyBuilder =>
-                {
-                    policyBuilder
-                        .AllowAnyOrigin()
-                        .AllowAnyHeader()
-                        .WithMethods("GET", "POST", "PUT", "DELETE");
-                });
-            });
+            
 
             services.AddScoped<CustomerService>();
             services.AddScoped<OrderService>();
             services.AddScoped<ProductService>();
             services.AddScoped<VendorService>();
-
-            services.AddDbContext<ShopDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbContext")));
+            
 
             services.AddHostedService<ProductGarbageCollector>();
 
@@ -76,36 +92,10 @@ public class Program
 
             var mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
-        }
 
-        var app = builder.Build();
-        {
-            app.UseCors("WriteServiceCorsPolicy");
+            // Additional service configurations for testing
+        });
 
-            app.UseSwagger();
-            app.UseSwaggerUI();
-
-            app.MapVendorEndpoints();
-            app.MapProductEndpoints();
-            app.MapOrderEndpoints();
-            app.MapCustomerEndpoints();
-        }
-        
-        if (args.Length > 0 && args[0] == "--seed")
-        {
-            SeedDatabase(app);
-        }
-
-        app.Run();
-    }
-
-    private static void SeedDatabase(WebApplication app)
-    {
-        using (var scope = app.Services.CreateScope())
-        {
-            var dbContext = scope.ServiceProvider.GetRequiredService<ShopDbContext>();
-            Seeds.ApplyDatabaseSeeds(dbContext);
-            dbContext.SaveChanges();
-        }
+        // You can add any other configurations for your application, such as configuration files, here
     }
 }

@@ -10,7 +10,7 @@ public sealed class Endpoints
     public static void MapEndpoints(WebApplication app)
     {
         app.MapGet("api/customers", GetCustomers);
-        app.MapGet("api/customers/{email}", GetCustomerDetail);
+        app.MapGet("api/customers/{customerId}", GetCustomerDetail);
         app.MapGet("api/vendors", GetVendors);
         app.MapGet("api/vendors/{id:long}", GetVendorDetail);
         app.MapGet("api/products", GetProducts);
@@ -34,13 +34,13 @@ public sealed class Endpoints
     }
 
     private static IResult GetCustomerDetail(
-        [FromRoute] string email,
+        [FromRoute] long customerId,
         [FromServices] IMongoDatabase database)
     {
         var customer = database
             .Collection<Customer>()
-            .Find(x => x.Email == email)
-            .Single();
+            .Find(x => x.Id == customerId)
+            .SingleOrDefault();
 
         if (customer is null)
         {

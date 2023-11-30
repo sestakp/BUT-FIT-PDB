@@ -12,8 +12,8 @@ using WriteService;
 namespace WriteService.Migrations
 {
     [DbContext(typeof(ShopDbContext))]
-    [Migration("20231130131811_Initial")]
-    partial class Initial
+    [Migration("20231130193844_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
