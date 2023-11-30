@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Common.RabbitMQ;
-using Common.RabbitMQ.Messages;
 using Common.RabbitMQ.Messages.Vendor;
 using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Vendor;
@@ -113,7 +112,9 @@ public class VendorService
 
             await _context.SaveChangesAsync();
 
-            // TODO: send message
+            var message = new DeleteVendorMessage() { VendorId = vendor.Id };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Vendor, message);
 
             await transaction.CommitAsync();
         }
