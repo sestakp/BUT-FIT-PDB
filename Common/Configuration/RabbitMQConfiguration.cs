@@ -1,15 +1,20 @@
-﻿namespace Common.Configuration
+﻿#nullable disable
+
+using System.ComponentModel.DataAnnotations;
+
+namespace Common.Configuration;
+
+public record RabbitMQConfiguration
 {
-    public class RabbitMQConfiguration
-    {
-        public string QueueName { get; set; } = null!;
+    [Required]
+    public string Hostname { get; init; }
 
-        public string Hostname { get; set; } = null!;
+    [Required]
+    public int Port { get; init; }
 
-        public int Port { get; set; }
+    [Required]
+    public string UserName { get; init; }
 
-        public string UserName { get; set; } = null!;
-
-        public string Password { get; set; } = null!;
-    }
+    [Required]
+    public string Password { get; init; }
 }

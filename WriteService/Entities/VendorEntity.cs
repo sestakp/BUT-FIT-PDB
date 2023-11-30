@@ -9,7 +9,7 @@ public class VendorEntity : EntityBase
     public required string Street { get; set; }
     public required string HouseNumber { get; set; }
 
-    public bool IsDeleted { get; set; } = false;
+    public bool IsDeleted { get; set; }
 
     public IList<ProductEntity> Products = new List<ProductEntity>();
 }

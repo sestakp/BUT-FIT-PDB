@@ -12,7 +12,7 @@ public class ProductEntity : EntityBase
     public long VendorId { get; set; }
     public VendorEntity Vendor { get; set; } = null!;
 
-    public IList<ProductCategoryEntity> Categories { get; set; } = null!;
-    public IList<OrderEntity> Orders { get; set; } = null!;
-    public IList<ReviewEntity> Reviews { get; set; } = null!;
+    public List<ProductCategoryEntity> Categories { get; set; } = new();
+    public List<ProductSubCategoryEntity> SubCategories { get; set; } = new();
+    public List<ReviewEntity> Reviews { get; set; } = new();
 }

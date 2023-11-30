@@ -12,41 +12,50 @@ public static class ProductEndpoints
     {
         var gb = app.MapGroup("api/products");
 
-        gb.MapPost(string.Empty, CreateProduct);
-        gb.MapPost("{productId:long}/reviews", AddReview);
-        gb.MapDelete("{productId:long}", DeleteProduct);
+        gb.MapPost(string.Empty, CreateProductAsync);
+        gb.MapPost("{productId:long}/reviews", AddReviewAsync);
+        gb.MapDelete("{productId:long}", DeleteProductAsync);
     }
 
-    private static IResult CreateProduct(
+    private static async Task<IResult> CreateProductAsync(
         [FromBody] CreateProductDto dto,
         [FromServices] ProductService productService,
         [FromServices] IMapper mapper)
     {
-        var product = productService.Create(dto);
-        var responseDto = mapper.Map<ProductDto>(product);
+        var product = await productService.CreateAsync(dto);
+
+        var responseDto = new ProductDto(
+            product.Id,
+            product.Title,
+            product.Description,
+            product.Price,
+            product.PiecesInStock);
 
         // TODO: add uri from query service
         return Results.Created("todo", responseDto);
     }
 
-    private static IResult AddReview(
+    private static async Task<IResult> AddReviewAsync(
         [FromRoute] long productId,
         [FromBody] CreateReviewDto dto,
         [FromServices] ProductService productService,
         [FromServices] IMapper mapper)
     {
-        var review = productService.AddReview(productId, dto);
+        // TODO: get customer id from the request
+        var customerId = 1;
+
+        var review = await productService.AddReviewAsync(productId, customerId, dto);
         var responseDto = mapper.Map<ReviewDto>(review);
 
         // TODO: add uri from query service
         return Results.Created("todo", responseDto);
     }
 
-    private static IResult DeleteProduct(
+    private static async Task<IResult> DeleteProductAsync(
         [FromRoute] long productId,
         [FromServices] ProductService productService)
     {
-        productService.Delete(productId);
+        await productService.DeleteAsync(productId);
         return Results.Ok();
     }
 }

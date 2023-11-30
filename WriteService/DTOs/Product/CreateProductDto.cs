@@ -5,4 +5,6 @@ public sealed record CreateProductDto(
     string Description,
     int PricesInStock,
     decimal Price,
-    int VendorId);
+    long VendorId,
+    IEnumerable<long> Categories,
+    IEnumerable<long> SubCategories);

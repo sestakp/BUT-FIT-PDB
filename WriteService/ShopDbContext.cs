@@ -27,48 +27,51 @@ public class ShopDbContext : DbContext
         modelBuilder.Entity<CustomerEntity>()
             .HasQueryFilter(e => !e.IsDeleted);
 
-        modelBuilder.Entity<VendorEntity>()
+        modelBuilder.Entity<ProductEntity>()
+            .HasMany(e => e.Categories)
+            .WithMany()
+            .UsingEntity(
+                "ProductCategoriesJoinTable",
+                l => l.HasOne(typeof(ProductCategoryEntity))
+                    .WithMany()
+                    .HasForeignKey("CategoryId"),
+                r => r.HasOne(typeof(ProductEntity))
+                    .WithMany()
+                    .HasForeignKey("ProductId"));
+
+        modelBuilder.Entity<ProductEntity>()
+            .HasMany(e => e.SubCategories)
+            .WithMany()
+            .UsingEntity(
+                "ProductSubCategoriesJoinTable",
+                l => l.HasOne(typeof(ProductSubCategoryEntity))
+                    .WithMany()
+                    .HasForeignKey("SubCategoryId"),
+                r => r.HasOne(typeof(ProductEntity))
+                    .WithMany()
+                    .HasForeignKey("ProductId"));
+
+        modelBuilder.Entity<OrderEntity>()
             .HasMany(e => e.Products)
-            .WithOne(e => e.Vendor)
-            .HasForeignKey(e => e.VendorId);
-
-        modelBuilder.Entity<ProductEntity>()
-            .HasOne(e => e.Vendor)
-            .WithMany(e => e.Products)
-            .HasForeignKey(e => e.VendorId);
-
-        modelBuilder.Entity<ProductEntity>()
-            .HasMany(e => e.Reviews)
-            .WithOne(e => e.Product)
-            .HasForeignKey(e => e.ProductId);
+            .WithMany()
+            .UsingEntity(
+                "OrderProductsJoinTable",
+                l => l.HasOne(typeof(ProductEntity))
+                    .WithMany()
+                    .HasForeignKey("ProductId"),
+                r => r.HasOne(typeof(OrderEntity))
+                    .WithMany()
+                    .HasForeignKey("OrderId"));
 
         modelBuilder.Entity<ReviewEntity>()
-            .HasOne(e => e.Product)
-            .WithMany(e => e.Reviews)
-            .HasForeignKey(e => e.ProductId);
+            .HasOne<CustomerEntity>()
+            .WithMany()
+            .HasForeignKey(x => x.CustomerId);
 
-        modelBuilder.Entity<ProductEntity>()
-            .HasMany(e => e.Orders)
-            .WithMany(e => e.Products);
-
-        modelBuilder.Entity<OrderEntity>()
-            .HasMany(e => e.Products)
-            .WithMany(e => e.Orders);
-
-        modelBuilder.Entity<OrderEntity>()
-            .HasOne(e => e.Customer)
-            .WithMany(e => e.Orders)
-            .HasForeignKey(e => e.CustomerId);
-
-        modelBuilder.Entity<CustomerEntity>()
-            .HasMany(e => e.Orders)
-            .WithOne(e => e.Customer)
-            .HasForeignKey(e => e.CustomerId);
-
-        modelBuilder.Entity<CustomerEntity>()
-            .HasMany(e => e.Addresses)
-            .WithOne(e => e.Customer)
-            .HasForeignKey(e => e.CustomerId);
+        modelBuilder.Entity<ReviewEntity>()
+            .HasOne<ProductEntity>()
+            .WithMany()
+            .HasForeignKey(x => x.ProductId);
     }
 
 #nullable disable

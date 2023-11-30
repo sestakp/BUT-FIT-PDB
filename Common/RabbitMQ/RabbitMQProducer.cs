@@ -1,38 +1,59 @@
-﻿using Common.Configuration;
+﻿using System.Text;
+using Common.RabbitMQ.Messages;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
-using System.Text;
 
-namespace Common.RabbitMQ
+namespace Common.RabbitMQ;
+
+public class RabbitMQProducer
 {
-    public class RabbitMQProducer
+    private readonly IConnection _connection;
+    private readonly ILogger<RabbitMQProducer> _logger;
+
+    public RabbitMQProducer(IConnection connection, ILogger<RabbitMQProducer> logger)
     {
-        private readonly string _exchangeName;
-        private readonly IConnection _connection;
-        protected readonly ILogger<RabbitMQProducer> Logger;
+        _connection = connection;
+        _logger = logger;
 
-        public RabbitMQProducer(IOptions<RabbitMQConfiguration> rabbitMqOptions, IConnection connection, ILogger<RabbitMQProducer> logger)
+        _logger.LogDebug($"Instantiating {nameof(RabbitMQProducer)}.");
+    }
+
+    public void SendMessageAsync(RabbitMQOperation operation, RabbitMQEntities entity, MessageBase data)
+    {
+        using (var channel = _connection.CreateModel())
         {
-            _exchangeName = string.Format(RabbitMQNames.Exchange, rabbitMqOptions.Value.QueueName);
-            _connection = connection;
-            Logger = logger;
-            Logger.LogDebug("Instantiating RabbitMQProducer");
-        }
-        public void SendMessage(string id)
-        {
-            using var channel = _connection.CreateModel();
-            channel.ExchangeDeclare(exchange: _exchangeName, type: "fanout", durable: false, autoDelete: false, arguments: null);
+            channel.ExchangeDeclare(
+                exchange: RabbitMQNames.SyncExchange,
+                type: ExchangeType.Direct,
+                durable: true,
+                autoDelete: false,
+                arguments: null);
 
-            var body = Encoding.UTF8.GetBytes(id);
+            var message = new RabbitMQMessage
+            {
+                Operation = operation,
+                Entity = entity,
+                Data = data
+            };
 
-            channel.BasicPublish(exchange: _exchangeName, routingKey: "", basicProperties: null, body: body);
-            Logger.Log(LogLevel.Information, $"Message produced with id {id}");
-        }
+            var jsonMessage = JsonConvert.SerializeObject(message, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+            var body = Encoding.UTF8.GetBytes(jsonMessage);
 
-        ~RabbitMQProducer()
-        {
-            Logger.LogDebug("Destructing RabbitMQProducer");
+            _logger.LogInformation("Sending json: {Json}", jsonMessage);
+            
+            channel.BasicPublish(
+                exchange: RabbitMQNames.SyncExchange,
+                routingKey: entity.ToString(),
+                basicProperties: null,
+                body: body);
+
+            _logger.LogInformation("Produced message: {message}.", message);
         }
+    }
+
+    ~RabbitMQProducer()
+    {
+        _logger.LogDebug($"Destructing {nameof(RabbitMQProducer)}");
     }
 }

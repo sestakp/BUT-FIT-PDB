@@ -1,37 +1,93 @@
-using Common.Pipelines;
-using ReadService.Pipelines;
+using Common.Extensions;
+using Common.RabbitMQ;
+using MongoDB.Driver;
+using ReadService.Data;
+using ReadService.Subscribers;
 
-var builder = ReadServiceBuilderPipeline.CreateBuilder(args);
+namespace ReadService;
 
-var app = AppPipeline.Build(builder);
-
-
-var summaries = new[]
+internal static class Program
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+        {
+            var services = builder.Services;
+            var configuration = builder.Configuration;
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+            services.AddSwaggerGen();
+            services.AddEndpointsApiExplorer();
 
+            // RabbitMQ configuration
+            services.AddRabbitMQSettings(configuration);
+            services.AddConnectionFactoryForRabbit();
+            services.AddRabbitConnection();
+            services.AddRabbitChannel();
 
+            services.AddSingleton<CustomerSubscriber>();
+            services.AddSingleton<OrderSubscriber>();
+            services.AddSingleton<ProductSubscriber>();
+            services.AddSingleton<VendorSubscriber>();
+            services.AddSingleton<ReviewSubscriber>();
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("ReadServiceCorsPolicy", policyBuilder =>
+                {
+                    policyBuilder
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .WithMethods("GET");
+                });
+            });
 
-app.Run();
+            services.AddMongoDb(configuration);
+        }
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        var app = builder.Build();
+        {
+            app.UseCors("ReadServiceCorsPolicy");
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+            Endpoints.MapEndpoints(app);
+        }
+
+        app.Services
+            .GetRequiredService<CustomerSubscriber>()
+            .ReceiveFromExchange(RabbitMQEntities.Customer);
+
+        app.Services
+            .GetRequiredService<OrderSubscriber>()
+            .ReceiveFromExchange(RabbitMQEntities.Order);
+
+        app.Services
+            .GetRequiredService<ProductSubscriber>()
+            .ReceiveFromExchange(RabbitMQEntities.Product);
+
+        app.Services
+            .GetRequiredService<VendorSubscriber>()
+            .ReceiveFromExchange(RabbitMQEntities.Vendor);
+
+        app.Services
+            .GetRequiredService<ReviewSubscriber>()
+            .ReceiveFromExchange(RabbitMQEntities.Review);
+
+        if (args.Length > 0 && args[0] == "--seed")
+        {
+            SeedDatabase(app);
+        }
+
+        app.Run();
+    }
+
+    private static void SeedDatabase(WebApplication app)
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var database = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
+            Seeds.ApplyDatabaseSeeds(database);
+        }
+    }
 }

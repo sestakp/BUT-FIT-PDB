@@ -11,41 +11,49 @@ public static class VendorEndpoints
     {
         var gb = app.MapGroup("api/vendors");
 
-        gb.MapPost(string.Empty, CreateVendor);
-        gb.MapPut("{vendorId:long}", UpdateVendor);
-        gb.MapDelete("{vendorId:long}", DeleteVendor);
+        gb.MapPost(string.Empty, CreateVendorAsync);
+        gb.MapPut("{vendorId:long}", UpdateVendorAsync);
+        gb.MapDelete("{vendorId:long}", DeleteVendorAsync);
     }
 
-    private static IResult CreateVendor(
+    private static async Task<IResult> CreateVendorAsync(
         [FromBody] CreateVendorDto dto,
         [FromServices] VendorService vendorService,
         [FromServices] IMapper mapper)
     {
-        var vendor = vendorService.Create(dto);
-        var responseDto = mapper.Map<VendorDto>(vendor);
+        var vendor = await vendorService.CreateAsync(dto);
+
+        var responseDto = new VendorDto(
+            vendor.Id,
+            vendor.Name,
+            vendor.Country,
+            vendor.ZipCode,
+            vendor.City,
+            vendor.Street,
+            vendor.HouseNumber);
 
         // TODO: add uri from query service
         return Results.Created("todo", responseDto);
     }
 
-    private static IResult UpdateVendor(
+    private static async Task<IResult> UpdateVendorAsync(
         [FromRoute] long vendorId,
         [FromBody] UpdateVendorDto dto,
         [FromServices] VendorService vendorService,
         [FromServices] IMapper mapper)
     {
-        var vendor = vendorService.Update(vendorId, dto);
+        var vendor = await vendorService.UpdateAsync(vendorId, dto);
         var responseDto = mapper.Map<VendorDto>(vendor);
-
+    
         // TODO: add uri from query service
         return Results.Created("todo", responseDto);
     }
 
-    private static IResult DeleteVendor(
+    private static async Task<IResult> DeleteVendorAsync(
         [FromRoute] long vendorId,
         [FromServices] VendorService vendorService)
     {
-        vendorService.Delete(vendorId);
+        await vendorService.DeleteAsync(vendorId);
         return Results.Ok();
     }
 }

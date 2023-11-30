@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Common.RabbitMQ;
+using Common.RabbitMQ.Messages.Customer;
+using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Address;
 using WriteService.DTOs.Customer;
 using WriteService.Entities;
@@ -9,158 +11,257 @@ namespace WriteService.Services;
 public class CustomerService
 {
     private readonly ShopDbContext _context;
+    private readonly RabbitMQProducer _producer;
+    private readonly ILogger<CustomerService> _logger;
 
-    public CustomerService(ShopDbContext context)
+    public CustomerService(ShopDbContext context, RabbitMQProducer producer, ILogger<CustomerService> logger)
     {
         _context = context;
+        _producer = producer;
+        _logger = logger;
     }
 
-    public CustomerEntity Create(CreateCustomerDto dto)
+    public async Task<CustomerEntity> CreateAsync(CreateCustomerDto dto)
     {
-        var entity = new CustomerEntity()
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Email = dto.Email,
-            PhoneNumber = dto.PhoneNumber,
-            PasswordHash = dto.PasswordHash
-        };
+            var entity = new CustomerEntity()
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                PasswordHash = dto.Password
+            };
 
-        _context.Add(entity);
-        _context.SaveChanges();
+            _context.Add(entity);
 
-        return entity;
+            await _context.SaveChangesAsync();
+
+            var message = new CreateCustomerMessage()
+            {
+                FirstName = entity.FirstName,
+                LastName = entity.LastName,
+                Email = entity.Email,
+                PhoneNumber = entity.PhoneNumber
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Customer, message);
+
+            await transaction.CommitAsync();
+
+            return entity;
+        }
     }
 
-    public CustomerEntity Update(long customerId, UpdateCustomerDto dto)
+    public async Task<CustomerEntity> UpdateAsync(long customerId, UpdateCustomerDto dto)
     {
-        var entity = _context.Customers.Find(customerId);
-        if (entity is null)
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            throw new EntityNotFoundException(customerId);
+            var entity = await _context.Customers.FindAsync(customerId);
+            if (entity is null)
+            {
+                throw new EntityNotFoundException(customerId);
+            }
+
+            // We do not allow updating email and phone number
+            entity.FirstName = dto.FirstName;
+            entity.LastName = dto.LastName;
+
+            _context.Update(entity);
+
+            await _context.SaveChangesAsync();
+
+            var message = new UpdateCustomerMessage()
+            {
+                CustomerEmail = entity.Email,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer, message);
+
+            await transaction.CommitAsync();
+
+            return entity;
         }
-
-        // We do not allow to update email and phone number
-        entity.FirstName = dto.FirstName;
-        entity.LastName = dto.LastName;
-
-        _context.Update(entity);
-        _context.SaveChanges();
-
-        return entity;
     }
 
-    public void Anonymize(long customerId)
+    public async Task AnonymizeAsync(long customerId)
     {
-        var customer = _context
-            .Customers
-            .Include(c => c.Addresses)
-            .FirstOrDefault(c => c.Id == customerId);
-
-        if (customer is null)
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            throw new EntityNotFoundException(customerId);
+            var customer = await _context
+                .Customers
+                .Include(c => c.Addresses)
+                .FirstOrDefaultAsync(c => c.Id == customerId);
+
+            if (customer is null)
+            {
+                throw new EntityNotFoundException(customerId);
+            }
+
+            var customerEmail = customer.Email;
+
+            const string anonymizationValue = "anonymized";
+
+            customer.Email = anonymizationValue;
+            customer.FirstName = anonymizationValue;
+            customer.LastName = anonymizationValue;
+            customer.PhoneNumber = anonymizationValue;
+            customer.PasswordHash = anonymizationValue;
+            customer.IsDeleted = true;
+
+            _context.Update(customer);
+            foreach (var address in customer.Addresses)
+            {
+                _context.Remove(address);
+            }
+
+            await _context.SaveChangesAsync();
+
+            var message = new DeleteCustomerMessage() { CustomerEmail = customerEmail };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Customer, message);
+
+            await transaction.CommitAsync();
         }
-
-        const string anonymizationValue = "anonymized";
-
-        customer.Email = anonymizationValue;
-        customer.FirstName = anonymizationValue;
-        customer.LastName = anonymizationValue;
-        customer.PhoneNumber = anonymizationValue;
-        customer.PasswordHash = anonymizationValue;
-        customer.IsDeleted = true;
-
-        _context.Update(customer);
-
-        foreach (var address in customer.Addresses)
-        {
-            _context.Remove(address);
-        }
-
-        _context.SaveChanges();
     }
 
-    public AddressEntity CreateCustomerAddress(long customerId, CreateAddressDto dto)
+    public async Task<AddressEntity> CreateCustomerAddressAsync(long customerId, CreateAddressDto dto)
     {
-        var customerExists = _context
-            .Customers
-            .Any(x => x.Id == customerId);
-
-        if (!customerExists)
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            throw new Exception($"Cannot create new address because customer with id '{customerId}' does not exist.");
+            var customer = await _context
+                .Customers
+                .FirstOrDefaultAsync(x => x.Id == customerId);
+
+            if (customer is null)
+            {
+                throw new EntityNotFoundException(customerId);
+            }
+
+            var address = new AddressEntity()
+            {
+                Country = dto.Country,
+                ZipCode = dto.ZipCode,
+                City = dto.City,
+                Street = dto.Street,
+                HouseNumber = dto.HouseNumber,
+            };
+
+            customer.Addresses.Add(address);
+
+            _context.Update(customer);
+
+            await _context.SaveChangesAsync();
+
+            var message = new AddCustomerAddressMessage()
+            {
+                CustomerEmail = customer.Email,
+                Id = address.Id,
+                Country = address.Country,
+                ZipCode = address.ZipCode,
+                City = address.City,
+                Street = address.Street,
+                HouseNumber = address.HouseNumber
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer, message);
+
+            await transaction.CommitAsync();
+
+            return address;
         }
-
-        var address = new AddressEntity()
-        {
-            Country = dto.Country,
-            ZipCode = dto.ZipCode,
-            City = dto.City,
-            Street = dto.Street,
-            HouseNumber = dto.HouseNumber
-        };
-
-        _context.Add(address);
-        _context.SaveChanges();
-
-        return address;
     }
 
-    public AddressEntity UpdateCustomerAddress(
+    public async Task<AddressEntity> UpdateCustomerAddressAsync(
         long customerId,
         long addressId,
         UpdateAddressDto dto)
     {
-        var customer = _context
-            .Customers
-            .Include(x => x.Addresses)
-            .FirstOrDefault(x => x.Id == customerId);
-
-        if (customer is null)
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            throw new Exception($"Cannot update address because customer with id '{customerId}' does not exist.");
+            var customer = await _context
+                .Customers
+                .Include(x => x.Addresses)
+                .FirstOrDefaultAsync(x => x.Id == customerId);
+
+            if (customer is null)
+            {
+                throw new EntityNotFoundException(customerId);
+            }
+
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
+            if (address is null)
+            {
+                throw new EntityNotFoundException(addressId);
+            }
+
+            address.Country = dto.Country;
+            address.ZipCode = dto.ZipCode;
+            address.City = dto.City;
+            address.Street = dto.Street;
+            address.HouseNumber = dto.HouseNumber;
+
+            _context.Update(address);
+
+            await _context.SaveChangesAsync();
+
+            var message = new UpdateCustomerAddressMessage()
+            {
+                CustomerEmail = customer.Email,
+                AddressId = address.Id,
+                Country = address.Country,
+                ZipCode = address.ZipCode,
+                City = address.City,
+                Street = address.Street,
+                HouseNumber = address.HouseNumber
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer, message);
+
+            await transaction.CommitAsync();
+
+            return address;
         }
-
-        var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
-        if (address is null)
-        {
-            throw new Exception($"Address with id '{addressId}' does not exist on customer with id '{customerId}'.");
-        }
-
-        address.Country = dto.Country;
-        address.ZipCode = dto.ZipCode;
-        address.City = dto.City;
-        address.Street = dto.Street;
-        address.HouseNumber = dto.HouseNumber;
-
-        _context.Update(address);
-        _context.SaveChanges();
-
-        return address;
     }
 
-    public void DeleteCustomerAddress(
+    public async Task DeleteCustomerAddressAsync(
         long customerId,
         long addressId)
     {
-        var customer = _context
-            .Customers
-            .Include(x => x.Addresses)
-            .FirstOrDefault(x => x.Id == customerId);
-
-        if (customer is null)
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            throw new Exception($"Cannot update address because customer with id '{customerId}' does not exist.");
-        }
+            var customer = await _context
+                .Customers
+                .Include(x => x.Addresses)
+                .FirstOrDefaultAsync(x => x.Id == customerId);
 
-        var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
-        if (address is null)
-        {
-            throw new Exception($"Address with id '{addressId}' does not exist on customer with id '{customerId}'.");
-        }
+            if (customer is null)
+            {
+                throw new EntityNotFoundException(customerId);
+            }
 
-        _context.Remove(address);
-        _context.SaveChanges();
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
+            if (address is null)
+            {
+                throw new EntityNotFoundException(addressId);
+            }
+
+            _context.Remove(address);
+
+            await _context.SaveChangesAsync();
+
+            var message = new DeleteCustomerAddressMessage()
+            {
+                CustomerEmail = customer.Email,
+                AddressId = addressId
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Update, RabbitMQEntities.Customer, message);
+
+            await transaction.CommitAsync();
+        }
     }
 }

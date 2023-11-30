@@ -1,6 +1,14 @@
 using AutoMapper;
+using Common.Extensions;
 using Microsoft.EntityFrameworkCore;
+using WriteService.DTOs.Address;
+using WriteService.DTOs.Customer;
+using WriteService.DTOs.Order;
+using WriteService.DTOs.Product;
+using WriteService.DTOs.Review;
+using WriteService.DTOs.Vendor;
 using WriteService.Endpoints;
+using WriteService.Entities;
 using WriteService.Services;
 
 namespace WriteService;
@@ -14,8 +22,14 @@ internal class Program
             var services = builder.Services;
 
             services.AddSwaggerGen();
+            services.AddEndpointsApiExplorer();
 
-            // TODO: add RabbitMQ configuration
+            // RabbitMQ configuration
+            services.AddRabbitMQSettings(builder.Configuration);
+            services.AddConnectionFactoryForRabbit();
+            services.AddRabbitConnection();
+            services.AddRabbitChannel();
+            services.AddRabbitMQProducer();
 
             services.AddCors(options =>
             {
@@ -35,12 +49,32 @@ internal class Program
             services.AddEndpointsApiExplorer();
 
             services.AddDbContext<ShopDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbContext")));
 
             services.AddHostedService<ProductGarbageCollector>();
 
-            // TODO: add mapping configurations
-            var mapperConfig = new MapperConfiguration(cfg => { });
+            // TODO: refactor to one extension method
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<VendorEntity, VendorDto>();
+                cfg.CreateMap<VendorDto, VendorEntity>();
+
+                cfg.CreateMap<AddressEntity, AddressDto>();
+                cfg.CreateMap<AddressDto, AddressEntity>();
+
+                cfg.CreateMap<CustomerEntity, CustomerDto>();
+                cfg.CreateMap<CustomerDto, CustomerEntity>();
+
+                cfg.CreateMap<OrderEntity, CompleteOrderDto>();
+                cfg.CreateMap<CompleteOrderDto, OrderEntity>();
+
+                cfg.CreateMap<ProductEntity, ProductDto>();
+                cfg.CreateMap<ProductDto, ProductEntity>();
+
+                cfg.CreateMap<ReviewEntity, ReviewDto>();
+                cfg.CreateMap<ReviewDto, ReviewEntity>();
+            });
+
             var mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
         }
@@ -48,17 +82,31 @@ internal class Program
         var app = builder.Build();
         {
             app.UseCors("WriteServiceCorsPolicy");
-            app.UseHttpsRedirection();
-#if DEBUG
+
             app.UseSwagger();
             app.UseSwaggerUI();
-#endif
+
             app.MapVendorEndpoints();
             app.MapProductEndpoints();
             app.MapOrderEndpoints();
             app.MapCustomerEndpoints();
         }
+        
+        if (args.Length > 0 && args[0] == "--seed")
+        {
+            SeedDatabase(app);
+        }
 
         app.Run();
+    }
+
+    private static void SeedDatabase(WebApplication app)
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ShopDbContext>();
+            Seeds.ApplyDatabaseSeeds(dbContext);
+            dbContext.SaveChanges();
+        }
     }
 }
