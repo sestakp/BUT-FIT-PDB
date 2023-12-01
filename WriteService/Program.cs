@@ -2,10 +2,12 @@ using AutoMapper;
 using Common.Extensions;
 using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Address;
+using WriteService.DTOs.Category;
 using WriteService.DTOs.Customer;
 using WriteService.DTOs.Order;
 using WriteService.DTOs.Product;
 using WriteService.DTOs.Review;
+using WriteService.DTOs.SubCategory;
 using WriteService.DTOs.Vendor;
 using WriteService.Endpoints;
 using WriteService.Entities;
@@ -47,6 +49,7 @@ public class Program
             services.AddScoped<ProductService>();
             services.AddScoped<VendorService>();
             services.AddScoped<CategoryService>();
+            services.AddScoped<SubCategoryService>();
 
             services.AddDbContext<ShopDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbContext")));
@@ -73,6 +76,12 @@ public class Program
 
                 cfg.CreateMap<ReviewEntity, ReviewDto>();
                 cfg.CreateMap<ReviewDto, ReviewEntity>();
+
+                cfg.CreateMap<ProductCategoryEntity, CategoryDto>();
+                cfg.CreateMap<CategoryDto, ProductCategoryEntity>();
+
+                cfg.CreateMap<ProductSubCategoryEntity, SubCategoryDto>();
+                cfg.CreateMap<SubCategoryDto, ProductSubCategoryEntity>();
             });
 
             var mapper = mapperConfig.CreateMapper();

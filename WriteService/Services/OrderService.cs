@@ -93,10 +93,16 @@ public class OrderService
     public async Task<OrderEntity> CompleteOrderAsync(long orderId, CompleteOrderDto dto)
     {
         var order = await FindOrderAsync(orderId);
+        
 
         if (order.Status != OrderStatusEnum.InProgress)
         {
             throw new Exception("Unable to update order which is not in status 'InProgress'.");
+        }
+
+        if (order.Products.Count < 1)
+        {
+            throw new Exception("Unable to complete order for empty order.");
         }
 
         order.Country = dto.Country;

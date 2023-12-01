@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using WriteService.DTOs.Category;
-using WriteService.DTOs.Customer;
 using WriteService.Services;
 
 namespace WriteService.Endpoints;

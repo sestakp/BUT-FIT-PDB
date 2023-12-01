@@ -43,7 +43,6 @@ public class SubCategoryService
             {
                 Description = dto.Description,
                 Name = dto.Name,
-                CategoryId = category.Id,
                 Category = category
 
             };
@@ -86,7 +85,7 @@ public class SubCategoryService
             
 
             
-            if (subCategory.CategoryId != dto.CategoryId)
+            if (subCategory.Category.Id != dto.CategoryId)
             {
                 var category = await _context.ProductCategories.FindAsync(dto.CategoryId);
                 if (category is null)
@@ -98,7 +97,7 @@ public class SubCategoryService
 
                 subCategory.Description = dto.Description;
                 subCategory.Name = dto.Name;
-                subCategory.CategoryId = dto.CategoryId;
+                subCategory.Category = category;
 
                 category.SubCategories.Add(subCategory);
 
@@ -119,7 +118,7 @@ public class SubCategoryService
             var message = new UpdateSubCategoryMessage
             {
                 Id = subCategory.Id,
-                CategoryId = subCategory.CategoryId,
+                CategoryId = subCategory.Category.Id,
                 Description = dto.Description,
                 Name = dto.Name
             };

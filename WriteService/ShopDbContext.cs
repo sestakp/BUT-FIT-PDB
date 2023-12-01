@@ -87,14 +87,12 @@ public class ShopDbContext : DbContext
 
         modelBuilder.Entity<ProductCategoryEntity>()
             .HasMany<ProductSubCategoryEntity>()
-            .WithOne()
-            .HasForeignKey(c => c.CategoryId);
+            .WithOne();
 
 
         modelBuilder.Entity<ProductSubCategoryEntity>()
             .HasOne<ProductCategoryEntity>()
-            .WithMany()
-            .HasForeignKey(c => c.CategoryId);
+            .WithMany();
     }
 
 #nullable disable

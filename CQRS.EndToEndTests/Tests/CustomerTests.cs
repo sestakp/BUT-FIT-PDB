@@ -11,15 +11,20 @@ using WriteService.DTOs.Address;
 using WriteService.DTOs.Customer;
 
 namespace CQRS.EndToEndTests.Tests;
-public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<ReadService.Program>>, IClassFixture<WriteServiceWebApplicationFactory<WriteService.Program>>
+public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<ReadService.Program>>, 
+    IClassFixture<WriteServiceWebApplicationFactory<WriteService.Program>>,
+    IClassFixture<EntityFactory>
 {
     private readonly HttpClient _readServiceClient;
     private readonly HttpClient _writeServiceClient;
+    private readonly EntityFactory _entityFactory;
 
-    public CustomerTests(ReadServiceWebApplicationFactory<ReadService.Program> readServiceFactory, WriteServiceWebApplicationFactory<WriteService.Program> writeServiceFactory)
+    public CustomerTests(ReadServiceWebApplicationFactory<ReadService.Program> readServiceFactory, 
+        WriteServiceWebApplicationFactory<WriteService.Program> writeServiceFactory, EntityFactory entityFactory)
     {
         _readServiceClient = readServiceFactory.CreateClient();
         _writeServiceClient = writeServiceFactory.CreateClient();
+        _entityFactory = entityFactory;
     }
 
 
@@ -94,24 +99,16 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
     public async Task TestUpdateAndReadCustomer()
     {
         // Arrange
-        var customerDto = new CreateCustomerDto("John",
-            "Doe",
-            "test@test.com",
-            "123456789",
-            "123456");
-        var writeResponse = await _writeServiceClient.PostAsJsonAsync("/api/customers", customerDto);
-        writeResponse.EnsureSuccessStatusCode();
-        var newCustomerId = (await writeResponse.Content.ReadFromJsonAsync<CustomerDto>())?.Id;
-        Assert.NotNull(newCustomerId);
+        var newCustomer = await _entityFactory.CreateCustomer(_writeServiceClient);
 
         var updatedCustomer = new UpdateCustomerDto("JohnUpdated", "DoeUpdated");
 
         //Act
-        writeResponse = await _writeServiceClient.PutAsJsonAsync($"/api/customers/{newCustomerId}", updatedCustomer);
+        var writeResponse = await _writeServiceClient.PutAsJsonAsync($"/api/customers/{newCustomer.Id}", updatedCustomer);
 
         await Task.Delay(TimeSpan.FromSeconds(2));
 
-        var readResponse = await _readServiceClient.GetAsync($"/api/customers/{newCustomerId}");
+        var readResponse = await _readServiceClient.GetAsync($"/api/customers/{newCustomer.Id}");
 
 
         var readCustomer = await readResponse.Content.ReadFromJsonAsync<Customer>();
@@ -120,14 +117,14 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
         writeResponse.EnsureSuccessStatusCode();
         readResponse.EnsureSuccessStatusCode();
         Assert.NotNull(readCustomer);
-        Assert.Equal(newCustomerId, readCustomer.Id);
+        Assert.Equal(newCustomer.Id, readCustomer.Id);
         Assert.Equal(updatedCustomer.FirstName, readCustomer.FirstName);
         Assert.Equal(updatedCustomer.LastName, readCustomer.LastName);
-        Assert.Equal(customerDto.Email, readCustomer.Email);
-        Assert.Equal(customerDto.PhoneNumber, readCustomer.PhoneNumber);
+        Assert.Equal(newCustomer.Email, readCustomer.Email);
+        Assert.Equal(newCustomer.PhoneNumber, readCustomer.PhoneNumber);
 
         //Cleanup 
-        var deleteResponse = await _writeServiceClient.DeleteAsync($"/api/customers/{newCustomerId}");
+        var deleteResponse = await _writeServiceClient.DeleteAsync($"/api/customers/{newCustomer.Id}");
         deleteResponse.EnsureSuccessStatusCode();
     }
 
@@ -135,16 +132,7 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
     public async Task TestUpdateCustomerAddress()
     {
         //Arrange
-        var customerDto = new CreateCustomerDto("John",
-            "Doe",
-            "test@test.com",
-            "123456789",
-            "123456");
-
-
-        var writeResponse = await _writeServiceClient.PostAsJsonAsync("/api/customers", customerDto);
-        writeResponse.EnsureSuccessStatusCode();
-        var newCustomerId = (await writeResponse.Content.ReadFromJsonAsync<CustomerDto>())?.Id;
+        var newCustomer = await _entityFactory.CreateCustomer(_writeServiceClient);
 
         var addresses = new List<AddressDto>();
         for (var i = 0; i < 10; i++)
@@ -156,7 +144,7 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
                 $"Test House Number{i}");
 
 
-            var writeResponseAddress = await _writeServiceClient.PostAsJsonAsync($"/api/customers/{newCustomerId}/addresses", addressDto);
+            var writeResponseAddress = await _writeServiceClient.PostAsJsonAsync($"/api/customers/{newCustomer.Id}/addresses", addressDto);
 
             writeResponseAddress.EnsureSuccessStatusCode();
 
@@ -179,13 +167,13 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
         );
 
         //Act test deleting separate address
-        var updateResponse = await _writeServiceClient.PutAsJsonAsync($"/api/customers/{newCustomerId}/addresses/{updatedAddress.Id}", updateDto);
+        var updateResponse = await _writeServiceClient.PutAsJsonAsync($"/api/customers/{newCustomer.Id}/addresses/{updatedAddress.Id}", updateDto);
         updateResponse.EnsureSuccessStatusCode();
 
 
         await Task.Delay(TimeSpan.FromSeconds(2));
 
-        var readResponse = await _readServiceClient.GetAsync($"/api/customers/{newCustomerId}");
+        var readResponse = await _readServiceClient.GetAsync($"/api/customers/{newCustomer.Id}");
 
         var readCustomer = await readResponse.Content.ReadFromJsonAsync<Customer>();
 
@@ -204,16 +192,7 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
     public async Task TestDeleteCustomerAddress()
     {
         //Arrange
-        var customerDto = new CreateCustomerDto("John",
-            "Doe",
-            "test@test.com",
-            "123456789",
-            "123456");
-
-
-        var writeResponse = await _writeServiceClient.PostAsJsonAsync("/api/customers", customerDto);
-        writeResponse.EnsureSuccessStatusCode();
-        var newCustomerId = (await writeResponse.Content.ReadFromJsonAsync<CustomerDto>())?.Id;
+        var newCustomer = await _entityFactory.CreateCustomer(_writeServiceClient);
 
         var addressIds = new List<long>();
         for (var i = 0; i < 10; i++)
@@ -225,7 +204,7 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
                 $"Test House Number{i}");
 
 
-            var writeResponseAddress = await _writeServiceClient.PostAsJsonAsync($"/api/customers/{newCustomerId}/addresses", addressDto);
+            var writeResponseAddress = await _writeServiceClient.PostAsJsonAsync($"/api/customers/{newCustomer.Id}/addresses", addressDto);
 
             writeResponseAddress.EnsureSuccessStatusCode();
 
@@ -236,13 +215,13 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
         }
 
         //Act test deleting separate address
-        var deleteResponse = await _writeServiceClient.DeleteAsync($"/api/customers/{newCustomerId}/addresses/{addressIds.ElementAt(0)}");
+        var deleteResponse = await _writeServiceClient.DeleteAsync($"/api/customers/{newCustomer.Id}/addresses/{addressIds.ElementAt(0)}");
         deleteResponse.EnsureSuccessStatusCode();
 
 
         await Task.Delay(TimeSpan.FromSeconds(2));
 
-        var readResponse = await _readServiceClient.GetAsync($"/api/customers/{newCustomerId}");
+        var readResponse = await _readServiceClient.GetAsync($"/api/customers/{newCustomer.Id}");
 
         var readCustomer = await readResponse.Content.ReadFromJsonAsync<Customer>();
 
@@ -259,24 +238,15 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
     public async Task TestDeleteCustomer()
     {
         //Arrange
-        var customerDto = new CreateCustomerDto("John",
-            "Doe",
-            "test@test.com",
-            "123456789",
-            "123456");
-
-
-        var writeResponse = await _writeServiceClient.PostAsJsonAsync("/api/customers", customerDto);
-        writeResponse.EnsureSuccessStatusCode();
-        var newCustomerId = (await writeResponse.Content.ReadFromJsonAsync<CustomerDto>())?.Id;
+        var newCustomer = await _entityFactory.CreateCustomer(_writeServiceClient);
 
         //Act
 
-        var deleteResponse = await _writeServiceClient.DeleteAsync($"/api/customers/{newCustomerId}");
+        var deleteResponse = await _writeServiceClient.DeleteAsync($"/api/customers/{newCustomer.Id}");
 
         await Task.Delay(TimeSpan.FromSeconds(2));
 
-        var readResponse = await _readServiceClient.GetAsync($"/api/customers/{newCustomerId}");
+        var readResponse = await _readServiceClient.GetAsync($"/api/customers/{newCustomer.Id}");
 
         
         //Assert

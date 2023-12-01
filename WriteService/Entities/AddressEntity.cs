@@ -10,4 +10,5 @@ public class AddressEntity : EntityBase
 
 
     public long CustomerId { get; set; }
+    public CustomerEntity? Customer { get; set; }
 }
