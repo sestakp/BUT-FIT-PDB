@@ -105,7 +105,7 @@ public class EntityFactory
     {
         var productDto = new CreateProductDto("Product Title",
             "Product description",
-            10,
+            1,
             15,
             vendorId,
             categories,

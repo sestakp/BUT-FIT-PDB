@@ -34,16 +34,7 @@ public class ReadServiceWebApplicationFactory<TStartup> : WebApplicationFactory<
             
             
             services.AddMongoDb(configuration,testing:true);
-            services.AddEndpointsApiExplorer();
-
-
-            services.AddSingleton<CustomerSubscriber>();
-            services.AddSingleton<OrderSubscriber>();
-            services.AddSingleton<ProductSubscriber>();
-            services.AddSingleton<VendorSubscriber>();
-            services.AddSingleton<ReviewSubscriber>();
-           
-
+            
             services.AddRabbitMQSettings(configuration);
             services.AddConnectionFactoryForRabbit();
             services.AddRabbitConnection();

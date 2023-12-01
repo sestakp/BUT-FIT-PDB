@@ -147,12 +147,11 @@ public class CustomerService
                 ZipCode = dto.ZipCode,
                 City = dto.City,
                 Street = dto.Street,
-                HouseNumber = dto.HouseNumber,
-                CustomerId = customerId
+                HouseNumber = dto.HouseNumber
             };
 
 
-            _context.Add(address);
+            //_context.Add(address);
             customer.Addresses.Add(address);
             _context.Update(customer);
 

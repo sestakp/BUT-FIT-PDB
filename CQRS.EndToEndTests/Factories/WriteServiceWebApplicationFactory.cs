@@ -48,9 +48,7 @@ public class WriteServiceWebApplicationFactory<TStartup> : WebApplicationFactory
             {
                 options.UseInMemoryDatabase("CqrsPdbInMemoryForTesting"); // Use an in-memory database for testing
             });
-
-            services.AddSwaggerGen();
-            services.AddEndpointsApiExplorer();
+            
 
             // RabbitMQ configuration
             services.AddRabbitMQSettings(configuration);
@@ -60,38 +58,7 @@ public class WriteServiceWebApplicationFactory<TStartup> : WebApplicationFactory
             services.AddRabbitMQProducer();
             
 
-            services.AddScoped<CustomerService>();
-            services.AddScoped<OrderService>();
-            services.AddScoped<ProductService>();
-            services.AddScoped<VendorService>();
-            
 
-            services.AddHostedService<ProductGarbageCollector>();
-
-            // TODO: refactor to one extension method
-            var mapperConfig = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<VendorEntity, VendorDto>();
-                cfg.CreateMap<VendorDto, VendorEntity>();
-
-                cfg.CreateMap<AddressEntity, AddressDto>();
-                cfg.CreateMap<AddressDto, AddressEntity>();
-
-                cfg.CreateMap<CustomerEntity, CustomerDto>();
-                cfg.CreateMap<CustomerDto, CustomerEntity>();
-
-                cfg.CreateMap<OrderEntity, CompleteOrderDto>();
-                cfg.CreateMap<CompleteOrderDto, OrderEntity>();
-
-                cfg.CreateMap<ProductEntity, ProductDto>();
-                cfg.CreateMap<ProductDto, ProductEntity>();
-
-                cfg.CreateMap<ReviewEntity, ReviewDto>();
-                cfg.CreateMap<ReviewDto, ReviewEntity>();
-            });
-
-            var mapper = mapperConfig.CreateMapper();
-            services.AddSingleton(mapper);
 
             // Additional service configurations for testing
         });

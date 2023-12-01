@@ -77,12 +77,10 @@ public class OrderService
         {
             throw new Exception("Specified product is out of stock.");
         }
-
-        product.PiecesInStock--;
+        
         order.Products.Add(product);
         order.LastUpdated = DateTime.UtcNow;
-
-        _context.Update(product);
+        
         _context.Update(order);
 
         await _context.SaveChangesAsync();
@@ -92,48 +90,68 @@ public class OrderService
 
     public async Task<OrderEntity> CompleteOrderAsync(long orderId, CompleteOrderDto dto)
     {
-        var order = await FindOrderAsync(orderId);
-        
-
-        if (order.Status != OrderStatusEnum.InProgress)
+        await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            throw new Exception("Unable to update order which is not in status 'InProgress'.");
+            var order = await FindOrderAsync(orderId);
+
+
+            if (order.Status != OrderStatusEnum.InProgress)
+            {
+                throw new Exception("Unable to update order which is not in status 'InProgress'.");
+            }
+
+            if (order.Products.Count < 1)
+            {
+                throw new Exception("Unable to complete order for empty order.");
+            }
+
+            order.Country = dto.Country;
+            order.ZipCode = dto.ZipCode;
+            order.City = dto.City;
+            order.Street = dto.Street;
+            order.HouseNumber = dto.HouseNumber;
+            order.Status = OrderStatusEnum.Completed;
+            order.LastUpdated = DateTime.UtcNow;
+
+            _context.Update(order);
+
+            decimal price = 0;
+            foreach (var product in order.Products)
+            {
+                if (product.PiecesInStock < 1)
+                {
+                    throw new Exception($"Product {product.Id} out of stock");
+                }
+
+                product.PiecesInStock -= 1;
+                price += product.Price;
+
+                _context.Update(product);
+            }
+
+            await _context.SaveChangesAsync();
+
+            var products = _mapper.Map<IEnumerable<OrderProductRabbit>>(order.Products);
+
+            var message = new OrderCompletedMessage()
+            {
+                Id = order.Id,
+                CustomerId = order.Customer.Id,
+                Price = price,
+                AddressCountry = order.Country,
+                AddressZipCode = order.ZipCode,
+                AddressCity = order.City,
+                AddressStreet = order.Street,
+                AddressHouseNumber = order.HouseNumber,
+                DateTimeCreated = order.Created,
+                Products = products
+            };
+
+            _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Order, message);
+
+            await transaction.CommitAsync();
+            return order;
         }
-
-        if (order.Products.Count < 1)
-        {
-            throw new Exception("Unable to complete order for empty order.");
-        }
-
-        order.Country = dto.Country;
-        order.ZipCode = dto.ZipCode;
-        order.City = dto.City;
-        order.Street = dto.Street;
-        order.HouseNumber = dto.HouseNumber;
-        order.Status = OrderStatusEnum.Completed;
-        order.LastUpdated = DateTime.UtcNow;
-
-        _context.Update(order);
-
-        await _context.SaveChangesAsync();
-
-        var message = new OrderCompletedMessage()
-        {
-            Id = order.Id,
-            CustomerId = order.Customer.Id,
-            Price = 10000,
-            AddressCountry = order.Country,
-            AddressZipCode = order.ZipCode,
-            AddressCity = order.City,
-            AddressStreet = order.Street,
-            AddressHouseNumber = order.HouseNumber,
-            DateTimeCreated = order.Created,
-            Products = order.Products.Select(x => new OrderCompletedMessage.OrderProduct(x.Title, x.Description, x.Price, x.Vendor.Name))
-        };
-
-        _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.Order, message);
-
-        return order;
     }
 
     private async Task<OrderEntity> FindOrderAsync(long orderId)

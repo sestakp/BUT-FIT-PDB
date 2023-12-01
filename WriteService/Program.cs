@@ -1,5 +1,6 @@
 using AutoMapper;
 using Common.Extensions;
+using Common.RabbitMQ.Messages;
 using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Address;
 using WriteService.DTOs.Category;
@@ -82,6 +83,11 @@ public class Program
 
                 cfg.CreateMap<ProductSubCategoryEntity, SubCategoryDto>();
                 cfg.CreateMap<SubCategoryDto, ProductSubCategoryEntity>();
+
+
+                cfg.CreateMap<ProductEntity, OrderProductRabbit>();
+
+                
             });
 
             var mapper = mapperConfig.CreateMapper();

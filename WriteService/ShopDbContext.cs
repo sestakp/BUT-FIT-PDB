@@ -73,16 +73,9 @@ public class ShopDbContext : DbContext
             .WithMany()
             .HasForeignKey(x => x.ProductId);
 
-
-        modelBuilder.Entity<AddressEntity>()
-            .HasOne<CustomerEntity>()
-            .WithMany()
-            .HasForeignKey(a => a.CustomerId);
-
         modelBuilder.Entity<CustomerEntity>()
             .HasMany<AddressEntity>()
-            .WithOne()
-            .HasForeignKey(a => a.CustomerId);
+            .WithOne();
 
 
         modelBuilder.Entity<ProductCategoryEntity>()

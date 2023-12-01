@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
@@ -124,12 +125,13 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
 
         writeResponse.EnsureSuccessStatusCode();
 
-
-        writeResponse = await _writeServiceClient.PutAsync($"/api/orders/{orderId}/complete", null);
+        var completeOrderDto = new CompleteOrderDto("Country1", "ZipCode1", "City1", "Street1", "HouseNumber1");
+        writeResponse = await _writeServiceClient.PutAsJsonAsync($"/api/orders/{orderId}/complete", completeOrderDto);
 
         writeResponse.EnsureSuccessStatusCode();
 
 
+        await Task.Delay(TimeSpan.FromSeconds(2)); 
 
         var readResponse = await _readServiceClient.GetAsync($"/api/products/{product.Id}");
 
@@ -137,7 +139,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
 
         var readedProduct = await readResponse.Content.ReadFromJsonAsync<Product>();
 
-        var readResponse2 = await _readServiceClient.GetAsync($"/api/orders");
+        var readResponse2 = await _readServiceClient.GetAsync($"/api/orders?customerId={newCustomer.Id}");
         readResponse2.EnsureSuccessStatusCode();
         var readerOrders = await readResponse2.Content.ReadFromJsonAsync<List<Order>>();
 
@@ -147,14 +149,64 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         Assert.Equal(1, readerOrders.Count);
         Assert.Equal(product.PricesInStock - 1, readedProduct.PiecesInStock);
         Assert.Equal(1, readerOrders.First().Products.Count());
-        
-
-
-
     }
 
 
+    [Fact]
+    public async Task TestCompleteOrderWithOutOfStockProduct()
+    {
+        //Arrange
+        var customers = new List<CustomerDto>()
+        {
+            await _entityFactory.CreateCustomer(_writeServiceClient),
+            await _entityFactory.CreateCustomer(_writeServiceClient)
+        };
+        var newVendor = await _entityFactory.CreateVendor(_writeServiceClient);
 
+        var category = await _entityFactory.CreateCategory(_writeServiceClient);
+        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, new List<long>{ category.Id }, new List<long>());
+
+
+
+        var createOrderDto = new CreateOrderDto(customers.First().Id);
+
+        var writeResponse1 = await _writeServiceClient.PostAsJsonAsync("/api/orders", createOrderDto);
+        writeResponse1.EnsureSuccessStatusCode();
+        var orderId1 = await writeResponse1.Content.ReadFromJsonAsync<long>();
+        
+        writeResponse1 = await _writeServiceClient.PostAsync($"/api/orders/{orderId1}/add-to-cart/{product.Id}", null);
+        writeResponse1.EnsureSuccessStatusCode();
+
+
+
+        var createOrderDto2 = new CreateOrderDto(customers.Last().Id);
+
+        var writeResponse2 = await _writeServiceClient.PostAsJsonAsync("/api/orders", createOrderDto2);
+        writeResponse2.EnsureSuccessStatusCode();
+        var orderId2 = await writeResponse2.Content.ReadFromJsonAsync<long>();
+
+        writeResponse2 = await _writeServiceClient.PostAsync($"/api/orders/{orderId2}/add-to-cart/{product.Id}", null);
+        writeResponse2.EnsureSuccessStatusCode();
+
+
+        //Let second customer add to cart, then complete order
+        var completeOrderDto = new CompleteOrderDto("Country1", "ZipCode1", "City1", "Street1", "HouseNumber1");
+        writeResponse1 = await _writeServiceClient.PutAsJsonAsync($"/api/orders/{orderId1}/complete", completeOrderDto);
+        writeResponse1.EnsureSuccessStatusCode();
+
+        //Act
+
+        completeOrderDto = new CompleteOrderDto("Country1", "ZipCode1", "City1", "Street1", "HouseNumber1");
+        writeResponse2 = await _writeServiceClient.PutAsJsonAsync($"/api/orders/{orderId2}/complete", completeOrderDto);
+
+
+
+
+        //Assert
+        Assert.Equal(HttpStatusCode.InternalServerError, writeResponse2.StatusCode);
+        
+
+    }
 
 
 

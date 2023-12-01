@@ -47,7 +47,15 @@ public class OrderSubscriber : RabbitMQReceiver<OrderSubscriber>
                     Vendor = new OrderProductVendor() { Name = x.Vendor }
                 })
             };
-            
+
+            //TODO... update products?
+            var productIds = data.Products.Select(p => p.Id).ToList();
+
+            var filter = Builders<Product>.Filter.In(p => p.Id, productIds);
+            var updateDefinition = Builders<Product>.Update.Inc(p => p.PiecesInStock, -1);
+            var updateResult = database.Collection<Product>().UpdateMany(filter, updateDefinition);
+
+
             database.Collection<Order>().InsertOne(order);
         }
     }
