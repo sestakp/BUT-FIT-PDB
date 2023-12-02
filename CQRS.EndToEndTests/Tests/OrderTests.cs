@@ -15,6 +15,7 @@ using WriteService.DTOs.Order;
 using WriteService.DTOs.Product;
 using WriteService.DTOs.SubCategory;
 using WriteService.DTOs.Vendor;
+using Xunit;
 
 namespace CQRS.EndToEndTests.Tests;
 
@@ -161,6 +162,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
             await _entityFactory.CreateCustomer(_writeServiceClient),
             await _entityFactory.CreateCustomer(_writeServiceClient)
         };
+
         var newVendor = await _entityFactory.CreateVendor(_writeServiceClient);
 
         var category = await _entityFactory.CreateCategory(_writeServiceClient);

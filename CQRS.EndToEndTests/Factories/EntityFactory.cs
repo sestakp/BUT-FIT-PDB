@@ -11,6 +11,7 @@ using WriteService.DTOs.Customer;
 using WriteService.DTOs.Product;
 using WriteService.DTOs.SubCategory;
 using WriteService.DTOs.Vendor;
+using Xunit;
 
 namespace CQRS.EndToEndTests.Factories;
 public class EntityFactory

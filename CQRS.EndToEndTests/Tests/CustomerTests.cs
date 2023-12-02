@@ -9,6 +9,7 @@ using CQRS.EndToEndTests.Factories;
 using ReadService.Data.Models;
 using WriteService.DTOs.Address;
 using WriteService.DTOs.Customer;
+using Xunit;
 
 namespace CQRS.EndToEndTests.Tests;
 public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<ReadService.Program>>, 
