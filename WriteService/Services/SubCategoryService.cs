@@ -1,4 +1,7 @@
-﻿using Common.RabbitMQ;
+﻿using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
+using Common.RabbitMQ;
 using Common.RabbitMQ.Messages.Category;
 using Common.RabbitMQ.Messages.Customer;
 using Common.RabbitMQ.Messages.Products;
@@ -19,6 +22,34 @@ public class SubCategoryService
     private readonly ShopDbContext _context;
     private readonly RabbitMQProducer _producer;
     private readonly ILogger<CustomerService> _logger;
+
+    static string NormalizeString(string input)
+    {
+        // Převod na malá písmena
+        string lowercase = input.ToLower();
+
+        // Nahrazení mezer pomlčkou
+        string noSpaces = Regex.Replace(lowercase, @"\s", "-");
+
+        // Odstranění speciálních znaků
+        string normalized = RemoveDiacritics(noSpaces);
+
+        return normalized;
+    }
+
+    static string RemoveDiacritics(string text)
+    {
+        string normalized = text.Normalize(NormalizationForm.FormD);
+        StringBuilder result = new StringBuilder();
+
+        foreach (char c in normalized)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                result.Append(c);
+        }
+
+        return result.ToString();
+    }
 
     public SubCategoryService(ShopDbContext context, RabbitMQProducer producer, ILogger<CustomerService> logger)
     {
@@ -43,7 +74,8 @@ public class SubCategoryService
             {
                 Description = dto.Description,
                 Name = dto.Name,
-                Category = category
+                Category = category,
+                NormalizedName = NormalizeString(dto.Name)
 
             };
 

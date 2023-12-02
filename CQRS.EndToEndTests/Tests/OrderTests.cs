@@ -109,7 +109,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
 
 
 
-        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, categories.Select(c => c.Id), subCategories.Select(c => c.Id));
+        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, categories.Select(c => c.NormalizedName), subCategories.Select(c => c.NormalizedName));
         
         var createOrderDto = new CreateOrderDto(newCustomer.Id);
         //Act
@@ -164,7 +164,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         var newVendor = await _entityFactory.CreateVendor(_writeServiceClient);
 
         var category = await _entityFactory.CreateCategory(_writeServiceClient);
-        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, new List<long>{ category.Id }, new List<long>());
+        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, new List<string>{ category.NormalizedName }, new List<string>());
 
 
 
@@ -198,9 +198,6 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
 
         completeOrderDto = new CompleteOrderDto("Country1", "ZipCode1", "City1", "Street1", "HouseNumber1");
         writeResponse2 = await _writeServiceClient.PutAsJsonAsync($"/api/orders/{orderId2}/complete", completeOrderDto);
-
-
-
 
         //Assert
         Assert.Equal(HttpStatusCode.InternalServerError, writeResponse2.StatusCode);

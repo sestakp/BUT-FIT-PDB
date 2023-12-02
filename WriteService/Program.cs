@@ -55,7 +55,7 @@ public class Program
             services.AddDbContext<ShopDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbContext")));
 
-            services.AddHostedService<ProductGarbageCollector>();
+            //services.AddHostedService<ProductGarbageCollector>();
 
             // TODO: refactor to one extension method
             var mapperConfig = new MapperConfiguration(cfg =>

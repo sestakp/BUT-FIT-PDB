@@ -101,7 +101,7 @@ public class EntityFactory
     }
 
     
-    public async Task<ProductDto> CreateProduct(HttpClient writeServiceClient, long vendorId, IEnumerable<long> categories, IEnumerable<long> subcategories)
+    public async Task<ProductDto> CreateProduct(HttpClient writeServiceClient, long vendorId, IEnumerable<string> categories, IEnumerable<string> subcategories)
     {
         var productDto = new CreateProductDto("Product Title",
             "Product description",

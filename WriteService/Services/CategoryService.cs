@@ -32,7 +32,8 @@ public class CategoryService
             var entity = new ProductCategoryEntity()
             {
                 Description = dto.Description,
-                Name = dto.Name
+                Name = dto.Name,
+                NormalizedName = dto.Name
             };
 
             _context.Add(entity);
