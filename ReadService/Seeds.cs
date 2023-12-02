@@ -18,26 +18,31 @@ public static class Seeds
         new()
         {
             CategoryName = "Electronics",
+            CategoryNameNormalized = "electronics",
             Products = new List<ProductsOfCategory.Product>()
         },
         new()
         {
             CategoryName = "Clothing",
+            CategoryNameNormalized = "clothing",
             Products = new List<ProductsOfCategory.Product>()
         },
         new()
         {
             CategoryName = "Home Appliances",
+            CategoryNameNormalized = "home-appliances",
             Products = new List<ProductsOfCategory.Product>()
         },
         new()
         {
             CategoryName = "Books",
+            CategoryNameNormalized = "books",
             Products = new List<ProductsOfCategory.Product>()
         },
         new()
         {
             CategoryName = "Fitness",
+            CategoryNameNormalized = "fitness",
             Products = new List<ProductsOfCategory.Product>()
         }
     };
@@ -47,97 +52,129 @@ public static class Seeds
         new()
         {
             CategoryName = "Electronics",
+            CategoryNameNormalized = "electronics",
             SubCategoryName = "Smartphones",
+            SubCategoryNameNormalized = "smartphones",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Electronics",
+            CategoryNameNormalized = "electronics",
             SubCategoryName = "Laptops",
+            SubCategoryNameNormalized = "laptops",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Electronics",
+            CategoryNameNormalized = "electronics",
             SubCategoryName = "Cameras",
+            SubCategoryNameNormalized = "cameras",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Clothing",
+            CategoryNameNormalized = "clothing",
             SubCategoryName = "Men's Wear",
+            SubCategoryNameNormalized = "mens-wear",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Clothing",
+            CategoryNameNormalized = "clothing",
             SubCategoryName = "Women's Wear",
+            SubCategoryNameNormalized = "womens-wear",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Clothing",
+            CategoryNameNormalized = "clothing",
             SubCategoryName = "Children's Wear",
+            SubCategoryNameNormalized = "childrens-wear",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Home Appliances",
+            CategoryNameNormalized = "home-appliances",
             SubCategoryName = "Kitchen Appliances",
+            SubCategoryNameNormalized = "kitchen-appliances",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Home Appliances",
+            CategoryNameNormalized = "home-appliances",
             SubCategoryName = "Laundry Appliances",
+            SubCategoryNameNormalized = "laundry-appliances",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Home Appliances",
+            CategoryNameNormalized = "home-appliances",
             SubCategoryName = "Small Appliances",
+            SubCategoryNameNormalized = "small-appliances",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Books",
+            CategoryNameNormalized = "books",
             SubCategoryName = "Fiction",
+            SubCategoryNameNormalized = "fiction",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Books",
+            CategoryNameNormalized = "books",
             SubCategoryName = "Non-Fiction",
+            SubCategoryNameNormalized = "non-fiction",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Books",
+            CategoryNameNormalized = "books",
             SubCategoryName = "Textbooks",
+            SubCategoryNameNormalized = "textbooks",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Books",
+            CategoryNameNormalized = "books",
             SubCategoryName = "Children's Books",
+            SubCategoryNameNormalized = "childrens-books",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Fitness",
+            CategoryNameNormalized = "fitness",
             SubCategoryName = "Gym",
+            SubCategoryNameNormalized = "gym",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Fitness",
+            CategoryNameNormalized = "fitness",
             SubCategoryName = "Yoga",
+            SubCategoryNameNormalized = "yoga",
             Products = new List<ProductsOfSubCategory.Product>()
         },
         new()
         {
             CategoryName = "Fitness",
+            CategoryNameNormalized = "fitness",
             SubCategoryName = "Outdoor",
+            SubCategoryNameNormalized = "outdoor",
             Products = new List<ProductsOfSubCategory.Product>()
         }
     };

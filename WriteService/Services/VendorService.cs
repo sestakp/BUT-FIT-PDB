@@ -108,6 +108,7 @@ public class VendorService
             foreach (var product in vendor.Products)
             {
                 product.IsDeleted = true;
+
             }
 
             _context.Update(vendor);

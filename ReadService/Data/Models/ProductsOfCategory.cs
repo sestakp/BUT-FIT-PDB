@@ -6,6 +6,7 @@ public sealed record ProductsOfCategory
 {
     [BsonId]
     public required string CategoryName { get; set; }
+    public required string CategoryNameNormalized { get; set; }
 
     [BsonElement("products")]
     public List<Product> Products { get; set; } = new();

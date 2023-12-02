@@ -94,7 +94,7 @@ public sealed class Endpoints
     {
         var products = database
             .Collection<ProductsOfCategory>()
-            .Find(x => x.CategoryName == category)
+            .Find(x => x.CategoryNameNormalized == category)
             .ToList();
 
         return Results.Ok(products);
@@ -107,7 +107,7 @@ public sealed class Endpoints
     {
         var products = database
             .Collection<ProductsOfSubCategory>()
-            .Find(x => x.CategoryName == category && x.SubCategoryName == subcategory)
+            .Find(x => x.CategoryNameNormalized == category && x.SubCategoryNameNormalized == subcategory)
             .ToList();
 
         return Results.Ok(products);

@@ -152,8 +152,9 @@ public class ProductService
             product.IsDeleted = true;
 
             _context.Update(product);
-
-            // TODO: remove reviews of the product?
+            
+            var reviews = _context.ProductReviews.Where(r => r.ProductId == productId);
+            _context.RemoveRange(reviews);
 
             await _context.SaveChangesAsync();
 
