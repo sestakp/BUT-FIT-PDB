@@ -123,6 +123,11 @@ public class OrderService
                     throw new Exception($"Product {product.Id} out of stock");
                 }
 
+                if (product.IsDeleted)
+                {
+                    throw new Exception($"Product {product.Id} is deleted.");
+                }
+
                 product.PiecesInStock -= 1;
                 price += product.Price;
 

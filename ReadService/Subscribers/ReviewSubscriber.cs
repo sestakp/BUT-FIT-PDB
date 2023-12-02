@@ -39,6 +39,7 @@ public class ReviewSubscriber : RabbitMQReceiver<ReviewSubscriber>
 
                 _logger.LogInformation("Inserted new document into Reviews collection.");
             }
+            
 
             // TODO: calculate real value
             var newTotalRating = Math.Round((new Random()).NextDouble() * 5, 1);
