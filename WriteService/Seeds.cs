@@ -49,9 +49,6 @@ public static class Seeds
         category.SubCategories.Add(subCategory3);
 
 
-
-
-
         category = new ProductCategoryEntity
         {
             Name = "Clothing",
@@ -95,7 +92,6 @@ public static class Seeds
         category.SubCategories.Add(subCategory3);
 
 
-
         category = new ProductCategoryEntity
         {
             Name = "Home Appliances",
@@ -137,7 +133,6 @@ public static class Seeds
         category.SubCategories.Add(subCategory);
         category.SubCategories.Add(subCategory2);
         category.SubCategories.Add(subCategory3);
-
 
 
         category = new ProductCategoryEntity
@@ -194,10 +189,6 @@ public static class Seeds
         category.SubCategories.Add(subCategory4);
 
 
-
-
-
-
         category = new ProductCategoryEntity
         {
             Name = "Fitness",
@@ -240,5 +231,4 @@ public static class Seeds
         category.SubCategories.Add(subCategory2);
         category.SubCategories.Add(subCategory3);
     }
-
 }

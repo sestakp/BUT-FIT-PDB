@@ -77,7 +77,6 @@ public sealed class Endpoints
         return Results.Ok(vendor);
     }
 
-    // TODO: add pagination
     private static IResult GetProducts(
         [FromServices] IMongoDatabase database)
     {
@@ -94,7 +93,7 @@ public sealed class Endpoints
     {
         var products = database
             .Collection<ProductsOfCategory>()
-            .Find(x => x.CategoryNameNormalized == category)
+            .Find(x => x.CategoryNormalizedName == category)
             .ToList();
 
         return Results.Ok(products);
@@ -107,7 +106,7 @@ public sealed class Endpoints
     {
         var products = database
             .Collection<ProductsOfSubCategory>()
-            .Find(x => x.CategoryNameNormalized == category && x.SubCategoryNameNormalized == subcategory)
+            .Find(x => x.CategoryNormalizedName == category && x.SubCategoryNormalizedName == subcategory)
             .ToList();
 
         return Results.Ok(products);
@@ -130,7 +129,6 @@ public sealed class Endpoints
         return Results.Ok(product);
     }
 
-    // TODO: add pagination
     private static IResult GetProductReviews(
         [FromRoute] long id,
         [FromServices] IMongoDatabase database)

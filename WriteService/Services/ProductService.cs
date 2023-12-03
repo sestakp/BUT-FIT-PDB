@@ -153,7 +153,7 @@ public class ProductService
 
             _context.Update(product);
 
-            var reviews = _context.ProductReviews.Where(r => r.ProductId == productId);
+            var reviews = _context.Reviews.Where(r => r.ProductId == productId);
             _context.RemoveRange(reviews);
 
             await _context.SaveChangesAsync();

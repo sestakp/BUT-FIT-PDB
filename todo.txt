@@ -1,7 +1,11 @@
 TODO:
 
-- Umožniť k jednej objednávke pridať X kusov rovnakého produktu
+- Na read side zmenit endpointy na GET products of sub/category
 - Pofixovať todočka v kóde
+- Upraviť seedy
+
+- Upravit dokumnetáciu podľa implementácie
+- Napisat README
+
 - Celé to otestovať
-- Nachystať sa na demo
-- Pridat transakcie v messsage handleroch ktoré pracujú s viacerými kolekciami
+- Nachystat postmana na demo + nachystať JSON s dátami na demo

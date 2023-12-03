@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace WriteService.Entities;
+﻿namespace WriteService.Entities;
 
 public class CustomerEntity : EntityBase
 {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WriteService.DTOs.Order;
+using WriteService.Entities;
 using WriteService.Services;
 
 namespace WriteService.Endpoints;
@@ -20,7 +21,6 @@ public static class OrderEndpoints
         [FromServices] OrderService orderService)
     {
         var order = await orderService.CreateAsync(dto.CustomerId);
-
         return Results.Ok(order.Id);
     }
 
@@ -29,10 +29,9 @@ public static class OrderEndpoints
         [FromRoute] long productId,
         [FromServices] OrderService orderService)
     {
-        await orderService.AddToCartAsync(orderId, productId);
-
-        // TODO: return order with products for demonstration purposes?
-        return Results.Ok();
+        var order = await orderService.AddToCartAsync(orderId, productId);
+        var response = CreateResponse(order);
+        return Results.Ok(response);
     }
 
     private static async Task<IResult> CompleteOrderAsync(
@@ -40,9 +39,29 @@ public static class OrderEndpoints
         [FromBody] CompleteOrderDto dto,
         [FromServices] OrderService orderService)
     {
-        await orderService.CompleteOrderAsync(orderId, dto);
+        var order = await orderService.CompleteOrderAsync(orderId, dto);
+        var response = CreateResponse(order);
+        return Results.Ok(response);
+    }
 
-        // TODO: return order with products for demonstration purposes?
-        return Results.Ok();
+    private static object CreateResponse(OrderEntity order)
+    {
+        return new
+        {
+            Id = order.Id,
+            Status = order.Status,
+            DateTimeCreated = order.Created,
+            DateTimeLastUpdate = order.LastUpdated,
+            Products = order
+                .OrderProducts
+                .Select(x => new
+                {
+                    Id = x.Product.Id,
+                    Title = x.Product.Title,
+                    Price = x.Product.Price,
+                    Count = x.Count
+                })
+                .ToList()
+        };
     }
 }

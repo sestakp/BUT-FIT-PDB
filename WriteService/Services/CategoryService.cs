@@ -60,7 +60,7 @@ public class CategoryService
     {
         await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            var entity = await _context.ProductCategories.FindAsync(categoryId);
+            var entity = await _context.Categories.FindAsync(categoryId);
             if (entity is null)
             {
                 throw new EntityNotFoundException(categoryId);
@@ -94,7 +94,7 @@ public class CategoryService
     {
         await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            var category = await _context.ProductCategories.FirstOrDefaultAsync(c => c.Id == categoryId);
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == categoryId);
 
             if (category is null)
             {

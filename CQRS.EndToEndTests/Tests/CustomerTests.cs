@@ -58,7 +58,7 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
         writeResponse.EnsureSuccessStatusCode();
         var customerResponse = await writeResponse.Content.ReadFromJsonAsync<CustomerDto>();
 
-        var writeResponse2 = await _writeServiceClient.PostAsJsonAsync($"/api/customers/{customerResponse.Id}/addresses", addressDto);
+        var writeResponse2 = await _writeServiceClient.PostAsJsonAsync($"/api/customers/{customerResponse!.Id}/addresses", addressDto);
 
         await Task.Delay(TimeSpan.FromSeconds(2));
 

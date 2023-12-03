@@ -55,7 +55,7 @@ public class Program
             services.AddDbContext<ShopDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbContext")));
 
-            //services.AddHostedService<ProductGarbageCollector>();
+            // services.AddHostedService<ProductGarbageCollector>();
 
             // TODO: refactor to one extension method
             var mapperConfig = new MapperConfiguration(cfg =>
@@ -83,11 +83,6 @@ public class Program
 
                 cfg.CreateMap<ProductSubCategoryEntity, SubCategoryDto>();
                 cfg.CreateMap<SubCategoryDto, ProductSubCategoryEntity>();
-
-
-                cfg.CreateMap<ProductEntity, OrderProductRabbit>();
-
-
             });
 
             var mapper = mapperConfig.CreateMapper();
@@ -105,6 +100,7 @@ public class Program
             app.MapProductEndpoints();
             app.MapOrderEndpoints();
             app.MapCustomerEndpoints();
+
             // app.MapCategoryEndpoints();
             // app.MapSubCategoryEndpoints();
         }

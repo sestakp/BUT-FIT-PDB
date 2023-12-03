@@ -14,7 +14,7 @@ public class OrderEntity : EntityBase
     public DateTime LastUpdated { get; set; }
     public bool IsDeleted { get; set; }
 
-    public IList<ProductEntity> Products { get; set; } = null!;
+    public IList<OrderProductEntity> OrderProducts { get; set; } = null!;
 
     public long CustomerId { get; set; }
     public CustomerEntity Customer { get; set; } = null!;
