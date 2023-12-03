@@ -1,7 +1,6 @@
 TODO:
 
 - Upravit dokumnetáciu podľa implementácie
-- Napisat README
 
 - Celé to otestovať
 - Nachystat postmana na demo + nachystať JSON s dátami na demo

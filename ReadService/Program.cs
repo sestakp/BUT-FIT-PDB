@@ -1,5 +1,7 @@
+using Common.Configuration;
 using Common.Extensions;
 using Common.RabbitMQ;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using ReadService.Data;
 using ReadService.Subscribers;
@@ -53,6 +55,12 @@ public class Program
 
             Endpoints.MapEndpoints(app);
         }
+
+        Console.WriteLine("CONFIGURATION:");
+        var rabbitMqConfiguration = app.Services.GetRequiredService<IOptions<RabbitMQConfiguration>>().Value;
+        var databaseConfiguration = app.Services.GetRequiredService<IOptions<MongoDbConfiguration>>().Value;
+        Console.WriteLine(rabbitMqConfiguration);
+        Console.WriteLine(databaseConfiguration);
 
         app.Services
             .GetRequiredService<CustomerSubscriber>()
