@@ -1,9 +1,13 @@
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace ReadService.Data.Models;
 
 public sealed record ProductsOfSubCategory
 {
+    [BsonId]
+    private ObjectId Id { get; init; }
+
     [BsonElement("category")]
     public required string CategoryName { get; init; }
 

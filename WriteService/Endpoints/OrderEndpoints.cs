@@ -12,7 +12,7 @@ public static class OrderEndpoints
         var gb = app.MapGroup("api/orders");
 
         gb.MapPost(string.Empty, CreateOrderAsync);
-        gb.MapPost("{orderId:long}/add-to-cart/{productId:long}", AddProductToCartAsync);
+        gb.MapPost("{orderId:long}/add-to-cart", AddProductToCartAsync);
         gb.MapPut("{orderId:long}/complete", CompleteOrderAsync);
     }
 
@@ -26,10 +26,10 @@ public static class OrderEndpoints
 
     private static async Task<IResult> AddProductToCartAsync(
         [FromRoute] long orderId,
-        [FromRoute] long productId,
+        [FromBody] AddProductDto dto,
         [FromServices] OrderService orderService)
     {
-        var order = await orderService.AddToCartAsync(orderId, productId);
+        var order = await orderService.AddToCartAsync(orderId, dto.ProductId);
         var response = CreateResponse(order);
         return Results.Ok(response);
     }

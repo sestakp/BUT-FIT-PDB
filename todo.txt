@@ -1,9 +1,5 @@
 TODO:
 
-- Na read side zmenit endpointy na GET products of sub/category
-- Pofixovať todočka v kóde
-- Upraviť seedy
-
 - Upravit dokumnetáciu podľa implementácie
 - Napisat README
 

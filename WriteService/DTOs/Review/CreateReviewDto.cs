@@ -2,4 +2,5 @@ namespace WriteService.DTOs.Review;
 
 public record CreateReviewDto(
     int Rating,
-    string Text);
+    string Text,
+    long CustomerId);
