@@ -28,7 +28,7 @@ public class OrderSubscriber : RabbitMQReceiver<OrderSubscriber>
             var order = new Order()
             {
                 Id = data.Id,
-                CustomerEmail = data.CustomerEmail,
+                CustomerId = data.CustomerId,
                 Created = data.DateTimeCreated,
                 Price = data.Price,
                 Address = new OrderAddress()
@@ -48,6 +48,13 @@ public class OrderSubscriber : RabbitMQReceiver<OrderSubscriber>
                 })
             };
             
+            var productIds = data.Products.Select(p => p.Id).ToList();
+
+            var filter = Builders<Product>.Filter.In(p => p.Id, productIds);
+            var updateDefinition = Builders<Product>.Update.Inc(p => p.PiecesInStock, -1);
+            var updateResult = database.Collection<Product>().UpdateMany(filter, updateDefinition);
+
+
             database.Collection<Order>().InsertOne(order);
         }
     }

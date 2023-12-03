@@ -5,7 +5,7 @@ namespace ReadService.Data;
 
 public static class ConfigureServices
 {
-    public static void AddMongoDb(this IServiceCollection services, IConfiguration configuration)
+    public static void AddMongoDb(this IServiceCollection services, IConfiguration configuration, bool testing = false)
     {
         services.AddOptions<MongoDbConfiguration>()
             .Bind(configuration.GetSection(nameof(MongoDbConfiguration)))
@@ -15,7 +15,7 @@ public static class ConfigureServices
         services.AddScoped<IMongoDatabase>((sp) =>
         {
             var options = sp.GetRequiredService<IOptions<MongoDbConfiguration>>().Value;
-            return new MongoClient(options.ConnectionString).GetDatabase(options.DatabaseName);
+            return new MongoClient(options.ConnectionString).GetDatabase(testing ? options.DatabaseName + "_testing" : options.DatabaseName);
         });
     }
 }

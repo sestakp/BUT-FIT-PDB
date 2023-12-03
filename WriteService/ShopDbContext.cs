@@ -72,6 +72,20 @@ public class ShopDbContext : DbContext
             .HasOne<ProductEntity>()
             .WithMany()
             .HasForeignKey(x => x.ProductId);
+
+        modelBuilder.Entity<CustomerEntity>()
+            .HasMany<AddressEntity>()
+            .WithOne();
+
+
+        modelBuilder.Entity<ProductCategoryEntity>()
+            .HasMany<ProductSubCategoryEntity>()
+            .WithOne();
+
+
+        modelBuilder.Entity<ProductSubCategoryEntity>()
+            .HasOne<ProductCategoryEntity>()
+            .WithMany();
     }
 
 #nullable disable
@@ -83,4 +97,5 @@ public class ShopDbContext : DbContext
     public DbSet<ProductCategoryEntity> ProductCategories { get; init; }
     public DbSet<ProductSubCategoryEntity> ProductSubCategories { get; init; }
     public DbSet<VendorEntity> Vendors { get; init; }
+    public DbSet<AddressEntity> Addresses { get; init; }
 }

@@ -1,11 +1,14 @@
 using AutoMapper;
 using Common.Extensions;
+using Common.RabbitMQ.Messages;
 using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Address;
+using WriteService.DTOs.Category;
 using WriteService.DTOs.Customer;
 using WriteService.DTOs.Order;
 using WriteService.DTOs.Product;
 using WriteService.DTOs.Review;
+using WriteService.DTOs.SubCategory;
 using WriteService.DTOs.Vendor;
 using WriteService.Endpoints;
 using WriteService.Entities;
@@ -13,7 +16,7 @@ using WriteService.Services;
 
 namespace WriteService;
 
-internal class Program
+public class Program
 {
     public static void Main(string[] args)
     {
@@ -46,12 +49,13 @@ internal class Program
             services.AddScoped<OrderService>();
             services.AddScoped<ProductService>();
             services.AddScoped<VendorService>();
-            services.AddEndpointsApiExplorer();
+            services.AddScoped<CategoryService>();
+            services.AddScoped<SubCategoryService>();
 
             services.AddDbContext<ShopDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbContext")));
 
-            services.AddHostedService<ProductGarbageCollector>();
+            //services.AddHostedService<ProductGarbageCollector>();
 
             // TODO: refactor to one extension method
             var mapperConfig = new MapperConfiguration(cfg =>
@@ -73,6 +77,17 @@ internal class Program
 
                 cfg.CreateMap<ReviewEntity, ReviewDto>();
                 cfg.CreateMap<ReviewDto, ReviewEntity>();
+
+                cfg.CreateMap<ProductCategoryEntity, CategoryDto>();
+                cfg.CreateMap<CategoryDto, ProductCategoryEntity>();
+
+                cfg.CreateMap<ProductSubCategoryEntity, SubCategoryDto>();
+                cfg.CreateMap<SubCategoryDto, ProductSubCategoryEntity>();
+
+
+                cfg.CreateMap<ProductEntity, OrderProductRabbit>();
+
+                
             });
 
             var mapper = mapperConfig.CreateMapper();
@@ -90,6 +105,8 @@ internal class Program
             app.MapProductEndpoints();
             app.MapOrderEndpoints();
             app.MapCustomerEndpoints();
+            // app.MapCategoryEndpoints();
+            // app.MapSubCategoryEndpoints();
         }
         
         if (args.Length > 0 && args[0] == "--seed")

@@ -40,6 +40,7 @@ public class CustomerService
 
             var message = new CreateCustomerMessage()
             {
+                Id = entity.Id,
                 FirstName = entity.FirstName,
                 LastName = entity.LastName,
                 Email = entity.Email,
@@ -74,7 +75,7 @@ public class CustomerService
 
             var message = new UpdateCustomerMessage()
             {
-                CustomerEmail = entity.Email,
+                Id = entity.Id,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName
             };
@@ -100,8 +101,7 @@ public class CustomerService
             {
                 throw new EntityNotFoundException(customerId);
             }
-
-            var customerEmail = customer.Email;
+            
 
             const string anonymizationValue = "anonymized";
 
@@ -120,7 +120,7 @@ public class CustomerService
 
             await _context.SaveChangesAsync();
 
-            var message = new DeleteCustomerMessage() { CustomerEmail = customerEmail };
+            var message = new DeleteCustomerMessage() { Id = customer.Id };
 
             _producer.SendMessageAsync(RabbitMQOperation.Delete, RabbitMQEntities.Customer, message);
 
@@ -147,18 +147,19 @@ public class CustomerService
                 ZipCode = dto.ZipCode,
                 City = dto.City,
                 Street = dto.Street,
-                HouseNumber = dto.HouseNumber,
+                HouseNumber = dto.HouseNumber
             };
 
-            customer.Addresses.Add(address);
 
+            //_context.Add(address);
+            customer.Addresses.Add(address);
             _context.Update(customer);
 
             await _context.SaveChangesAsync();
 
             var message = new AddCustomerAddressMessage()
             {
-                CustomerEmail = customer.Email,
+                CustomerId = customer.Id,
                 Id = address.Id,
                 Country = address.Country,
                 ZipCode = address.ZipCode,
@@ -203,6 +204,7 @@ public class CustomerService
             address.City = dto.City;
             address.Street = dto.Street;
             address.HouseNumber = dto.HouseNumber;
+            
 
             _context.Update(address);
 
@@ -210,7 +212,7 @@ public class CustomerService
 
             var message = new UpdateCustomerAddressMessage()
             {
-                CustomerEmail = customer.Email,
+                Id = customer.Id,
                 AddressId = address.Id,
                 Country = address.Country,
                 ZipCode = address.ZipCode,
@@ -249,13 +251,14 @@ public class CustomerService
                 throw new EntityNotFoundException(addressId);
             }
 
+            customer.Addresses.Remove(address);
             _context.Remove(address);
 
             await _context.SaveChangesAsync();
 
             var message = new DeleteCustomerAddressMessage()
             {
-                CustomerEmail = customer.Email,
+                Id = customer.Id,
                 AddressId = addressId
             };
 

@@ -5,6 +5,9 @@ namespace ReadService.Data.Models;
 public sealed record Customer
 {
     [BsonId]
+    public required long Id { get; set; }
+
+    [BsonElement("email")]
     public required string Email { get; set; }
 
     [BsonElement("firstName")]

@@ -8,7 +8,7 @@ public sealed record Order
     public long Id { get; init; }
 
     [BsonElement("customerId")]
-    public required string CustomerEmail { get; init; }
+    public required long CustomerId { get; init; }
 
     [BsonElement("price")]
     public required decimal Price { get; init; }

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using WriteService.DTOs.Product;
 using WriteService.DTOs.Review;
 using WriteService.Entities;
+using WriteService.Entities.Interfaces;
 using WriteService.Exceptions;
 
 namespace WriteService.Services;
@@ -48,8 +49,11 @@ public class ProductService
                 VendorId = dto.VendorId
             };
 
+
             var categories = LoadEntities<ProductCategoryEntity>(dto.Categories);
             var subCategories = LoadEntities<ProductSubCategoryEntity>(dto.SubCategories);
+            
+
 
             product.Categories.AddRange(categories);
             product.SubCategories.AddRange(subCategories);
@@ -85,18 +89,18 @@ public class ProductService
         }
     }
 
-    private IEnumerable<T> LoadEntities<T>(IEnumerable<long> ids) where T : EntityBase
+    private IEnumerable<T> LoadEntities<T>(IEnumerable<string> names) where T : EntityBase, INormalizedName
     {
         var result = new List<T>();
-        foreach (var id in ids)
+        foreach (var name in names)
         {
             var entity = _context
                 .Set<T>()
-                .FirstOrDefault(x => x.Id == id);
+                .FirstOrDefault(x => x.NormalizedName == name);
 
             if (entity is null)
             {
-                throw new EntityNotFoundException(id);
+                throw new EntityNotFoundException(name);
             }
 
             result.Add(entity);
@@ -148,8 +152,9 @@ public class ProductService
             product.IsDeleted = true;
 
             _context.Update(product);
-
-            // TODO: remove reviews of the product?
+            
+            var reviews = _context.ProductReviews.Where(r => r.ProductId == productId);
+            _context.RemoveRange(reviews);
 
             await _context.SaveChangesAsync();
 

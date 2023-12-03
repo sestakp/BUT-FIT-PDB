@@ -12,8 +12,8 @@ using WriteService;
 namespace WriteService.Migrations
 {
     [DbContext(typeof(ShopDbContext))]
-    [Migration("20231130131811_Initial")]
-    partial class Initial
+    [Migration("20231202172854_RemoveProducts")]
+    partial class RemoveProducts
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -89,6 +89,9 @@ namespace WriteService.Migrations
                     b.Property<long?>("CustomerEntityId")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("CustomerEntityId1")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("HouseNumber")
                         .IsRequired()
                         .HasColumnType("text");
@@ -105,7 +108,9 @@ namespace WriteService.Migrations
 
                     b.HasIndex("CustomerEntityId");
 
-                    b.ToTable("AddressEntity");
+                    b.HasIndex("CustomerEntityId1");
+
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("WriteService.Entities.CustomerEntity", b =>
@@ -205,6 +210,10 @@ namespace WriteService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.ToTable("ProductCategories");
@@ -253,6 +262,9 @@ namespace WriteService.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -261,12 +273,23 @@ namespace WriteService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<long?>("ProductCategoryEntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ProductCategoryEntityId1")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("ProductCategoryEntityId");
+
+                    b.HasIndex("ProductCategoryEntityId1");
 
                     b.ToTable("ProductSubCategories");
                 });
@@ -396,6 +419,10 @@ namespace WriteService.Migrations
                     b.HasOne("WriteService.Entities.CustomerEntity", null)
                         .WithMany("Addresses")
                         .HasForeignKey("CustomerEntityId");
+
+                    b.HasOne("WriteService.Entities.CustomerEntity", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerEntityId1");
                 });
 
             modelBuilder.Entity("WriteService.Entities.OrderEntity", b =>
@@ -412,7 +439,7 @@ namespace WriteService.Migrations
             modelBuilder.Entity("WriteService.Entities.ProductEntity", b =>
                 {
                     b.HasOne("WriteService.Entities.VendorEntity", "Vendor")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("VendorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -422,9 +449,22 @@ namespace WriteService.Migrations
 
             modelBuilder.Entity("WriteService.Entities.ProductSubCategoryEntity", b =>
                 {
-                    b.HasOne("WriteService.Entities.ProductCategoryEntity", null)
+                    b.HasOne("WriteService.Entities.ProductCategoryEntity", "Category")
                         .WithMany("SubCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WriteService.Entities.ProductCategoryEntity", null)
+                        .WithMany()
                         .HasForeignKey("ProductCategoryEntityId");
+
+                    b.HasOne("WriteService.Entities.ProductCategoryEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ProductCategoryEntityId1")
+                        .HasConstraintName("FK_ProductSubCategories_ProductCategories_ProductCategoryEnti~1");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("WriteService.Entities.ReviewEntity", b =>
@@ -461,6 +501,11 @@ namespace WriteService.Migrations
             modelBuilder.Entity("WriteService.Entities.ProductEntity", b =>
                 {
                     b.Navigation("Reviews");
+                });
+
+            modelBuilder.Entity("WriteService.Entities.VendorEntity", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

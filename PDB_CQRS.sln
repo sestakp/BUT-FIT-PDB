@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReadService", "ReadService\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{AA8687D5-1BEA-4DC0-ABE7-7F6B6537E576}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.EndToEndTests", "CQRS.EndToEndTests\CQRS.EndToEndTests.csproj", "{69566D83-5FAF-4F8F-9F00-274078C406A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{AA8687D5-1BEA-4DC0-ABE7-7F6B6537E576}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA8687D5-1BEA-4DC0-ABE7-7F6B6537E576}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA8687D5-1BEA-4DC0-ABE7-7F6B6537E576}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69566D83-5FAF-4F8F-9F00-274078C406A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69566D83-5FAF-4F8F-9F00-274078C406A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69566D83-5FAF-4F8F-9F00-274078C406A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69566D83-5FAF-4F8F-9F00-274078C406A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

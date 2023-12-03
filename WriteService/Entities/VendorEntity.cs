@@ -10,6 +10,5 @@ public class VendorEntity : EntityBase
     public required string HouseNumber { get; set; }
 
     public bool IsDeleted { get; set; }
-
-    public IList<ProductEntity> Products = new List<ProductEntity>();
+    public IList<ProductEntity> Products { get; set; } = new List<ProductEntity>();
 }

@@ -10,7 +10,7 @@ public sealed class Endpoints
     public static void MapEndpoints(WebApplication app)
     {
         app.MapGet("api/customers", GetCustomers);
-        app.MapGet("api/customers/{email}", GetCustomerDetail);
+        app.MapGet("api/customers/{customerId}", GetCustomerDetail);
         app.MapGet("api/vendors", GetVendors);
         app.MapGet("api/vendors/{id:long}", GetVendorDetail);
         app.MapGet("api/products", GetProducts);
@@ -34,13 +34,13 @@ public sealed class Endpoints
     }
 
     private static IResult GetCustomerDetail(
-        [FromRoute] string email,
+        [FromRoute] long customerId,
         [FromServices] IMongoDatabase database)
     {
         var customer = database
             .Collection<Customer>()
-            .Find(x => x.Email == email)
-            .Single();
+            .Find(x => x.Id == customerId)
+            .SingleOrDefault();
 
         if (customer is null)
         {
@@ -94,7 +94,7 @@ public sealed class Endpoints
     {
         var products = database
             .Collection<ProductsOfCategory>()
-            .Find(x => x.CategoryName == category)
+            .Find(x => x.CategoryNameNormalized == category)
             .ToList();
 
         return Results.Ok(products);
@@ -107,7 +107,7 @@ public sealed class Endpoints
     {
         var products = database
             .Collection<ProductsOfSubCategory>()
-            .Find(x => x.CategoryName == category && x.SubCategoryName == subcategory)
+            .Find(x => x.CategoryNameNormalized == category && x.SubCategoryNameNormalized == subcategory)
             .ToList();
 
         return Results.Ok(products);
@@ -144,12 +144,12 @@ public sealed class Endpoints
     }
 
     private static IResult GetOrdersForCustomer(
-        [FromQuery] string customerEmail,
+        [FromQuery] long customerId,
         [FromServices] IMongoDatabase database)
     {
         var products = database
             .Collection<Order>()
-            .Find(x => x.CustomerEmail == customerEmail)
+            .Find(x => x.CustomerId == customerId)
             .ToList();
 
         return Results.Ok(products);

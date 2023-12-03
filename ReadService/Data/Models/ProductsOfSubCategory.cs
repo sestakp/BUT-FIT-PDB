@@ -11,8 +11,15 @@ public sealed record ProductsOfSubCategory
     [BsonElement("category")]
     public required string CategoryName { get; init; }
 
+    [BsonElement("categoryNormalized")]
+    public required string CategoryNameNormalized { get; init; }
+
+
     [BsonElement("subcategory")]
     public required string SubCategoryName { get; init; }
+
+    [BsonElement("subcategoryNormalized")]
+    public required string SubCategoryNameNormalized { get; init; }
 
     [BsonElement("products")]
     public List<Product> Products { get; set; } = new();

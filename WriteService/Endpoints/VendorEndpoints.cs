@@ -46,7 +46,7 @@ public static class VendorEndpoints
         var responseDto = mapper.Map<VendorDto>(vendor);
     
         // TODO: add uri from query service
-        return Results.Created("todo", responseDto);
+        return Results.Ok(responseDto);
     }
 
     private static async Task<IResult> DeleteVendorAsync(
