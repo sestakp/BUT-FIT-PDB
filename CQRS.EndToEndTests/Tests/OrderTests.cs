@@ -83,7 +83,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         //Arrange
         var newCustomer = await _entityFactory.CreateCustomer(_writeServiceClient);
         var newVendor = await _entityFactory.CreateVendor(_writeServiceClient);
-
+        /*
         var categories = new List<CategoryDto>();
         var subCategories = new List<SubCategoryDto>();
 
@@ -107,10 +107,10 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
                 categories.Add(category);
             }
         }
+        */
 
 
-
-        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, categories.Select(c => c.NormalizedName), subCategories.Select(c => c.NormalizedName));
+        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, new List<string>(),new List<string>());
 
         var createOrderDto = new CreateOrderDto(newCustomer.Id);
         //Act
@@ -121,8 +121,8 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         writeResponse.EnsureSuccessStatusCode();
 
         var orderId = await writeResponse.Content.ReadFromJsonAsync<long>();
-
-        writeResponse = await _writeServiceClient.PostAsync($"/api/orders/{orderId}/add-to-cart/{product.Id}", null);
+        var addProductDto = new AddProductDto { ProductId = product.Id };
+        writeResponse = await _writeServiceClient.PostAsJsonAsync($"/api/orders/{orderId}/add-to-cart", addProductDto);
 
         writeResponse.EnsureSuccessStatusCode();
 
@@ -165,8 +165,8 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
 
         var newVendor = await _entityFactory.CreateVendor(_writeServiceClient);
 
-        var category = await _entityFactory.CreateCategory(_writeServiceClient);
-        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, new List<string> { category.NormalizedName }, new List<string>());
+        //var category = await _entityFactory.CreateCategory(_writeServiceClient);
+        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, new List<string>(), new List<string>());
 
 
 
@@ -176,7 +176,8 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         writeResponse1.EnsureSuccessStatusCode();
         var orderId1 = await writeResponse1.Content.ReadFromJsonAsync<long>();
 
-        writeResponse1 = await _writeServiceClient.PostAsync($"/api/orders/{orderId1}/add-to-cart/{product.Id}", null);
+        var addProductDto = new AddProductDto { ProductId = product.Id };
+        writeResponse1 = await _writeServiceClient.PostAsJsonAsync($"/api/orders/{orderId1}/add-to-cart", addProductDto);
         writeResponse1.EnsureSuccessStatusCode();
 
 
@@ -187,7 +188,8 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         writeResponse2.EnsureSuccessStatusCode();
         var orderId2 = await writeResponse2.Content.ReadFromJsonAsync<long>();
 
-        writeResponse2 = await _writeServiceClient.PostAsync($"/api/orders/{orderId2}/add-to-cart/{product.Id}", null);
+        addProductDto = new AddProductDto { ProductId = product.Id };
+        writeResponse2 = await _writeServiceClient.PostAsJsonAsync($"/api/orders/{orderId2}/add-to-cart", addProductDto);
         writeResponse2.EnsureSuccessStatusCode();
 
 
