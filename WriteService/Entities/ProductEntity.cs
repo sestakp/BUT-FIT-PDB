@@ -7,7 +7,7 @@ public class ProductEntity : EntityBase
     public required decimal Price { get; set; }
     public required int PiecesInStock { get; set; }
 
-    public bool IsDeleted { get; set; }
+    public bool IsDeleted { get; set; } = false;
 
     public long VendorId { get; set; }
     public VendorEntity Vendor { get; set; } = null!;

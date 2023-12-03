@@ -38,7 +38,7 @@ public class WriteServiceWebApplicationFactory<TStartup> : WebApplicationFactory
         });
 
 
-        builder.ConfigureServices((context,services) =>
+        builder.ConfigureServices((context, services) =>
         {
 
             var configuration = context.Configuration;
@@ -48,7 +48,7 @@ public class WriteServiceWebApplicationFactory<TStartup> : WebApplicationFactory
             {
                 options.UseInMemoryDatabase("CqrsPdbInMemoryForTesting"); // Use an in-memory database for testing
             });
-            
+
 
             // RabbitMQ configuration
             services.AddRabbitMQSettings(configuration);
@@ -56,7 +56,7 @@ public class WriteServiceWebApplicationFactory<TStartup> : WebApplicationFactory
             services.AddRabbitConnection();
             services.AddRabbitChannel();
             services.AddRabbitMQProducer();
-            
+
 
 
 

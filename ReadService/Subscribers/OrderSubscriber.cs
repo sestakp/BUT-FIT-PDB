@@ -44,18 +44,33 @@ public class OrderSubscriber : RabbitMQReceiver<OrderSubscriber>
                     Title = x.Title,
                     Description = x.Description,
                     Price = x.Price,
+                    Count = x.Count,
                     Vendor = new OrderProductVendor() { Name = x.Vendor }
                 })
             };
-            
-            var productIds = data.Products.Select(p => p.Id).ToList();
-
-            var filter = Builders<Product>.Filter.In(p => p.Id, productIds);
-            var updateDefinition = Builders<Product>.Update.Inc(p => p.PiecesInStock, -1);
-            var updateResult = database.Collection<Product>().UpdateMany(filter, updateDefinition);
-
 
             database.Collection<Order>().InsertOne(order);
+
+            _logger.LogInformation("Inserted one new document to {Collection} collection.", nameof(Product));
+
+            var updateCounter = 0;
+
+            foreach (var product in data.Products)
+            {
+                var filter = Builders<Product>
+                    .Filter
+                    .Eq(p => p.Id, product.Id);
+
+                var updateDefinition = Builders<Product>
+                    .Update
+                    .Inc(p => p.PiecesInStock, -product.Count);
+
+                database.Collection<Product>().UpdateOne(filter, updateDefinition);
+
+                updateCounter++;
+            }
+
+            _logger.LogInformation("Updated {Count} document from {Collection} collection.", updateCounter, nameof(Product));
         }
     }
 }

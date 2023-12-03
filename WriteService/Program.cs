@@ -1,7 +1,9 @@
 using AutoMapper;
+using Common.Configuration;
 using Common.Extensions;
 using Common.RabbitMQ.Messages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using WriteService.DTOs.Address;
 using WriteService.DTOs.Category;
 using WriteService.DTOs.Customer;
@@ -55,7 +57,7 @@ public class Program
             services.AddDbContext<ShopDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbContext")));
 
-            //services.AddHostedService<ProductGarbageCollector>();
+            // services.AddHostedService<ProductGarbageCollector>();
 
             // TODO: refactor to one extension method
             var mapperConfig = new MapperConfiguration(cfg =>
@@ -83,11 +85,6 @@ public class Program
 
                 cfg.CreateMap<ProductSubCategoryEntity, SubCategoryDto>();
                 cfg.CreateMap<SubCategoryDto, ProductSubCategoryEntity>();
-
-
-                cfg.CreateMap<ProductEntity, OrderProductRabbit>();
-
-                
             });
 
             var mapper = mapperConfig.CreateMapper();
@@ -105,10 +102,17 @@ public class Program
             app.MapProductEndpoints();
             app.MapOrderEndpoints();
             app.MapCustomerEndpoints();
+
             // app.MapCategoryEndpoints();
             // app.MapSubCategoryEndpoints();
         }
-        
+
+        Console.WriteLine("CONFIGURATION:");
+        var rabbitMqConfiguration = app.Services.GetRequiredService<IOptions<RabbitMQConfiguration>>().Value;
+        var databaseConfiguration = app.Configuration.GetConnectionString("ShopDbContext");
+        Console.WriteLine(rabbitMqConfiguration);
+        Console.WriteLine(databaseConfiguration);
+
         if (args.Length > 0 && args[0] == "--seed")
         {
             SeedDatabase(app);

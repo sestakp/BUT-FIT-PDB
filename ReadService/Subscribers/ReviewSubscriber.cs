@@ -40,7 +40,7 @@ public class ReviewSubscriber : RabbitMQReceiver<ReviewSubscriber>
 
                 _logger.LogInformation("Inserted new document into Reviews collection.");
             }
-            
+
 
             var filter = Builders<Review>
                 .Filter
@@ -50,8 +50,8 @@ public class ReviewSubscriber : RabbitMQReceiver<ReviewSubscriber>
                 .Collection<Review>()
                 .Aggregate()
                 .Match(filter)
-                .Group(new BsonDocument 
-                { 
+                .Group(new BsonDocument
+                {
                     { "_id", "$productId" },
                     { "averageRating", new BsonDocument("$avg", "$rating") }
                 });

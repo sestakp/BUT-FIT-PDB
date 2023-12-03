@@ -27,7 +27,7 @@ public static class WebApplicationBuilderExtensions
         services.AddSingleton(sp =>
         {
             var rabbitMqOptions = sp.GetRequiredService<IOptions<RabbitMQConfiguration>>().Value;
-
+            
             return new ConnectionFactory
             {
                 HostName = rabbitMqOptions.Hostname,

@@ -62,7 +62,7 @@ public class SubCategoryService
     {
         await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            var category = await _context.ProductCategories.FirstOrDefaultAsync(p => p.Id == dto.CategoryId);
+            var category = await _context.Categories.FirstOrDefaultAsync(p => p.Id == dto.CategoryId);
 
             if (category == null)
             {
@@ -92,7 +92,7 @@ public class SubCategoryService
                 Description = dto.Description,
                 Name = dto.Name,
                 CategoryId = category.Id
-                
+
             };
 
             _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.ProductSubCategory, message);
@@ -107,19 +107,19 @@ public class SubCategoryService
     {
         await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            
-            var subCategory = await _context.ProductSubCategories.FindAsync(subCategoryId);
+
+            var subCategory = await _context.SubCategories.FindAsync(subCategoryId);
             if (subCategory is null)
             {
                 throw new EntityNotFoundException(subCategoryId);
             }
 
-            
 
-            
+
+
             if (subCategory.Category.Id != dto.CategoryId)
             {
-                var category = await _context.ProductCategories.FindAsync(dto.CategoryId);
+                var category = await _context.Categories.FindAsync(dto.CategoryId);
                 if (category is null)
                 {
                     throw new EntityNotFoundException(dto.CategoryId);
@@ -167,16 +167,16 @@ public class SubCategoryService
     {
         await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            var subCategory = await _context.ProductSubCategories.FirstOrDefaultAsync(c => c.Id == subCategoryId);
+            var subCategory = await _context.SubCategories.FirstOrDefaultAsync(c => c.Id == subCategoryId);
 
             if (subCategory is null)
             {
                 throw new EntityNotFoundException(subCategoryId);
             }
-            
+
             var products = _context.Products.Where(p => p.SubCategories.Contains(subCategory));
 
-            foreach(var product in products)
+            foreach (var product in products)
             {
                 product.SubCategories.Remove(subCategory);
                 _context.Update(product);
@@ -184,7 +184,7 @@ public class SubCategoryService
 
 
 
-            var categories = _context.ProductCategories.Where(p => p.SubCategories.Contains(subCategory));
+            var categories = _context.Categories.Where(p => p.SubCategories.Contains(subCategory));
             foreach (var category in categories)
             {
                 category.SubCategories.Remove(subCategory);

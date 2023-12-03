@@ -25,22 +25,22 @@ public class ReadServiceWebApplicationFactory<TStartup> : WebApplicationFactory<
             var fullPath = Path.Combine(currentDirectory, relativePath);
             config.AddJsonFile(fullPath);
         });
-        
+
 
         builder.ConfigureServices((context, services) =>
         {
-            
+
             var configuration = context.Configuration;
-            
-            
-            services.AddMongoDb(configuration,testing:true);
-            
+
+
+            services.AddMongoDb(configuration, testing: true);
+
             services.AddRabbitMQSettings(configuration);
             services.AddConnectionFactoryForRabbit();
             services.AddRabbitConnection();
             services.AddRabbitChannel();
-            
-            
+
+
 
             // Additional service configurations for testing
         });

@@ -36,7 +36,10 @@ public sealed record OrderProduct
 
     [BsonElement("price")]
     public required decimal Price { get; set; }
-
+    
+    [BsonElement("count")]
+    public required decimal Count { get; set; }
+    
     [BsonElement("vendor")]
     public required OrderProductVendor Vendor { get; set; }
 }

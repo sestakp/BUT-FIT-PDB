@@ -101,11 +101,11 @@ public class VendorService
         await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
             var vendor = await FindVendorAsync(vendorId, includeProducts: true);
-            
+
             vendor.IsDeleted = true;
-            
+
             // BUG: products are not loaded and so there not removed together with vendor
-            
+
             foreach (var product in vendor.Products)
             {
                 product.IsDeleted = true;

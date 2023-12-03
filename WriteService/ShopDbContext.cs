@@ -31,7 +31,7 @@ public class ShopDbContext : DbContext
             .HasMany(e => e.Categories)
             .WithMany()
             .UsingEntity(
-                "ProductCategoriesJoinTable",
+                "ProductCategories",
                 l => l.HasOne(typeof(ProductCategoryEntity))
                     .WithMany()
                     .HasForeignKey("CategoryId"),
@@ -43,7 +43,7 @@ public class ShopDbContext : DbContext
             .HasMany(e => e.SubCategories)
             .WithMany()
             .UsingEntity(
-                "ProductSubCategoriesJoinTable",
+                "ProductSubCategories",
                 l => l.HasOne(typeof(ProductSubCategoryEntity))
                     .WithMany()
                     .HasForeignKey("SubCategoryId"),
@@ -51,41 +51,18 @@ public class ShopDbContext : DbContext
                     .WithMany()
                     .HasForeignKey("ProductId"));
 
-        modelBuilder.Entity<OrderEntity>()
-            .HasMany(e => e.Products)
-            .WithMany()
-            .UsingEntity(
-                "OrderProductsJoinTable",
-                l => l.HasOne(typeof(ProductEntity))
-                    .WithMany()
-                    .HasForeignKey("ProductId"),
-                r => r.HasOne(typeof(OrderEntity))
-                    .WithMany()
-                    .HasForeignKey("OrderId"));
-
-        modelBuilder.Entity<ReviewEntity>()
-            .HasOne<CustomerEntity>()
-            .WithMany()
-            .HasForeignKey(x => x.CustomerId);
-
-        modelBuilder.Entity<ReviewEntity>()
-            .HasOne<ProductEntity>()
+        modelBuilder.Entity<OrderProductEntity>()
+            .HasOne(x => x.Product)
             .WithMany()
             .HasForeignKey(x => x.ProductId);
 
-        modelBuilder.Entity<CustomerEntity>()
-            .HasMany<AddressEntity>()
-            .WithOne();
+        modelBuilder.Entity<OrderProductEntity>()
+            .HasOne(x => x.Order)
+            .WithMany(x => x.OrderProducts)
+            .HasForeignKey(x => x.OrderId);
 
-
-        modelBuilder.Entity<ProductCategoryEntity>()
-            .HasMany<ProductSubCategoryEntity>()
-            .WithOne();
-
-
-        modelBuilder.Entity<ProductSubCategoryEntity>()
-            .HasOne<ProductCategoryEntity>()
-            .WithMany();
+        modelBuilder.Entity<OrderProductEntity>()
+            .ToTable("OrderProducts");
     }
 
 #nullable disable
@@ -93,9 +70,9 @@ public class ShopDbContext : DbContext
     public DbSet<CustomerEntity> Customers { get; init; }
     public DbSet<OrderEntity> Orders { get; init; }
     public DbSet<ProductEntity> Products { get; init; }
-    public DbSet<ReviewEntity> ProductReviews { get; init; }
-    public DbSet<ProductCategoryEntity> ProductCategories { get; init; }
-    public DbSet<ProductSubCategoryEntity> ProductSubCategories { get; init; }
+    public DbSet<ReviewEntity> Reviews { get; init; }
+    public DbSet<ProductCategoryEntity> Categories { get; init; }
+    public DbSet<ProductSubCategoryEntity> SubCategories { get; init; }
     public DbSet<VendorEntity> Vendors { get; init; }
     public DbSet<AddressEntity> Addresses { get; init; }
 }

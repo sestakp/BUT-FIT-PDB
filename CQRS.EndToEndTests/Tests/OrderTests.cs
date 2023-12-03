@@ -20,7 +20,7 @@ using Xunit;
 namespace CQRS.EndToEndTests.Tests;
 
 public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadService.Program>>,
-    IClassFixture<WriteServiceWebApplicationFactory<WriteService.Program>>, 
+    IClassFixture<WriteServiceWebApplicationFactory<WriteService.Program>>,
     IClassFixture<EntityFactory>
 {
     private readonly HttpClient _readServiceClient;
@@ -83,7 +83,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         //Arrange
         var newCustomer = await _entityFactory.CreateCustomer(_writeServiceClient);
         var newVendor = await _entityFactory.CreateVendor(_writeServiceClient);
-
+        /*
         var categories = new List<CategoryDto>();
         var subCategories = new List<SubCategoryDto>();
 
@@ -107,11 +107,11 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
                 categories.Add(category);
             }
         }
+        */
 
 
+        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, new List<string>(),new List<string>());
 
-        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, categories.Select(c => c.NormalizedName), subCategories.Select(c => c.NormalizedName));
-        
         var createOrderDto = new CreateOrderDto(newCustomer.Id);
         //Act
 
@@ -121,8 +121,8 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         writeResponse.EnsureSuccessStatusCode();
 
         var orderId = await writeResponse.Content.ReadFromJsonAsync<long>();
-
-        writeResponse = await _writeServiceClient.PostAsync($"/api/orders/{orderId}/add-to-cart/{product.Id}", null);
+        var addProductDto = new AddProductDto { ProductId = product.Id };
+        writeResponse = await _writeServiceClient.PostAsJsonAsync($"/api/orders/{orderId}/add-to-cart", addProductDto);
 
         writeResponse.EnsureSuccessStatusCode();
 
@@ -132,7 +132,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         writeResponse.EnsureSuccessStatusCode();
 
 
-        await Task.Delay(TimeSpan.FromSeconds(2)); 
+        await Task.Delay(TimeSpan.FromSeconds(2));
 
         var readResponse = await _readServiceClient.GetAsync($"/api/products/{product.Id}");
 
@@ -147,9 +147,9 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         //Assert
         Assert.NotNull(readerOrders);
         Assert.NotNull(readedProduct);
-        Assert.Equal(1, readerOrders.Count);
+        Assert.Single(readerOrders);
         Assert.Equal(product.PricesInStock - 1, readedProduct.PiecesInStock);
-        Assert.Equal(1, readerOrders.First().Products.Count());
+        Assert.Single(readerOrders.First().Products);
     }
 
 
@@ -165,8 +165,8 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
 
         var newVendor = await _entityFactory.CreateVendor(_writeServiceClient);
 
-        var category = await _entityFactory.CreateCategory(_writeServiceClient);
-        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, new List<string>{ category.NormalizedName }, new List<string>());
+        //var category = await _entityFactory.CreateCategory(_writeServiceClient);
+        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, new List<string>(), new List<string>());
 
 
 
@@ -175,8 +175,9 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         var writeResponse1 = await _writeServiceClient.PostAsJsonAsync("/api/orders", createOrderDto);
         writeResponse1.EnsureSuccessStatusCode();
         var orderId1 = await writeResponse1.Content.ReadFromJsonAsync<long>();
-        
-        writeResponse1 = await _writeServiceClient.PostAsync($"/api/orders/{orderId1}/add-to-cart/{product.Id}", null);
+
+        var addProductDto = new AddProductDto { ProductId = product.Id };
+        writeResponse1 = await _writeServiceClient.PostAsJsonAsync($"/api/orders/{orderId1}/add-to-cart", addProductDto);
         writeResponse1.EnsureSuccessStatusCode();
 
 
@@ -187,7 +188,8 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         writeResponse2.EnsureSuccessStatusCode();
         var orderId2 = await writeResponse2.Content.ReadFromJsonAsync<long>();
 
-        writeResponse2 = await _writeServiceClient.PostAsync($"/api/orders/{orderId2}/add-to-cart/{product.Id}", null);
+        addProductDto = new AddProductDto { ProductId = product.Id };
+        writeResponse2 = await _writeServiceClient.PostAsJsonAsync($"/api/orders/{orderId2}/add-to-cart", addProductDto);
         writeResponse2.EnsureSuccessStatusCode();
 
 
@@ -203,7 +205,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
 
         //Assert
         Assert.Equal(HttpStatusCode.InternalServerError, writeResponse2.StatusCode);
-        
+
 
     }
 

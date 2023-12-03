@@ -13,14 +13,13 @@ public sealed class Endpoints
         app.MapGet("api/customers/{customerId}", GetCustomerDetail);
         app.MapGet("api/vendors", GetVendors);
         app.MapGet("api/vendors/{id:long}", GetVendorDetail);
-        app.MapGet("api/products", GetProducts);
-        app.MapGet("api/products/{category}", GetProductsByCategory);
-        app.MapGet("api/products/{category}/{subcategory}", GetProductsBySubcategory);
-        app.MapGet("api/products/{id:long}", GetProductDetail);
-        app.MapGet("api/products/{id:long}/reviews", GetProductReviews);
         app.MapGet("api/orders", GetOrdersForCustomer);
         app.MapGet("api/orders/{id:long}", GetOrderDetail);
         app.MapGet("api/categories", GetCategories);
+
+        app.MapGet("api/products/{id:long}", GetProductDetail);
+        app.MapGet("api/products/{id:long}/reviews", GetProductReviews);
+        app.MapGet("api/products", GetProducts);
     }
 
     private static IResult GetCustomers(
@@ -77,72 +76,6 @@ public sealed class Endpoints
         return Results.Ok(vendor);
     }
 
-    // TODO: add pagination
-    private static IResult GetProducts(
-        [FromServices] IMongoDatabase database)
-    {
-        var products = database
-            .Collection<Product>()
-            .AsQueryable();
-
-        return Results.Ok(products);
-    }
-
-    private static IResult GetProductsByCategory(
-        [FromRoute] string category,
-        [FromServices] IMongoDatabase database)
-    {
-        var products = database
-            .Collection<ProductsOfCategory>()
-            .Find(x => x.CategoryNameNormalized == category)
-            .ToList();
-
-        return Results.Ok(products);
-    }
-
-    private static IResult GetProductsBySubcategory(
-        [FromRoute] string category,
-        [FromRoute] string subcategory,
-        [FromServices] IMongoDatabase database)
-    {
-        var products = database
-            .Collection<ProductsOfSubCategory>()
-            .Find(x => x.CategoryNameNormalized == category && x.SubCategoryNameNormalized == subcategory)
-            .ToList();
-
-        return Results.Ok(products);
-    }
-
-    private static IResult GetProductDetail(
-        [FromRoute] long id,
-        [FromServices] IMongoDatabase database)
-    {
-        var product = database
-            .Collection<Product>()
-            .Find(x => x.Id == id)
-            .Single();
-
-        if (product is null)
-        {
-            return Results.NotFound();
-        }
-
-        return Results.Ok(product);
-    }
-
-    // TODO: add pagination
-    private static IResult GetProductReviews(
-        [FromRoute] long id,
-        [FromServices] IMongoDatabase database)
-    {
-        var reviews = database
-            .Collection<Review>()
-            .Find(x => x.ProductId == id)
-            .ToList();
-
-        return Results.Ok(reviews);
-    }
-
     private static IResult GetOrdersForCustomer(
         [FromQuery] long customerId,
         [FromServices] IMongoDatabase database)
@@ -180,5 +113,71 @@ public sealed class Endpoints
             .AsQueryable();
 
         return Results.Ok(categories);
+    }
+
+    private static IResult GetProductDetail(
+        [FromRoute] long id,
+        [FromServices] IMongoDatabase database)
+    {
+        var product = database
+            .Collection<Product>()
+            .Find(x => x.Id == id)
+            .Single();
+
+        if (product is null)
+        {
+            return Results.NotFound();
+        }
+
+        return Results.Ok(product);
+    }
+
+    private static IResult GetProductReviews(
+        [FromRoute] long id,
+        [FromServices] IMongoDatabase database)
+    {
+        var reviews = database
+            .Collection<Review>()
+            .Find(x => x.ProductId == id)
+            .ToList();
+
+        return Results.Ok(reviews);
+    }
+
+    private static IResult GetProducts(
+        [FromQuery] string? category,
+        [FromQuery] string? subcategory,
+        [FromServices] IMongoDatabase database)
+    {
+        if (category is null && subcategory is null)
+        {
+            var products = database
+                .Collection<Product>()
+                .AsQueryable();
+
+            return Results.Ok(products);
+        }
+
+        if (category is not null && subcategory is null)
+        {
+            var products = database
+                .Collection<ProductsOfCategory>()
+                .Find(x => x.CategoryNormalizedName == category)
+                .First();
+
+            return Results.Ok(products);
+        }
+
+        if (category is not null && subcategory is not null)
+        {
+            var products = database
+                .Collection<ProductsOfSubCategory>()
+                .Find(x => x.CategoryNormalizedName == category && x.SubCategoryNormalizedName == subcategory)
+                .First();
+
+            return Results.Ok(products);
+        }
+
+        return Results.BadRequest();
     }
 }

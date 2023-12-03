@@ -1,0 +1,90 @@
+@Unpublished{typolexikon,
+    author = {Wolfgang Beinert},
+    title = {Makrotypografie [online]},
+    note = {Poslední modifikace 2.~března~2020. [vid.~2020\_04\_07]. Dostupné z~\url{https://www.typolexikon.de/makrotypografie}},
+    month = {březen},
+    year = {2020},
+}
+
+@Unpublished{wikiknihovna,
+    author = {wikiknihovna.cz},
+    title = {Webová typografie},
+    year = {2012},
+    note = {poslední modifikace 23.~května~2012. [vid.~2020\_04\_08]. Dostupné z~\url{https://bit.ly/2UYJX8a}},
+}
+
+@Unpublished{voho,
+    title = {Zlatý řez},
+    author = {Vojtěch Hordějčuk},
+    note = {[vid. 2020\_04\_05]. Dostupné z~\url{http://voho.eu/wiki/zlaty-rez/}},
+}
+
+@Article{archimagazine,
+    title = {Best Practices for Attainable, world\,-\,class house plans},
+    author = {Marry Salmonsen},
+    year = {2019},
+    note = {poslední modifikace 3.~dubna~2019. [vid. 2020\_04\_04]. Dostupné z~\url{https://bit.ly/3bTlKXL}},
+    journal = {magazín Architect},
+}
+
+@MastersThesis{vlastachmelikova,
+    Title = {Zlatý řez},
+    author = {Vlasta Chmelíková},
+    year = {2006},
+    note = {Dostupné z~\url{https://bit.ly/3dW5jf1}},
+    school = {Univerzita Karlova v Praze},
+}
+
+@Unpublished{zvalka,
+    title = {Vybíráme sluchátka s~profesionály II\,-\,koncertní zvukař [online]},
+    author = {audigo.cz},
+    note = {[vid. 2020\_04\_04]. Dostupné z~\url{https://bit.ly/2RfUM4O}},
+}
+
+@BOOK{digifo,
+    title = {Umění digitální fotografie},
+    author = {Michael Freeman}, 
+    publisher = {Zoner Press},
+    ISBN = {978\,-\,80\,-\,7413\,-\,109\,-\,7},
+    year = {2011},
+    edition = {první},
+}
+
+@BOOK{dobryfoto,
+    title = {Dobrý fotograf může být každý},
+    author = {John Garret},
+    publisher = {Zoner Press},
+    ISBN = {978\,-\,80\,-\,7413\,-\,161\,-\,5},
+    edition = {první},
+    year = {2011},
+}
+
+@Article{fotocas,
+    title = {Zpověď portrétistky},
+    author = {Josef Moucha},
+    year = {2020},
+    journal = {magazín Foto},
+}
+
+@MastersThesis{stika,
+    Title = {Zlatý řez},
+    author = {Kateřina Štiková},
+    year = {2007},
+    note = {Dostupné z~\url{https://bit.ly/2xNwJTO}},
+    school = {Jihočeská univerzita v Českých Budějovicích},
+}
+
+@Article{archi,
+    title = {Applications of the golden mean to architecture through mathematics [online]},
+    author = {Nikos Saligaros},
+    note = {[vid. 2020\_04\_08]. Dostupné z~\url{https://bit.ly/3aUzl0N}},
+    year = {2012},
+    journal = {Meaning through mathematics},
+}
+
+@Proceedings {knference,
+    title = {Fibonacci in Nature: The Golden Ratio and the Golden Spiral},
+    year = {2012},
+    note = {Dostupné z~\url{https://bit.ly/2Xht0Zu}},
+    organization = {Newstex},
+}

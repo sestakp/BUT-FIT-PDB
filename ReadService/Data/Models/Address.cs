@@ -6,7 +6,7 @@ public sealed record Address
 {
     [BsonId]
     public required long Id { get; set; }
-    
+
     [BsonElement("country")]
     public required string Country { get; set; }
 

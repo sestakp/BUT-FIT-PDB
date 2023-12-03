@@ -13,7 +13,7 @@ public static class ProductEndpoints
         var gb = app.MapGroup("api/products");
 
         gb.MapPost(string.Empty, CreateProductAsync);
-        gb.MapPost("{productId:long}/reviews/{customerId}", AddReviewAsync);
+        gb.MapPost("{productId:long}/reviews", AddReviewAsync);
         gb.MapDelete("{productId:long}", DeleteProductAsync);
     }
 
@@ -23,8 +23,6 @@ public static class ProductEndpoints
         [FromServices] IMapper mapper)
     {
         var product = await productService.CreateAsync(dto);
-        
-
 
 
         var responseDto = new ProductDto(
@@ -40,13 +38,11 @@ public static class ProductEndpoints
 
     private static async Task<IResult> AddReviewAsync(
         [FromRoute] long productId,
-        [FromRoute] long customerId,
         [FromBody] CreateReviewDto dto,
         [FromServices] ProductService productService,
         [FromServices] IMapper mapper)
     {
-
-        var review = await productService.AddReviewAsync(productId, customerId, dto);
+        var review = await productService.AddReviewAsync(productId, dto.CustomerId, dto);
         var responseDto = mapper.Map<ReviewDto>(review);
 
         // TODO: add uri from query service

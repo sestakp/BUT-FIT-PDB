@@ -7,11 +7,26 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace WriteService.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    NormalizedName = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Customers",
                 columns: table => new
@@ -28,20 +43,6 @@ namespace WriteService.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Customers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductCategories",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductCategories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -64,7 +65,29 @@ namespace WriteService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AddressEntity",
+                name: "SubCategories",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    NormalizedName = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    CategoryId = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SubCategories_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Addresses",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -74,16 +97,17 @@ namespace WriteService.Migrations
                     City = table.Column<string>(type: "text", nullable: false),
                     Street = table.Column<string>(type: "text", nullable: false),
                     HouseNumber = table.Column<string>(type: "text", nullable: false),
-                    CustomerEntityId = table.Column<long>(type: "bigint", nullable: true)
+                    CustomerId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AddressEntity", x => x.Id);
+                    table.PrimaryKey("PK_Addresses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AddressEntity_Customers_CustomerEntityId",
-                        column: x => x.CustomerEntityId,
+                        name: "FK_Addresses_Customers_CustomerId",
+                        column: x => x.CustomerId,
                         principalTable: "Customers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -115,26 +139,6 @@ namespace WriteService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductSubCategories",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    ProductCategoryEntityId = table.Column<long>(type: "bigint", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductSubCategories", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProductSubCategories_ProductCategories_ProductCategoryEntit~",
-                        column: x => x.ProductCategoryEntityId,
-                        principalTable: "ProductCategories",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -159,23 +163,26 @@ namespace WriteService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderProductsJoinTable",
+                name: "OrderProducts",
                 columns: table => new
                 {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     OrderId = table.Column<long>(type: "bigint", nullable: false),
-                    ProductId = table.Column<long>(type: "bigint", nullable: false)
+                    ProductId = table.Column<long>(type: "bigint", nullable: false),
+                    Count = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderProductsJoinTable", x => new { x.OrderId, x.ProductId });
+                    table.PrimaryKey("PK_OrderProducts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderProductsJoinTable_Orders_OrderId",
+                        name: "FK_OrderProducts_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_OrderProductsJoinTable_Products_ProductId",
+                        name: "FK_OrderProducts_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
@@ -183,7 +190,7 @@ namespace WriteService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductCategoriesJoinTable",
+                name: "ProductCategories",
                 columns: table => new
                 {
                     CategoryId = table.Column<long>(type: "bigint", nullable: false),
@@ -191,15 +198,15 @@ namespace WriteService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductCategoriesJoinTable", x => new { x.CategoryId, x.ProductId });
+                    table.PrimaryKey("PK_ProductCategories", x => new { x.CategoryId, x.ProductId });
                     table.ForeignKey(
-                        name: "FK_ProductCategoriesJoinTable_ProductCategories_CategoryId",
+                        name: "FK_ProductCategories_Categories_CategoryId",
                         column: x => x.CategoryId,
-                        principalTable: "ProductCategories",
+                        principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductCategoriesJoinTable_Products_ProductId",
+                        name: "FK_ProductCategories_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
@@ -207,41 +214,7 @@ namespace WriteService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductReviews",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Rating = table.Column<int>(type: "integer", nullable: false),
-                    Text = table.Column<string>(type: "text", nullable: false),
-                    ProductId = table.Column<long>(type: "bigint", nullable: false),
-                    CustomerId = table.Column<long>(type: "bigint", nullable: false),
-                    ProductEntityId = table.Column<long>(type: "bigint", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductReviews", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProductReviews_Customers_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProductReviews_Products_ProductEntityId",
-                        column: x => x.ProductEntityId,
-                        principalTable: "Products",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_ProductReviews_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductSubCategoriesJoinTable",
+                name: "ProductSubCategories",
                 columns: table => new
                 {
                     ProductId = table.Column<long>(type: "bigint", nullable: false),
@@ -249,15 +222,43 @@ namespace WriteService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductSubCategoriesJoinTable", x => new { x.ProductId, x.SubCategoryId });
+                    table.PrimaryKey("PK_ProductSubCategories", x => new { x.ProductId, x.SubCategoryId });
                     table.ForeignKey(
-                        name: "FK_ProductSubCategoriesJoinTable_ProductSubCategories_SubCateg~",
-                        column: x => x.SubCategoryId,
-                        principalTable: "ProductSubCategories",
+                        name: "FK_ProductSubCategories_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductSubCategoriesJoinTable_Products_ProductId",
+                        name: "FK_ProductSubCategories_SubCategories_SubCategoryId",
+                        column: x => x.SubCategoryId,
+                        principalTable: "SubCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Reviews",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Rating = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false),
+                    ProductId = table.Column<long>(type: "bigint", nullable: false),
+                    CustomerId = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reviews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Reviews_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Reviews_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
@@ -265,13 +266,18 @@ namespace WriteService.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AddressEntity_CustomerEntityId",
-                table: "AddressEntity",
-                column: "CustomerEntityId");
+                name: "IX_Addresses_CustomerId",
+                table: "Addresses",
+                column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderProductsJoinTable_ProductId",
-                table: "OrderProductsJoinTable",
+                name: "IX_OrderProducts_OrderId",
+                table: "OrderProducts",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderProducts_ProductId",
+                table: "OrderProducts",
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
@@ -280,23 +286,8 @@ namespace WriteService.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductCategoriesJoinTable_ProductId",
-                table: "ProductCategoriesJoinTable",
-                column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductReviews_CustomerId",
-                table: "ProductReviews",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductReviews_ProductEntityId",
-                table: "ProductReviews",
-                column: "ProductEntityId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductReviews_ProductId",
-                table: "ProductReviews",
+                name: "IX_ProductCategories_ProductId",
+                table: "ProductCategories",
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
@@ -305,39 +296,49 @@ namespace WriteService.Migrations
                 column: "VendorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductSubCategories_ProductCategoryEntityId",
+                name: "IX_ProductSubCategories_SubCategoryId",
                 table: "ProductSubCategories",
-                column: "ProductCategoryEntityId");
+                column: "SubCategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductSubCategoriesJoinTable_SubCategoryId",
-                table: "ProductSubCategoriesJoinTable",
-                column: "SubCategoryId");
+                name: "IX_Reviews_CustomerId",
+                table: "Reviews",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reviews_ProductId",
+                table: "Reviews",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubCategories_CategoryId",
+                table: "SubCategories",
+                column: "CategoryId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AddressEntity");
+                name: "Addresses");
 
             migrationBuilder.DropTable(
-                name: "OrderProductsJoinTable");
+                name: "OrderProducts");
 
             migrationBuilder.DropTable(
-                name: "ProductCategoriesJoinTable");
+                name: "ProductCategories");
 
             migrationBuilder.DropTable(
-                name: "ProductReviews");
+                name: "ProductSubCategories");
 
             migrationBuilder.DropTable(
-                name: "ProductSubCategoriesJoinTable");
+                name: "Reviews");
 
             migrationBuilder.DropTable(
                 name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "ProductSubCategories");
+                name: "SubCategories");
 
             migrationBuilder.DropTable(
                 name: "Products");
@@ -346,7 +347,7 @@ namespace WriteService.Migrations
                 name: "Customers");
 
             migrationBuilder.DropTable(
-                name: "ProductCategories");
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Vendors");

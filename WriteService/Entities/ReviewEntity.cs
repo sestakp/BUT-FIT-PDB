@@ -6,6 +6,9 @@ public class ReviewEntity : EntityBase
     public required string Text { get; init; }
 
     // Foreign keys
+    public ProductEntity Product { get; init; } = null!;
     public long ProductId { get; init; }
+
+    public CustomerEntity Customer { get; init; } = null!;
     public long CustomerId { get; init; }
 }
