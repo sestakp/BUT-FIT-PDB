@@ -1,5 +1,6 @@
 ﻿using Common.RabbitMQ;
 using Common.RabbitMQ.Messages;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using RabbitMQ.Client;
 using ReadService.Data;
@@ -41,8 +42,31 @@ public class ReviewSubscriber : RabbitMQReceiver<ReviewSubscriber>
             }
             
 
-            // TODO: calculate real value
-            var newTotalRating = Math.Round((new Random()).NextDouble() * 5, 1);
+            var filter = Builders<Review>
+                .Filter
+                .Eq(r => r.ProductId, data.ProductId);
+
+            var aggregationResult = database
+                .Collection<Review>()
+                .Aggregate()
+                .Match(filter)
+                .Group(new BsonDocument 
+                { 
+                    { "_id", "$productId" },
+                    { "averageRating", new BsonDocument("$avg", "$rating") }
+                });
+
+            var newTotalRating = -1.0;
+
+            var res = aggregationResult.FirstOrDefault();
+            if (res is null)
+            {
+                _logger.LogError("Unable to calculate total rating.");
+            }
+            else
+            {
+                newTotalRating = res["averageRating"].AsDouble;
+            }
 
             // Update Rating on collections which contain product identified by data.ProductId
             {
