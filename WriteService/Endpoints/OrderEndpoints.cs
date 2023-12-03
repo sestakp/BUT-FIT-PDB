@@ -14,13 +14,13 @@ public static class OrderEndpoints
         gb.MapPost("{orderId:long}/add-to-cart/{productId:long}", AddProductToCartAsync);
         gb.MapPut("{orderId:long}/complete", CompleteOrderAsync);
     }
-    
+
     private static async Task<IResult> CreateOrderAsync(
         [FromBody] CreateOrderDto dto,
         [FromServices] OrderService orderService)
     {
         var order = await orderService.CreateAsync(dto.CustomerId);
-        
+
         return Results.Ok(order.Id);
     }
 

@@ -52,7 +52,7 @@ public class ProductService
 
             var categories = LoadEntities<ProductCategoryEntity>(dto.Categories);
             var subCategories = LoadEntities<ProductSubCategoryEntity>(dto.SubCategories);
-            
+
 
 
             product.Categories.AddRange(categories);
@@ -152,7 +152,7 @@ public class ProductService
             product.IsDeleted = true;
 
             _context.Update(product);
-            
+
             var reviews = _context.ProductReviews.Where(r => r.ProductId == productId);
             _context.RemoveRange(reviews);
 

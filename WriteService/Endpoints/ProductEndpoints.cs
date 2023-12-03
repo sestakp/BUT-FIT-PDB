@@ -23,7 +23,7 @@ public static class ProductEndpoints
         [FromServices] IMapper mapper)
     {
         var product = await productService.CreateAsync(dto);
-        
+
 
 
 

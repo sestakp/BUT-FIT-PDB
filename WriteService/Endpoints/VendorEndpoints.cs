@@ -44,7 +44,7 @@ public static class VendorEndpoints
     {
         var vendor = await vendorService.UpdateAsync(vendorId, dto);
         var responseDto = mapper.Map<VendorDto>(vendor);
-    
+
         // TODO: add uri from query service
         return Results.Ok(responseDto);
     }

@@ -7,7 +7,7 @@ public sealed record Category
 {
 
     [BsonId]
-    private ObjectId Id { get ; set; }
+    private ObjectId Id { get; set; }
     [BsonElement("name")]
     public required string Name { get; set; }
 

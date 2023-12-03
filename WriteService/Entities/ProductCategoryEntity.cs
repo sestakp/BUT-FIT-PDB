@@ -2,7 +2,7 @@
 
 namespace WriteService.Entities;
 
-public class ProductCategoryEntity : EntityBase , INormalizedName
+public class ProductCategoryEntity : EntityBase, INormalizedName
 {
     public required string Name { get; set; }
     public required string Description { get; set; }

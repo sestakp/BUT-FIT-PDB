@@ -77,10 +77,10 @@ public class OrderService
         {
             throw new Exception("Specified product is out of stock.");
         }
-        
+
         order.Products.Add(product);
         order.LastUpdated = DateTime.UtcNow;
-        
+
         _context.Update(order);
 
         await _context.SaveChangesAsync();

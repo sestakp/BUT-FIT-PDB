@@ -101,7 +101,7 @@ public class CustomerService
             {
                 throw new EntityNotFoundException(customerId);
             }
-            
+
 
             const string anonymizationValue = "anonymized";
 
@@ -204,7 +204,7 @@ public class CustomerService
             address.City = dto.City;
             address.Street = dto.Street;
             address.HouseNumber = dto.HouseNumber;
-            
+
 
             _context.Update(address);
 

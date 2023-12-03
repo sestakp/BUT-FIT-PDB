@@ -92,7 +92,7 @@ public class SubCategoryService
                 Description = dto.Description,
                 Name = dto.Name,
                 CategoryId = category.Id
-                
+
             };
 
             _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.ProductSubCategory, message);
@@ -107,16 +107,16 @@ public class SubCategoryService
     {
         await using (var transaction = await _context.Database.BeginTransactionAsync())
         {
-            
+
             var subCategory = await _context.ProductSubCategories.FindAsync(subCategoryId);
             if (subCategory is null)
             {
                 throw new EntityNotFoundException(subCategoryId);
             }
 
-            
 
-            
+
+
             if (subCategory.Category.Id != dto.CategoryId)
             {
                 var category = await _context.ProductCategories.FindAsync(dto.CategoryId);
@@ -173,10 +173,10 @@ public class SubCategoryService
             {
                 throw new EntityNotFoundException(subCategoryId);
             }
-            
+
             var products = _context.Products.Where(p => p.SubCategories.Contains(subCategory));
 
-            foreach(var product in products)
+            foreach (var product in products)
             {
                 product.SubCategories.Remove(subCategory);
                 _context.Update(product);

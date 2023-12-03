@@ -20,7 +20,7 @@ using Xunit;
 namespace CQRS.EndToEndTests.Tests;
 
 public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadService.Program>>,
-    IClassFixture<WriteServiceWebApplicationFactory<WriteService.Program>>, 
+    IClassFixture<WriteServiceWebApplicationFactory<WriteService.Program>>,
     IClassFixture<EntityFactory>
 {
     private readonly HttpClient _readServiceClient;
@@ -111,7 +111,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
 
 
         var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, categories.Select(c => c.NormalizedName), subCategories.Select(c => c.NormalizedName));
-        
+
         var createOrderDto = new CreateOrderDto(newCustomer.Id);
         //Act
 
@@ -132,7 +132,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         writeResponse.EnsureSuccessStatusCode();
 
 
-        await Task.Delay(TimeSpan.FromSeconds(2)); 
+        await Task.Delay(TimeSpan.FromSeconds(2));
 
         var readResponse = await _readServiceClient.GetAsync($"/api/products/{product.Id}");
 
@@ -147,9 +147,9 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         //Assert
         Assert.NotNull(readerOrders);
         Assert.NotNull(readedProduct);
-        Assert.Equal(1, readerOrders.Count);
+        Assert.Single(readerOrders);
         Assert.Equal(product.PricesInStock - 1, readedProduct.PiecesInStock);
-        Assert.Equal(1, readerOrders.First().Products.Count());
+        Assert.Single(readerOrders.First().Products);
     }
 
 
@@ -166,7 +166,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         var newVendor = await _entityFactory.CreateVendor(_writeServiceClient);
 
         var category = await _entityFactory.CreateCategory(_writeServiceClient);
-        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, new List<string>{ category.NormalizedName }, new List<string>());
+        var product = await _entityFactory.CreateProduct(_writeServiceClient, newVendor.Id, new List<string> { category.NormalizedName }, new List<string>());
 
 
 
@@ -175,7 +175,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
         var writeResponse1 = await _writeServiceClient.PostAsJsonAsync("/api/orders", createOrderDto);
         writeResponse1.EnsureSuccessStatusCode();
         var orderId1 = await writeResponse1.Content.ReadFromJsonAsync<long>();
-        
+
         writeResponse1 = await _writeServiceClient.PostAsync($"/api/orders/{orderId1}/add-to-cart/{product.Id}", null);
         writeResponse1.EnsureSuccessStatusCode();
 
@@ -203,7 +203,7 @@ public class OrderTests : IClassFixture<ReadServiceWebApplicationFactory<ReadSer
 
         //Assert
         Assert.Equal(HttpStatusCode.InternalServerError, writeResponse2.StatusCode);
-        
+
 
     }
 

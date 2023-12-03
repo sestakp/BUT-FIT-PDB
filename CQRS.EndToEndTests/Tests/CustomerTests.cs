@@ -12,7 +12,7 @@ using WriteService.DTOs.Customer;
 using Xunit;
 
 namespace CQRS.EndToEndTests.Tests;
-public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<ReadService.Program>>, 
+public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<ReadService.Program>>,
     IClassFixture<WriteServiceWebApplicationFactory<WriteService.Program>>,
     IClassFixture<EntityFactory>
 {
@@ -20,7 +20,7 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
     private readonly HttpClient _writeServiceClient;
     private readonly EntityFactory _entityFactory;
 
-    public CustomerTests(ReadServiceWebApplicationFactory<ReadService.Program> readServiceFactory, 
+    public CustomerTests(ReadServiceWebApplicationFactory<ReadService.Program> readServiceFactory,
         WriteServiceWebApplicationFactory<WriteService.Program> writeServiceFactory, EntityFactory entityFactory)
     {
         _readServiceClient = readServiceFactory.CreateClient();
@@ -61,9 +61,9 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
         var writeResponse2 = await _writeServiceClient.PostAsJsonAsync($"/api/customers/{customerResponse.Id}/addresses", addressDto);
 
         await Task.Delay(TimeSpan.FromSeconds(2));
-        
+
         var readResponse = await _readServiceClient.GetAsync("/api/customers");
-        
+
         var readCustomers = await readResponse.Content.ReadFromJsonAsync<List<Customer>>();
 
         // Assert
@@ -75,7 +75,7 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
         Assert.NotNull(readCustomers);
         Assert.NotNull(addressResponse);
 
-        Assert.True(readCustomers.Any(c =>
+        Assert.Contains(readCustomers, c =>
             c.FirstName == customerDto.FirstName &&
             c.LastName == customerDto.LastName &&
             c.PhoneNumber == customerDto.PhoneNumber &&
@@ -87,7 +87,7 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
             c.Addresses.ElementAt(0).Street == addressResponse.Street &&
             c.Addresses.ElementAt(0).HouseNumber == addressResponse.HouseNumber &&
             c.Addresses.ElementAt(0).Id == addressResponse.Id
-        ));
+);
 
         ;
 
@@ -158,7 +158,7 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
 
         var updatedAddress = addresses.Last();
         Assert.NotNull(updatedAddress);
-        
+
 
         var updateDto = new UpdateAddressDto(updatedAddress.Country + "_UPDATED",
             updatedAddress.ZipCode + "_UPDATED",
@@ -181,8 +181,8 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
 
         //Assert
         Assert.NotNull(readCustomer);
-        Assert.True(readCustomer.Addresses.Any(c => c.ZipCode == "Test Zip Code1"));
-        Assert.True(readCustomer.Addresses.Any(c => c.City.Contains("_UPDATED") && c.Id == updatedAddress.Id));
+        Assert.Contains(readCustomer.Addresses, c => c.ZipCode == "Test Zip Code1");
+        Assert.Contains(readCustomer.Addresses, c => c.City.Contains("_UPDATED") && c.Id == updatedAddress.Id);
 
         Assert.Equal(10, readCustomer.Addresses.Count);
 
@@ -230,7 +230,7 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
         //Assert
         Assert.NotNull(readCustomer);
         Assert.False(readCustomer.Addresses.Any(c => c.ZipCode == "Test Zip Code0"));
-        Assert.True(readCustomer.Addresses.Any(c => c.ZipCode == "Test Zip Code1"));
+        Assert.Contains(readCustomer.Addresses, c => c.ZipCode == "Test Zip Code1");
         Assert.Equal(9, readCustomer.Addresses.Count);
 
     }
@@ -249,7 +249,7 @@ public class CustomerTests : IClassFixture<ReadServiceWebApplicationFactory<Read
 
         var readResponse = await _readServiceClient.GetAsync($"/api/customers/{newCustomer.Id}");
 
-        
+
         //Assert
 
         Assert.Equal(HttpStatusCode.NotFound, readResponse.StatusCode);

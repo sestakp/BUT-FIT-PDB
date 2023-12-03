@@ -45,7 +45,7 @@ public class CategoryService
                 Id = entity.Id,
                 Description = dto.Description,
                 Name = dto.Name
-                
+
             };
 
             _producer.SendMessageAsync(RabbitMQOperation.Create, RabbitMQEntities.ProductCategory, message);
@@ -69,7 +69,7 @@ public class CategoryService
             // We do not allow updating email and phone number
             entity.Description = dto.Description;
             entity.Name = dto.Name;
-            
+
 
             _context.Update(entity);
 
@@ -103,14 +103,14 @@ public class CategoryService
 
             var products = _context.Products.Where(p => p.Categories.Contains(category));
 
-            foreach(var product in products)
+            foreach (var product in products)
             {
                 product.Categories.Remove(category);
                 _context.Update(product);
             }
 
             _context.Remove(category);
-            
+
 
             await _context.SaveChangesAsync();
 

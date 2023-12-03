@@ -87,7 +87,7 @@ public class Program
 
                 cfg.CreateMap<ProductEntity, OrderProductRabbit>();
 
-                
+
             });
 
             var mapper = mapperConfig.CreateMapper();
@@ -108,7 +108,7 @@ public class Program
             // app.MapCategoryEndpoints();
             // app.MapSubCategoryEndpoints();
         }
-        
+
         if (args.Length > 0 && args[0] == "--seed")
         {
             SeedDatabase(app);

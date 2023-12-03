@@ -12,5 +12,5 @@ public sealed record OrderCompletedMessage : MessageBase
     public required string AddressHouseNumber { get; init; }
     public required IEnumerable<OrderProductRabbit> Products { get; init; }
     public required DateTime DateTimeCreated { get; init; }
-    
+
 }

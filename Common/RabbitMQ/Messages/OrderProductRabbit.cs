@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Common.RabbitMQ.Messages;
 
-    public record OrderProductRabbit(
-        long Id,
-        string Title,
-        string Description,
-        decimal Price,
-        string Vendor);
-
+public record OrderProductRabbit(
+    long Id,
+    string Title,
+    string Description,
+    decimal Price,
+    string Vendor);

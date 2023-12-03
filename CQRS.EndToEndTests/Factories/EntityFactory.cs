@@ -101,7 +101,7 @@ public class EntityFactory
         return newSubCategory;
     }
 
-    
+
     public async Task<ProductDto> CreateProduct(HttpClient writeServiceClient, long vendorId, IEnumerable<string> categories, IEnumerable<string> subcategories)
     {
         var productDto = new CreateProductDto("Product Title",
@@ -120,6 +120,6 @@ public class EntityFactory
 
         return newProduct;
     }
-    
+
 
 }

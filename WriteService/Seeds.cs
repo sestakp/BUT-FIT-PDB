@@ -240,5 +240,5 @@ public static class Seeds
         category.SubCategories.Add(subCategory2);
         category.SubCategories.Add(subCategory3);
     }
-    
+
 }
