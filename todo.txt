@@ -1,6 +1,0 @@
-TODO:
-
-- Upravit dokumnetáciu podľa implementácie
-
-- Celé to otestovať
-- Nachystat postmana na demo + nachystať JSON s dátami na demo
