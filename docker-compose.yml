@@ -12,6 +12,7 @@ services:
       - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+    restart: unless-stopped
 
   read-service:
     build:
@@ -25,6 +26,7 @@ services:
       - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+    restart: unless-stopped
 
   rabbitmq:
     image: "rabbitmq:management"
