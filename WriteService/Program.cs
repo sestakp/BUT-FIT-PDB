@@ -113,6 +113,8 @@ public class Program
         Console.WriteLine(rabbitMqConfiguration);
         Console.WriteLine(databaseConfiguration);
 
+        UpdateDatabase(app);
+
         if (args.Length > 0 && args[0] == "--seed")
         {
             SeedDatabase(app);
@@ -121,11 +123,27 @@ public class Program
         app.Run();
     }
 
+    private static void UpdateDatabase(WebApplication app)
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ShopDbContext>();
+            db.Database.Migrate();
+        }
+    }
+
     private static void SeedDatabase(WebApplication app)
     {
         using (var scope = app.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ShopDbContext>();
+
+            // Do not apply database seeds if database is not empty
+            if (dbContext.Categories.Any())
+            {
+                return;
+            }
+
             Seeds.ApplyDatabaseSeeds(dbContext);
             dbContext.SaveChanges();
         }

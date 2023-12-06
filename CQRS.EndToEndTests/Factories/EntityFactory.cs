@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
-using ReadService.Data.Models;
+﻿using System.Net.Http.Json;
 using WriteService.DTOs.Address;
 using WriteService.DTOs.Category;
 using WriteService.DTOs.Customer;

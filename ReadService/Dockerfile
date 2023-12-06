@@ -19,4 +19,4 @@ RUN dotnet publish "ReadService.csproj" -c Release -o /app/publish /p:UseAppHost
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "ReadService.dll"]
+ENTRYPOINT ["dotnet", "ReadService.dll", "--seed"]

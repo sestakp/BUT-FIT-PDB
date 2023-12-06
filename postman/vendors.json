@@ -1,0 +1,26 @@
+[
+  {
+    "name": "ABC Electronics",
+    "country": "United States",
+    "zipCode": "12345",
+    "city": "New York",
+    "street": "Broadway",
+    "houseNumber": "456"
+  },
+  {
+    "name": "XYZ Hardware",
+    "country": "Canada",
+    "zipCode": "A1B 2C3",
+    "city": "Toronto",
+    "street": "Main Street",
+    "houseNumber": "789"
+  },
+  {
+    "name": "Sportisimo",
+    "country": "United Kingdom",
+    "zipCode": "SW1A 1AA",
+    "city": "London",
+    "street": "Oxford Street",
+    "houseNumber": "101"
+  }
+]

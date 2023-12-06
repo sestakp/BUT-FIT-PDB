@@ -40,5 +40,4 @@ There is an option to run services with `--seed` flag (`dotnet run --seed`). In 
 
 Important notes:
 
-- There is no validation if your database is empty before seeding.
-- Database seeds are not applied when running services via docker compose.
+- Database seeds are applied only when database is empty.

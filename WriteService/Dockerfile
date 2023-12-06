@@ -19,4 +19,4 @@ RUN dotnet publish "WriteService.csproj" -c Release -o /app/publish /p:UseAppHos
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "WriteService.dll"]
+ENTRYPOINT ["dotnet", "WriteService.dll", "--seed"]
