@@ -1,0 +1,47 @@
+[
+  {
+    "title": "iPhone 13 Pro",
+    "description": "The latest and most advanced smartphone from Apple.",
+    "pricesInStock": 100,
+    "price": 999.99,
+    "vendorId": 1,
+    "categories": ["electronics"],
+    "subCategories": ["smartphones"]
+  },
+  {
+    "title": "MacBook Air",
+    "description": "High-performance and portable laptop with M1 chip.",
+    "pricesInStock": 50,
+    "price": 1299.99,
+    "vendorId": 1,
+    "categories": ["electronics"],
+    "subCategories": ["laptops"]
+  },
+  {
+    "title": "Samsung French Door Refrigerator",
+    "description": "Spacious and energy-efficient refrigerator for your kitchen.",
+    "pricesInStock": 75,
+    "price": 1799.99,
+    "vendorId": 2,
+    "categories": ["home-appliances"],
+    "subCategories": ["kitchen-appliances"]
+  },
+  {
+    "title": "Whirlpool Front Load Washer",
+    "description": "High-capacity front load washer for efficient laundry.",
+    "pricesInStock": 40,
+    "price": 899.99,
+    "vendorId": 2,
+    "categories": ["home-appliances"],
+    "subCategories": ["laundry-appliances"]
+  },
+  {
+    "title": "Indoor Cycling Bike",
+    "description": "A sturdy and adjustable indoor cycling bike for your home workouts.",
+    "pricesInStock": 30,
+    "price": 499.99,
+    "vendorId": 2,
+    "categories": ["fitness"],
+    "subCategories": ["gym"]
+  }
+]

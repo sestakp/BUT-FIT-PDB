@@ -202,7 +202,7 @@ public static class Seeds
         {
             Name = "Gym Equipment",
             Description = "Equipment for gym workouts like weights and machines",
-            NormalizedName = "gym-equipment",
+            NormalizedName = "gym",
             Category = category
         };
 
@@ -212,7 +212,7 @@ public static class Seeds
         {
             Name = "Yoga Accessories",
             Description = "Accessories for yoga, including mats, blocks, and straps",
-            NormalizedName = "yoga-accessories",
+            NormalizedName = "yoga",
             Category = category
         };
 
@@ -221,7 +221,7 @@ public static class Seeds
         {
             Name = "Outdoor Fitness",
             Description = "Equipment for outdoor fitness activities, such as running gear and bicycles",
-            NormalizedName = "outdoor-fitness",
+            NormalizedName = "outdoor",
             Category = category
         };
 

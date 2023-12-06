@@ -1,59 +1,74 @@
 # READ API OPERATIONS AND THEIR PROJECTION IN READ SERVICE:
 
-POST	/api/customers - CreateCustomerMessage ✅️
+POST	
+/api/customers - CreateCustomerMessage ✅️
 	- Customers
 
-PUT	/api/customers/{customerId} - UpdateCustomerMessage ✅️
+PUT	
+/api/customers/{customerId} - UpdateCustomerMessage ✅️
 	- Customers
 
-DELETE	/api/customers/{customerId} ✅️
+DELETE	
+/api/customers/{customerId} ✅️
 	- Customers
 	- Orders - zmazanie všetkých objednávok daného customera
 
-POST	/api/customers/{customerId}/addresses - AddCustomerAddressMessage ✅️
+POST	
+/api/customers/{customerId}/addresses - AddCustomerAddressMessage ✅️
 	- Customers
 
-PUT	/api/customers/{customerId}/addresses/{addressId} - UpdateCustomerAddressMessage ✅️
+PUT	
+/api/customers/{customerId}/addresses/{addressId} - UpdateCustomerAddressMessage ✅️
 	- Customers
 
-DELETE	/api/customers/{customerId}/addresses/{addressId} - DeleteCustomerAddressMessage ✅️
+DELETE	
+/api/customers/{customerId}/addresses/{addressId} - DeleteCustomerAddressMessage ✅️
 	- Customers
 
-POST	/api/orders ❓️
+POST	
+/api/orders  ✅️
 
-POST	/api/orders/{orderId}/add-to-cart/{productId} ❓️
+POST	
+/api/orders/{orderId}/add-to-cart/{productId}  ✅️
 
-PUT	/api/orders/{orderId}/complete - OrderCompletedMessage ❓️
+PUT
+/api/orders/{orderId}/complete - OrderCompletedMessage  ✅️
 	- Orders
 
-POST	/api/products - CreateProductMessage ✅️
+POST
+/api/products - CreateProductMessage ✅️
 	- Products
 	- Products of category
 	- Products of subcategory
 	- Vendors - lebo pri vytvarani productu sa špecifikuju kategories a vendor ma na sebe všetky catgories kt. ponúka
 
-POST	/api/products/{productId}/reviews - CreateReviewMessage ✅️ - TESTING REQUIRED
+POST
+/api/products/{productId}/reviews - CreateReviewMessage ✅️
 	- Reviews
 	- Products - lebo tam je rating
 	- Products of category - lebo tam je rating
 	- Products of subcategory - lebo tam je rating
 
-DELETE	/api/products/{productId} - DeleteProductMessage ✅️ - TESTING REQUIRED
+DELETE
+/api/products/{productId} - DeleteProductMessage ✅️
 	- Products
 	- Products of category
 	- Products of subcategory
 	- Reviews
 
-POST	/api/vendors - CreateVendorMessage ✅️
+POST
+/api/vendors - CreateVendorMessage ✅️
 	- Vendors
 
-PUT	/api/vendors/{vendorId} ✅️
+PUT
+/api/vendors/{vendorId} ✅️
 	- Vendors
 	- Products - lebo tam je embedded vendor v ramci kt. je meno
 	- Products of category - lebo tam je embedded vendor v ramci kt. je meno
 	- Products of subcategory - lebo tam je embedded vendor v ramci kt. je meno
 
-DELETE	/api/vendors/{vendorId} ✅️
+DELETE
+/api/vendors/{vendorId} ✅️
 	- Vendors
 	- Products - treba pomazať všetky jeho produkty
 	- Products of category - treba pomazať všetky jeho produkty
@@ -80,3 +95,15 @@ DELETE	/api/vendors/{vendorId} ✅️
 - SQL database tables
 	- Categories
 	- SubCategories
+
+# URLs:
+
+When running via docker compose:
+
+Read:  http://localhost:5002/swagger/index.html
+Write: http://localhost:5000/swagger/index.html
+
+When running locally:
+
+Read:  http://localhost:5248/swagger/index.html
+Write: http://localhost:5009/swagger/index.html
