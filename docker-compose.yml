@@ -1,32 +1,32 @@
 version: '3'
 services:
-  # write-service:
-  #   build:
-  #     context: .
-  #     dockerfile: WriteService/Dockerfile
-  #   ports:
-  #     - "5000:80"   # Adjust the port as needed
-  #     - "5001:443"  # Adjust the port as needed
-  #   depends_on:
-  #     - postgres
-  #     - rabbitmq
-  #   environment:
-  #     - ASPNETCORE_ENVIRONMENT=Production
-  #   restart: unless-stopped
+  write-service:
+    build:
+      context: .
+      dockerfile: WriteService/Dockerfile
+    ports:
+      - "5000:80"   # Adjust the port as needed
+      - "5001:443"  # Adjust the port as needed
+    depends_on:
+      - postgres
+      - rabbitmq
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    restart: unless-stopped
 
-  # read-service:
-  #   build:
-  #     context: .
-  #     dockerfile: ReadService/Dockerfile
-  #   ports:
-  #     - "5002:80"  # Adjust the port as needed
-  #     - "5003:80"  # Adjust the port as needed
-  #   depends_on:
-  #     - mongodb
-  #     - rabbitmq
-  #   environment:
-  #     - ASPNETCORE_ENVIRONMENT=Production
-  #   restart: unless-stopped
+  read-service:
+    build:
+      context: .
+      dockerfile: ReadService/Dockerfile
+    ports:
+      - "5002:80"  # Adjust the port as needed
+      - "5003:80"  # Adjust the port as needed
+    depends_on:
+      - mongodb
+      - rabbitmq
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    restart: unless-stopped
 
   rabbitmq:
     image: "rabbitmq:management"

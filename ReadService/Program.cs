@@ -4,6 +4,7 @@ using Common.RabbitMQ;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using ReadService.Data;
+using ReadService.Data.Models;
 using ReadService.Subscribers;
 
 namespace ReadService;
@@ -95,6 +96,13 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var database = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
+
+            // Do not apply database seeds if database is not empty
+            if (database.Collection<Category>().AsQueryable().Any())
+            {
+                return;
+            }
+
             Seeds.ApplyDatabaseSeeds(database);
         }
     }
